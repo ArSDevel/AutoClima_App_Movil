@@ -11,12 +11,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.example.myapplication.data.local.AppDatabase // Asegúrate de que coincida con tu paquete de base de datos
+import com.example.myapplication.data.local.dao.TecnicoDao
 import com.example.myapplication.ui.dashboard.DashboardScreen
 import com.example.myapplication.ui.login.LoginScreen
 import com.example.myapplication.ui.login.LoginViewModel
@@ -57,8 +62,24 @@ class MainActivity : ComponentActivity() {
  */
 @Composable
 fun AutoClimaApp() {
-    // Instancia del ViewModel sin necesidad de fábrica o repositorio
-    val loginViewModel: LoginViewModel = viewModel()
+    // 1. Obtener el contexto actual de la aplicación
+    val contexto = LocalContext.current
+
+    // 2. Obtener la instancia de la base de datos y su respectivo DAO
+    // NOTA: Ajusta el método si en tu AppDatabase usas una función Singleton personalizada (ej. AppDatabase.getInstance(contexto))
+    val baseDeDatos = AppDatabase.getInstance(contexto)
+    val tecnicoDao = baseDeDatos.tecnicoDao()
+
+    // 3. Crear una fábrica (Factory) para inyectar de forma segura el DAO a tu LoginViewModel
+    val loginViewModel: LoginViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return LoginViewModel(tecnicoDao) as T
+            }
+        }
+    )
+
     val uiState by loginViewModel.uiState.collectAsStateWithLifecycle()
 
     // Pila de navegación iniciando en LoginRoute
