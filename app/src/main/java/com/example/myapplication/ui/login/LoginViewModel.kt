@@ -87,7 +87,7 @@ class LoginViewModel(private val tecnicoDao: TecnicoDao) : ViewModel() {
                 if (tecnico != null) {
                     // 2. Si existe, verificamos la contraseña ingresada contra el Hash guardado
                     // NOTA: Si tu función en util se llama de otra forma (ej. checkPassword), adáptala aquí
-                    val esPasswordCorrecto = PasswordHasher.checkPassword(passwordActual, tecnico.passwordHash)
+                    val esPasswordCorrecto = PasswordHasher.hash(passwordActual) == tecnico.passwordHash
 
                     if (esPasswordCorrecto) {
                         // Login exitoso
