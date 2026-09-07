@@ -5,21 +5,30 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.myapplication.data.local.dao.ClienteDao
+import com.example.myapplication.data.local.dao.IngresoDao
 import com.example.myapplication.data.local.dao.TecnicoDao
+import com.example.myapplication.data.local.dao.VehiculoDao
+import com.example.myapplication.data.local.entity.Cliente
+import com.example.myapplication.data.local.entity.Ingreso
 import com.example.myapplication.data.local.entity.Tecnico
+import com.example.myapplication.data.local.entity.Vehiculo
 import com.example.myapplication.util.PasswordHasher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [Tecnico::class],
-    version = 1,
+    entities = [Tecnico::class, Cliente::class, Vehiculo::class, Ingreso::class],
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun tecnicoDao(): TecnicoDao
+    abstract fun clienteDao(): ClienteDao
+    abstract fun vehiculoDao(): VehiculoDao
+    abstract fun ingresoDao(): IngresoDao
 
     companion object {
         @Volatile
@@ -32,6 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "autoclima_diag.db"
                 )
+                    .fallbackToDestructiveMigration()
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
