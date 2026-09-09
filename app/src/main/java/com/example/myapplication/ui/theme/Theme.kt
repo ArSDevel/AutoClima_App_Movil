@@ -103,6 +103,7 @@ fun MyApplicationTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = AutoClimasShapes,
         content = content
     )
 }

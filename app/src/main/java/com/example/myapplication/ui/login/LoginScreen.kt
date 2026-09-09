@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -34,9 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -44,9 +42,12 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.ui.theme.AutoClimasGradients
+import androidx.compose.ui.res.stringResource
+import com.example.myapplication.R
+import com.example.myapplication.ui.theme.AutoClimasWhite
 
 /**
  * Pantalla principal de Inicio de Sesión que conecta el ViewModel con la interfaz.
@@ -88,25 +89,18 @@ fun LoginContent(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Colores normalizados, bordes y tipografia para la UI
+    val colors = MaterialTheme.colorScheme
+    val shapes = MaterialTheme.shapes
+    val typography = MaterialTheme.typography
     // Estado local para alternar la visibilidad del texto de la contraseña
     var passwordVisible by remember { mutableStateOf(false) }
 
     // Fondo con degradado azul vertical
-    val backgroundGradient = Brush.verticalGradient(
-        colors = listOf(
-            Color(0xFF3B82F6), // Azul claro
-            Color(0xFF1D4ED8), // Azul medio
-            Color(0xFF0F172A)  // Azul marino
-        )
-    )
+    val backgroundGradient = AutoClimasGradients.loginBackground
 
     // Degradado horizontal para el botón de acción
-    val buttonGradient = Brush.horizontalGradient(
-        colors = listOf(
-            Color(0xFF2563EB),
-            Color(0xFF1D4ED8)
-        )
-    )
+    val buttonGradient = AutoClimasGradients.primaryButton
 
     Box(
         modifier = modifier
@@ -116,9 +110,10 @@ fun LoginContent(
     ) {
         // Tarjeta central redondeada
         Card(
-            shape = RoundedCornerShape(32.dp),
+            shape = shapes.extraLarge,
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFEEF5FF)
+                containerColor = colors.surfaceVariant,
+                contentColor = colors.onSurface
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 10.dp
@@ -126,7 +121,7 @@ fun LoginContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
-                .shadow(elevation = 12.dp, shape = RoundedCornerShape(32.dp))
+                .shadow(elevation = 12.dp, shape = shapes.extraLarge)
         ) {
             Column(
                 modifier = Modifier
@@ -136,23 +131,27 @@ fun LoginContent(
             ) {
                 // Título del formulario
                 Text(
-                    text = "Iniciar Sesión",
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 26.sp
-                    ),
-                    color = Color(0xFF1E293B),
+                    text = stringResource(R.string.login_title),
+                    style = typography.headlineMedium,
+                    color = colors.onSurface,
                     textAlign = TextAlign.Center
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                // Linea decorativa
+                Spacer(modifier = Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(4.dp)
+                        .clip(shapes.extraSmall)
+                        .background(colors.secondary)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "Ingresa tus credenciales para continuar",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        fontSize = 14.sp
-                    ),
-                    color = Color(0xFF64748B),
+                    text = stringResource(R.string.login_description),
+                    style = typography.bodyMedium,
+                    color = colors.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
 
@@ -163,12 +162,9 @@ fun LoginContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "ID de Usuario",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        ),
-                        color = Color(0xFF334155)
+                        text = stringResource(R.string.login_username_label),
+                        style = typography.labelLarge,
+                        color = colors.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -176,10 +172,12 @@ fun LoginContent(
                     OutlinedTextField(
                         value = uiState.id,
                         onValueChange = onIdChanged,
+                        textStyle = typography.bodyLarge,
                         placeholder = {
                             Text(
-                                text = "Ej. 01",
-                                color = Color(0xFF94A3B8)
+                                text = stringResource(R.string.login_username_placeholder),
+                                style = typography.bodyLarge,
+                                color = colors.onSurfaceVariant
                             )
                         },
                         singleLine = true,
@@ -188,16 +186,19 @@ fun LoginContent(
                             keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
                         ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = shapes.small,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF1F5F9),
-                            unfocusedContainerColor = Color(0xFFF1F5F9),
-                            errorContainerColor = Color(0xFFF1F5F9),
-                            focusedBorderColor = Color(0xFF2563EB),
-                            unfocusedBorderColor = Color(0xFFCBD5E1),
-                            errorBorderColor = MaterialTheme.colorScheme.error,
-                            focusedTextColor = Color(0xFF0F172A),
-                            unfocusedTextColor = Color(0xFF0F172A)
+                            focusedContainerColor = colors.background,
+                            unfocusedContainerColor = colors.background,
+                            errorContainerColor = colors.background,
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.outline,
+                            errorBorderColor = colors.error,
+                            focusedTextColor = colors.onBackground,
+                            unfocusedTextColor = colors.onBackground,
+                            errorTextColor = colors.onBackground,
+                            cursorColor = colors.primary,
+                            errorCursorColor = colors.error
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -206,8 +207,8 @@ fun LoginContent(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = uiState.idError,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
+                            color = colors.error,
+                            style = typography.bodySmall
                         )
                     }
                 }
@@ -219,12 +220,9 @@ fun LoginContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = "Contraseña",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp
-                        ),
-                        color = Color(0xFF334155)
+                        text = stringResource(R.string.login_password_label),
+                        style = typography.labelLarge,
+                        color = colors.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(6.dp))
@@ -232,10 +230,12 @@ fun LoginContent(
                     OutlinedTextField(
                         value = uiState.password,
                         onValueChange = onPasswordChanged,
+                        textStyle = typography.bodyLarge,
                         placeholder = {
                             Text(
-                                text = "Tu contraseña",
-                                color = Color(0xFF94A3B8)
+                                text = stringResource(R.string.login_password_placeholder),
+                                style = typography.bodyLarge,
+                                color = colors.onSurfaceVariant
                             )
                         },
                         singleLine = true,
@@ -245,8 +245,8 @@ fun LoginContent(
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(
                                     imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                    contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
-                                    tint = Color(0xFF64748B)
+                                    contentDescription = stringResource(if (passwordVisible) { R.string.login_hide_password } else { R.string.login_show_password }),
+                                    tint = colors.onSurfaceVariant
                                 )
                             }
                         },
@@ -254,16 +254,19 @@ fun LoginContent(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         ),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = shapes.small,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF1F5F9),
-                            unfocusedContainerColor = Color(0xFFF1F5F9),
-                            errorContainerColor = Color(0xFFF1F5F9),
-                            focusedBorderColor = Color(0xFF2563EB),
-                            unfocusedBorderColor = Color(0xFFCBD5E1),
-                            errorBorderColor = MaterialTheme.colorScheme.error,
-                            focusedTextColor = Color(0xFF0F172A),
-                            unfocusedTextColor = Color(0xFF0F172A)
+                            focusedContainerColor = colors.background,
+                            unfocusedContainerColor = colors.background,
+                            errorContainerColor = colors.background,
+                            focusedBorderColor = colors.primary,
+                            unfocusedBorderColor = colors.outline,
+                            errorBorderColor = colors.error,
+                            focusedTextColor = colors.onBackground,
+                            unfocusedTextColor = colors.onBackground,
+                            errorTextColor = colors.onBackground,
+                            cursorColor = colors.primary,
+                            errorCursorColor = colors.error
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -272,8 +275,8 @@ fun LoginContent(
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = uiState.passwordError,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp)
+                            color = colors.error,
+                            style = typography.bodySmall
                         )
                     }
                 }
@@ -283,15 +286,16 @@ fun LoginContent(
                 // Botón principal de Iniciar Sesión
                 Button(
                     onClick = onLoginClick,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = shapes.small,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent
+                        containerColor = Color.Transparent,
+                        contentColor = AutoClimasWhite
                     ),
                     contentPadding = PaddingValues(0.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(shapes.small)
                         .background(brush = buttonGradient)
                 ) {
                     Box(
@@ -299,12 +303,8 @@ fun LoginContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "Iniciar Sesión",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
-                            ),
-                            color = Color.White
+                            text = stringResource(R.string.login_button),
+                            style = typography.labelLarge
                         )
                     }
                 }

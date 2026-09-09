@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">My Application</string>
+    <!-- Inicio de sesión -->
+    <string name="login_title">Iniciar sesión</string>
+    <string name="login_description">Ingresa tus credenciales para continuar</string>
+
+    <string name="login_username_label">Usuario</string>
+    <string name="login_username_placeholder">Ingresa tu usuario</string>
+
+    <string name="login_password_label">Contraseña</string>
+    <string name="login_password_placeholder">Ingresa tu contraseña</string>
+
+    <string name="login_show_password">Mostrar contraseña</string>
+    <string name="login_hide_password">Ocultar contraseña</string>
+
+    <string name="login_button">Iniciar sesión</string>
 </resources>
