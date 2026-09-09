@@ -93,16 +93,17 @@ fun AutoClimaApp() {
     // Reacciona cuando cambia el estado de inicio de sesión
     LaunchedEffect(uiState.isLoggedIn) {
         if (uiState.isLoggedIn) {
-            val currentTop = backStack.lastOrNull()
-            if (currentTop !is DashboardRoute) {
-                backStack.add(DashboardRoute(userId = uiState.id))
+            // Al iniciar sesión, Login deja de estar en la pila
+            if (backStack.lastOrNull() !is DashboardRoute) {
+                backStack.clear()
+                backStack.add(
+                    DashboardRoute(userId = uiState.id)
+                )
             }
         } else {
-            val currentTop = backStack.lastOrNull()
-            if (currentTop !is LoginRoute) {
-                backStack.clear()
-                backStack.add(LoginRoute)
-            }
+            // Al cerrar sesión
+            backStack.clear()
+            backStack.add(LoginRoute)
         }
     }
 
