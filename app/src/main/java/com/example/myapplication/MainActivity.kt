@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -20,19 +22,21 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import androidx.room.withTransaction
 import com.example.myapplication.data.local.AppDatabase
-import com.example.myapplication.ui.dashboard.DashboardScreen
-import com.example.myapplication.ui.login.LoginScreen
-import com.example.myapplication.ui.login.LoginViewModel
-import com.example.myapplication.ui.theme.MyApplicationTheme
-import kotlinx.serialization.Serializable
-import androidx.compose.runtime.remember
-import com.example.myapplication.ui.dashboard.DashboardViewModel
-import com.example.myapplication.ui.dashboard.DashboardViewModelFactory
 import com.example.myapplication.data.local.repository.DashboardRepository
 import com.example.myapplication.data.repository.RegistroRepository
-import android.content.pm.ApplicationInfo
-import androidx.room.withTransaction
+import com.example.myapplication.ui.dashboard.DashboardMenuOption
+import com.example.myapplication.ui.dashboard.DashboardScreen
+import com.example.myapplication.ui.dashboard.DashboardViewModel
+import com.example.myapplication.ui.dashboard.DashboardViewModelFactory
+import com.example.myapplication.ui.login.LoginScreen
+import com.example.myapplication.ui.login.LoginViewModel
+import com.example.myapplication.ui.registro.RegistroScreen
+import com.example.myapplication.ui.registro.RegistroViewModel
+import com.example.myapplication.ui.registro.RegistroViewModelFactory
+import com.example.myapplication.ui.theme.MyApplicationTheme
+import kotlinx.serialization.Serializable
 
 /**
  * Definición de las rutas de navegación utilizando Navigation 3.
@@ -41,10 +45,10 @@ import androidx.room.withTransaction
 data object LoginRoute : NavKey // Ruta para la pantalla de inicio de sesión
 
 @Serializable
-data class DashboardRoute(val userId: String = "") : NavKey // Ruta para la pantalla del panel principal
+data class DashboardRoute(val userId: String = "") : NavKey // Ruta para el panel principal
 
-
-
+@Serializable
+data class RegistroRoute(val userId: String = "") : NavKey // Ruta para la pantalla de registro
 
 // Actividad principal de la aplicación.
 class MainActivity : ComponentActivity() {
@@ -64,18 +68,17 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// Composable principal que gestiona el ViewModel y la navegación entre Login y Dashboard.
+// Composable principal que gestiona los ViewModels y la navegación entre Login, Dashboard y Registro.
 @Composable
 fun AutoClimaApp() {
     // 1. Obtener el contexto actual de la aplicación
     val contexto = LocalContext.current
 
-    // 2. Obtener la instancia de la base de datos y su respectivo DAO
-    // NOTA: Ajusta el método si en tu AppDatabase usas una función Singleton personalizada (ej. AppDatabase.getInstance(contexto))
+    // 2. Obtener la instancia de la base de datos y sus DAOs
     val baseDeDatos = AppDatabase.getInstance(contexto)
     val tecnicoDao = baseDeDatos.tecnicoDao()
 
-    // 3. Crear una fábrica (Factory) para inyectar de forma segura el DAO a tu LoginViewModel
+    // 3. Crear fábrica para el LoginViewModel
     val loginViewModel: LoginViewModel = viewModel(
         factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
@@ -93,15 +96,11 @@ fun AutoClimaApp() {
     // Reacciona cuando cambia el estado de inicio de sesión
     LaunchedEffect(uiState.isLoggedIn) {
         if (uiState.isLoggedIn) {
-            // Al iniciar sesión, Login deja de estar en la pila
-            if (backStack.lastOrNull() !is DashboardRoute) {
+            if (backStack.lastOrNull() !is DashboardRoute && backStack.lastOrNull() !is RegistroRoute) {
                 backStack.clear()
-                backStack.add(
-                    DashboardRoute(userId = uiState.id)
-                )
+                backStack.add(DashboardRoute(userId = uiState.id))
             }
         } else {
-            // Al cerrar sesión
             backStack.clear()
             backStack.add(LoginRoute)
         }
@@ -125,19 +124,14 @@ fun AutoClimaApp() {
                     )
                 }
                 is DashboardRoute -> NavEntry(key) {
-                    // TEMPORAL: datos de prueba para comprobar el Dashboard.
+                    // Datos de prueba para comprobar el Dashboard en modo depuración
                     LaunchedEffect(key.userId) {
-                        val esDepuracion =
-                            (contexto.applicationInfo.flags and
-                                    ApplicationInfo.FLAG_DEBUGGABLE) != 0
+                        val esDepuracion = (contexto.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
 
                         if (esDepuracion) {
                             baseDeDatos.withTransaction {
-                                val tecnico = baseDeDatos.tecnicoDao()
-                                    .buscarPorUsuario(key.userId)
-
-                                val vehiculoExistente = baseDeDatos.vehiculoDao()
-                                    .buscarPorPlaca("DEMO-001")
+                                val tecnico = baseDeDatos.tecnicoDao().buscarPorUsuario(key.userId)
+                                val vehiculoExistente = baseDeDatos.vehiculoDao().buscarPorPlaca("DEMO-001")
 
                                 if (tecnico != null && vehiculoExistente == null) {
                                     val registroRepository = RegistroRepository(
@@ -162,7 +156,6 @@ fun AutoClimaApp() {
                         }
                     }
 
-
                     val dashboardRepository = remember(baseDeDatos) {
                         DashboardRepository(ingresoDao = baseDeDatos.ingresoDao())
                     }
@@ -170,7 +163,58 @@ fun AutoClimaApp() {
                         DashboardViewModelFactory(repository = dashboardRepository)
                     }
                     val dashboardViewModel: DashboardViewModel = viewModel(factory = dashboardFactory)
-                    DashboardScreen(viewModel = dashboardViewModel, onLogout = { loginViewModel.resetLoginState() }
+
+                    DashboardScreen(
+                        viewModel = dashboardViewModel,
+                        onLogout = { loginViewModel.resetLoginState() },
+                        onMenuSeleccionado = { opcion ->
+                            when (opcion) {
+                                DashboardMenuOption.REGISTRO -> {
+                                    if (backStack.lastOrNull() !is RegistroRoute) {
+                                        backStack.add(RegistroRoute(userId = key.userId))
+                                    }
+                                }
+                                DashboardMenuOption.DASHBOARD -> {
+                                    if (backStack.lastOrNull() !is DashboardRoute) {
+                                        backStack.add(DashboardRoute(userId = key.userId))
+                                    }
+                                }
+                                else -> {}
+                            }
+                        }
+                    )
+                }
+                is RegistroRoute -> NavEntry(key) {
+                    val registroRepo = remember(baseDeDatos) {
+                        RegistroRepository(
+                            clienteDao = baseDeDatos.clienteDao(),
+                            vehiculoDao = baseDeDatos.vehiculoDao(),
+                            ingresoDao = baseDeDatos.ingresoDao()
+                        )
+                    }
+                    val registroFactory = remember(registroRepo) {
+                        RegistroViewModelFactory(repo = registroRepo)
+                    }
+                    val registroViewModel: RegistroViewModel = viewModel(factory = registroFactory)
+
+                    RegistroScreen(
+                        viewModel = registroViewModel,
+                        onLogout = { loginViewModel.resetLoginState() },
+                        onMenuSeleccionado = { opcion ->
+                            when (opcion) {
+                                DashboardMenuOption.DASHBOARD -> {
+                                    if (backStack.lastOrNull() !is DashboardRoute) {
+                                        backStack.add(DashboardRoute(userId = key.userId))
+                                    }
+                                }
+                                DashboardMenuOption.REGISTRO -> {
+                                    if (backStack.lastOrNull() !is RegistroRoute) {
+                                        backStack.add(RegistroRoute(userId = key.userId))
+                                    }
+                                }
+                                else -> {}
+                            }
+                        }
                     )
                 }
                 else -> error("Ruta no reconocida: $key")

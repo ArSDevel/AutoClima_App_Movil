@@ -61,6 +61,7 @@ import kotlinx.coroutines.launch
 fun DashboardScreen(
     viewModel: DashboardViewModel,
     onLogout: () -> Unit,
+    onMenuSeleccionado: (DashboardMenuOption) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -71,6 +72,7 @@ fun DashboardScreen(
         onEstadoChange = viewModel::cambiarEstado,
         onReintentar = viewModel::reintentar,
         onLogout = onLogout,
+        onMenuSeleccionado = onMenuSeleccionado,
         modifier = modifier,
         accionesDisponibles = listOf(
             IngresoAccion.EDITAR,
