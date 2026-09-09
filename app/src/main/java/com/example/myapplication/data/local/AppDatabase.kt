@@ -17,6 +17,8 @@ import com.example.myapplication.util.PasswordHasher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import android.util.Log
+import kotlinx.coroutines.CancellationException
 
 @Database(
     entities = [Tecnico::class, Cliente::class, Vehiculo::class, Ingreso::class],
@@ -45,15 +47,27 @@ abstract class AppDatabase : RoomDatabase() {
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
+
+                            Log.d("CargaInicial", "Se ejecutó onCreate")
+
                             CoroutineScope(Dispatchers.IO).launch {
-                                val dao = getInstance(context).tecnicoDao()
-                                dao.insertar(
-                                    Tecnico(
-                                        nombre = "Erik",
-                                        usuario = "erik",
-                                        passwordHash = PasswordHasher.hash("1234")
+                                try {
+                                    val dao = getInstance(context).tecnicoDao()
+
+                                    val id = dao.insertar(
+                                        Tecnico(
+                                            nombre = "Erik",
+                                            usuario = "erik",
+                                            passwordHash = PasswordHasher.hash("1234")
+                                        )
                                     )
-                                )
+
+                                    Log.d("CargaInicial", "Técnico insertado con ID: $id")
+                                } catch (cancelacion: CancellationException) {
+                                    throw cancelacion
+                                } catch (error: Exception) {
+                                    Log.e("CargaInicial", "Falló la inserción del técnico", error)
+                                }
                             }
                         }
                     })

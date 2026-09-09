@@ -48,6 +48,12 @@ import com.example.myapplication.ui.theme.AutoClimasGradients
 import androidx.compose.ui.res.stringResource
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.AutoClimasWhite
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 /**
  * Pantalla principal de Inicio de Sesión que conecta el ViewModel con la interfaz.
@@ -129,6 +135,23 @@ fun LoginContent(
                     .padding(horizontal = 24.dp, vertical = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                // Logo autoclimas
+                Box(
+                    modifier = Modifier.size(104.dp).clip(CircleShape)
+                        .border(width = 2.dp, color = colors.primary, shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(R.drawable.logo_autoclimas),
+                        contentDescription = stringResource(R.string.login_logo_description),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(72.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // Título del formulario
                 Text(
                     text = stringResource(R.string.login_title),

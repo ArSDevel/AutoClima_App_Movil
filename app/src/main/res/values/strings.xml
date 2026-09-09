@@ -14,4 +14,57 @@
     <string name="login_hide_password">Ocultar contraseña</string>
 
     <string name="login_button">Iniciar sesión</string>
+
+    <!-- Dashboard: encabezado y navegación -->
+    <string name="dashboard_title">AutoClimas</string>
+    <string name="dashboard_section_title">Ingresos al taller</string>
+    <string name="dashboard_open_menu">Abrir menú</string>
+    <string name="dashboard_logout">Cerrar sesión</string>
+
+    <!-- Dashboard: búsqueda -->
+    <string name="dashboard_search_label">Buscar ingreso por N.placa o N.Serie</string>
+    <string name="dashboard_search_placeholder">Placa o número de serie</string>
+    <string name="dashboard_clear_search">Limpiar búsqueda</string>
+
+    <!-- Dashboard: estados de la pantalla -->
+    <string name="dashboard_loading">Cargando ingresos…</string>
+    <string name="dashboard_empty_title">No hay ingresos registrados</string>
+    <string name="dashboard_empty_description">Los ingresos aparecerán aquí cuando se registren.</string>
+    <string name="dashboard_no_results_title">No se encontraron coincidencias</string>
+    <string name="dashboard_no_results_description">Revisa la placa o el número de serie e intenta nuevamente.</string>
+    <string name="dashboard_load_error">No fue posible cargar los ingresos.</string>
+    <string name="dashboard_retry">Reintentar</string>
+
+    <!-- Dashboard: datos de cada ingreso -->
+    <string name="dashboard_plate">Placa</string>
+    <string name="dashboard_model">Modelo</string>
+    <string name="dashboard_color">Color</string>
+    <string name="dashboard_serial_number">Número de serie</string>
+    <string name="dashboard_customer">Cliente</string>
+    <string name="dashboard_phone">Teléfono</string>
+    <string name="dashboard_email">Correo electrónico</string>
+    <string name="dashboard_entry_date">Fecha de entrada</string>
+    <string name="dashboard_not_registered">No registrado</string>
+
+    <!-- Acciones de los ingresos -->
+    <string name="dashboard_action_pdf">Ver PDF</string>
+    <string name="dashboard_action_sign">Firmar</string>
+    <string name="dashboard_action_checklist">Checklist</string>
+    <string name="dashboard_action_edit">Editar</string>
+    <string name="dashboard_action_delete">Eliminar</string>
+    <string name="dashboard_action_deliver">Entregar</string>
+
+    <!-- Menú lateral -->
+    <string name="dashboard_menu_title">Menú</string>
+    <string name="dashboard_menu_home">Dashboard</string>
+    <string name="dashboard_menu_registration">Registro</string>
+    <string name="dashboard_menu_checklist">Checklist</string>
+    <string name="dashboard_menu_evidence">Cámara de evidencia</string>
+    <string name="dashboard_menu_diagnosis">Diagnóstico</string>
+    <string name="dashboard_menu_signature">Firma</string>
+    <string name="dashboard_menu_history">Historial</string>
+
+    <string name="dashboard_section_pending">Esta sección está pendiente de integración.</string>
+    <string name="dashboard_logo_description">Logotipo de AutoClimas</string>
+    <string name="login_logo_description">Logotipo de AutoClimas</string>
 </resources>

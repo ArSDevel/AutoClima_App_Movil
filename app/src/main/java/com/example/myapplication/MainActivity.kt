@@ -20,13 +20,19 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.example.myapplication.data.local.AppDatabase // Asegúrate de que coincida con tu paquete de base de datos
-import com.example.myapplication.data.local.dao.TecnicoDao
+import com.example.myapplication.data.local.AppDatabase
 import com.example.myapplication.ui.dashboard.DashboardScreen
 import com.example.myapplication.ui.login.LoginScreen
 import com.example.myapplication.ui.login.LoginViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.serialization.Serializable
+import androidx.compose.runtime.remember
+import com.example.myapplication.ui.dashboard.DashboardViewModel
+import com.example.myapplication.ui.dashboard.DashboardViewModelFactory
+import com.example.myapplication.data.local.repository.DashboardRepository
+import com.example.myapplication.data.repository.RegistroRepository
+import android.content.pm.ApplicationInfo
+import androidx.room.withTransaction
 
 /**
  * Definición de las rutas de navegación utilizando Navigation 3.
@@ -37,9 +43,10 @@ data object LoginRoute : NavKey // Ruta para la pantalla de inicio de sesión
 @Serializable
 data class DashboardRoute(val userId: String = "") : NavKey // Ruta para la pantalla del panel principal
 
-/**
- * Actividad principal de la aplicación.
- */
+
+
+
+// Actividad principal de la aplicación.
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,9 +64,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * Composable principal que gestiona el ViewModel y la navegación entre Login y Dashboard.
- */
+// Composable principal que gestiona el ViewModel y la navegación entre Login y Dashboard.
 @Composable
 fun AutoClimaApp() {
     // 1. Obtener el contexto actual de la aplicación
@@ -119,11 +124,52 @@ fun AutoClimaApp() {
                     )
                 }
                 is DashboardRoute -> NavEntry(key) {
-                    DashboardScreen(
-                        userId = key.userId,
-                        onLogout = {
-                            loginViewModel.resetLoginState()
+                    // TEMPORAL: datos de prueba para comprobar el Dashboard.
+                    LaunchedEffect(key.userId) {
+                        val esDepuracion =
+                            (contexto.applicationInfo.flags and
+                                    ApplicationInfo.FLAG_DEBUGGABLE) != 0
+
+                        if (esDepuracion) {
+                            baseDeDatos.withTransaction {
+                                val tecnico = baseDeDatos.tecnicoDao()
+                                    .buscarPorUsuario(key.userId)
+
+                                val vehiculoExistente = baseDeDatos.vehiculoDao()
+                                    .buscarPorPlaca("DEMO-001")
+
+                                if (tecnico != null && vehiculoExistente == null) {
+                                    val registroRepository = RegistroRepository(
+                                        clienteDao = baseDeDatos.clienteDao(),
+                                        vehiculoDao = baseDeDatos.vehiculoDao(),
+                                        ingresoDao = baseDeDatos.ingresoDao()
+                                    )
+
+                                    registroRepository.registrarIngreso(
+                                        placa = "DEMO-001",
+                                        nombreCliente = "Cliente de prueba",
+                                        modelo = "Honda Civic",
+                                        telefonoCliente = "8100000000",
+                                        color = "Rojo",
+                                        emailCliente = "prueba@example.com",
+                                        numeroSerie = "SERIE-DEMO-001",
+                                        fechaEntrada = System.currentTimeMillis(),
+                                        tecnicoId = tecnico.tecnicoId
+                                    )
+                                }
+                            }
                         }
+                    }
+
+
+                    val dashboardRepository = remember(baseDeDatos) {
+                        DashboardRepository(ingresoDao = baseDeDatos.ingresoDao())
+                    }
+                    val dashboardFactory = remember(dashboardRepository) {
+                        DashboardViewModelFactory(repository = dashboardRepository)
+                    }
+                    val dashboardViewModel: DashboardViewModel = viewModel(factory = dashboardFactory)
+                    DashboardScreen(viewModel = dashboardViewModel, onLogout = { loginViewModel.resetLoginState() }
                     )
                 }
                 else -> error("Ruta no reconocida: $key")
