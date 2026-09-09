@@ -23,7 +23,7 @@
 
     <!-- Dashboard: búsqueda -->
     <string name="dashboard_search_label">Buscar ingreso por N.placa o N.Serie</string>
-    <string name="dashboard_search_placeholder">Placa o número de serie</string>
+    <string name="dashboard_search_placeholder">Buscar por placa o número de serie</string>
     <string name="dashboard_clear_search">Limpiar búsqueda</string>
 
     <!-- Dashboard: estados de la pantalla -->
@@ -67,4 +67,17 @@
     <string name="dashboard_section_pending">Esta sección está pendiente de integración.</string>
     <string name="dashboard_logo_description">Logotipo de AutoClimas</string>
     <string name="login_logo_description">Logotipo de AutoClimas</string>
+
+    <!-- Estados de los ingresos -->
+    <string name="dashboard_status_registered">Registrado</string>
+    <string name="dashboard_status_review">En revisión</string>
+    <string name="dashboard_status_repair">En reparación</string>
+    <string name="dashboard_status_signature">Listo para firma</string>
+    <string name="dashboard_status_delivery">Listo para entrega</string>
+    <string name="dashboard_status_unknown">Estado no disponible</string>
+
+    <!-- Filtro de ingresos -->
+    <string name="dashboard_filter_all">Todos</string>
+    <string name="dashboard_filter_description">Filtrar por estado. Actual: %1$s</string>
+    <string name="dashboard_filter_no_results_description">Prueba otra búsqueda o selecciona Todos en el filtro de estados.</string>
 </resources>

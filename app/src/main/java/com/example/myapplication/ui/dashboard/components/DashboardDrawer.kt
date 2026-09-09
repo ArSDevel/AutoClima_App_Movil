@@ -145,8 +145,7 @@ fun DashboardDrawer(
                                         onOpcionSeleccionada(opcion)
                                     },
                                     shape = shapes.small,
-                                    colors =
-                                        NavigationDrawerItemDefaults.colors(
+                                    colors = NavigationDrawerItemDefaults.colors(
                                             selectedContainerColor = colors.primaryContainer,
                                             selectedTextColor = colors.primary,
                                             selectedIconColor = colors.primary,

@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import androidx.compose.foundation.background
 
 @Composable
 fun BuscadorIngreso(
@@ -38,8 +39,9 @@ fun BuscadorIngreso(
         singleLine = true,
         shape = MaterialTheme.shapes.small,
         textStyle = MaterialTheme.typography.bodyLarge,
-        label = { Text(text = stringResource(R.string.dashboard_search_label)) },
-        placeholder = { Text(text = stringResource(R.string.dashboard_search_placeholder)) },
+        placeholder = {
+            Text(text = stringResource(R.string.dashboard_search_placeholder),
+                style = MaterialTheme.typography.bodyLarge) },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,

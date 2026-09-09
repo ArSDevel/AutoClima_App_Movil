@@ -46,6 +46,8 @@ import com.example.myapplication.ui.dashboard.IngresoAccion
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import java.text.DateFormat
 import java.util.Date
+import com.example.myapplication.data.local.model.EstadoIngreso
+import com.example.myapplication.ui.theme.estadoIngresoColors
 
 @Composable
 fun IngresoCard(
@@ -58,6 +60,27 @@ fun IngresoCard(
     val shapes = MaterialTheme.shapes
     val locale = LocalConfiguration.current.locales[0]
 
+    val estado = EstadoIngreso.desdeValor(ingreso.estado)
+    val estadoColors = MaterialTheme.estadoIngresoColors
+
+    val colorEstado = when (estado) {
+        EstadoIngreso.REGISTRADO -> estadoColors.registrado
+        EstadoIngreso.EN_REVISION -> estadoColors.enRevision
+        EstadoIngreso.EN_REPARACION -> estadoColors.enReparacion
+        EstadoIngreso.LISTO_PARA_FIRMA -> estadoColors.listoParaFirma
+        EstadoIngreso.LISTO_PARA_ENTREGA -> estadoColors.listoParaEntrega
+        EstadoIngreso.NO_DISPONIBLE -> estadoColors.noDisponible
+    }
+
+    val textoEstadoRes = when (estado) {
+        EstadoIngreso.REGISTRADO -> R.string.dashboard_status_registered
+        EstadoIngreso.EN_REVISION -> R.string.dashboard_status_review
+        EstadoIngreso.EN_REPARACION -> R.string.dashboard_status_repair
+        EstadoIngreso.LISTO_PARA_FIRMA -> R.string.dashboard_status_signature
+        EstadoIngreso.LISTO_PARA_ENTREGA -> R.string.dashboard_status_delivery
+        EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown
+    }
+
     val fechaFormateada = remember(ingreso.fechaEntrada, locale) {
         DateFormat.getDateInstance(DateFormat.MEDIUM, locale).format(Date(ingreso.fechaEntrada))
     }
@@ -69,16 +92,20 @@ fun IngresoCard(
             containerColor = colors.surface,
             contentColor = colors.onSurface
         ),
-        border = BorderStroke(width = 1.dp, color = colors.primary.copy(alpha = 0.25f)),
+        border = BorderStroke(width = 2.dp, color = colorEstado),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(modifier = Modifier
-                .fillMaxWidth().padding(16.dp),
+        Column(modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Text(
+                text = stringResource(textoEstadoRes),
+                style = MaterialTheme.typography.labelLarge,
+                color = colorEstado
+            )
             Box(
                 modifier = Modifier.width(40.dp).height(4.dp)
-                    .clip(shapes.extraSmall).background(colors.secondary))
+                    .clip(shapes.extraSmall).background(colorEstado))
             BoxWithConstraints(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -210,33 +237,21 @@ private fun AccionesIngreso(
     ) {
         acciones.forEach { accion ->
             val textoRes = when (accion) {
-                IngresoAccion.VER_PDF ->
-                    R.string.dashboard_action_pdf
-                IngresoAccion.FIRMAR ->
-                    R.string.dashboard_action_sign
-                IngresoAccion.CHECKLIST ->
-                    R.string.dashboard_action_checklist
-                IngresoAccion.EDITAR ->
-                    R.string.dashboard_action_edit
-                IngresoAccion.ELIMINAR ->
-                    R.string.dashboard_action_delete
-                IngresoAccion.ENTREGAR ->
-                    R.string.dashboard_action_deliver
+                IngresoAccion.VER_PDF -> R.string.dashboard_action_pdf
+                IngresoAccion.FIRMAR -> R.string.dashboard_action_sign
+                IngresoAccion.CHECKLIST -> R.string.dashboard_action_checklist
+                IngresoAccion.EDITAR -> R.string.dashboard_action_edit
+                IngresoAccion.ELIMINAR -> R.string.dashboard_action_delete
+                IngresoAccion.ENTREGAR -> R.string.dashboard_action_deliver
             }
 
             val icono = when (accion) {
-                IngresoAccion.VER_PDF ->
-                    Icons.Default.PictureAsPdf
-                IngresoAccion.FIRMAR ->
-                    Icons.Default.Draw
-                IngresoAccion.CHECKLIST ->
-                    Icons.Default.Checklist
-                IngresoAccion.EDITAR ->
-                    Icons.Default.Edit
-                IngresoAccion.ELIMINAR ->
-                    Icons.Default.Delete
-                IngresoAccion.ENTREGAR ->
-                    Icons.Default.LocalShipping
+                IngresoAccion.VER_PDF -> Icons.Default.PictureAsPdf
+                IngresoAccion.FIRMAR -> Icons.Default.Draw
+                IngresoAccion.CHECKLIST -> Icons.Default.Checklist
+                IngresoAccion.EDITAR -> Icons.Default.Edit
+                IngresoAccion.ELIMINAR -> Icons.Default.Delete
+                IngresoAccion.ENTREGAR -> Icons.Default.LocalShipping
             }
 
             TextButton(
@@ -263,7 +278,7 @@ private fun AccionesIngreso(
     }
 }
 
-// Estos datos se utilizan únicamente en los previews.
+// Estos datos se utilizan únicamente en los previews
 private val ingresoEjemplo = IngresoResumen(
     ingresoId = 1L,
     placa = "ABC-123",
@@ -273,7 +288,8 @@ private val ingresoEjemplo = IngresoResumen(
     nombreCliente = "Cliente de ejemplo",
     telefonoCliente = "8100000000",
     emailCliente = null,
-    fechaEntrada = 1788955200000L
+    fechaEntrada = 1788955200000L,
+    estado = EstadoIngreso.LISTO_PARA_FIRMA.name
 )
 
 private val accionesEjemplo = listOf(

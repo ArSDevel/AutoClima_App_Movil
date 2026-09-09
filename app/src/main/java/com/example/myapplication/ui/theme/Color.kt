@@ -36,3 +36,19 @@ val AutoClimasOnErrorContainer = Color(0xFF410002)
 val AutoClimasErrorDark = Color(0xFFFFB4AB)
 val AutoClimasOnErrorDark = Color(0xFF690005)
 val AutoClimasErrorContainerDark = Color(0xFF93000A)
+
+// Estados de los ingresos: tema claro.
+internal val IngresoRegistradoLight = Color(0xFF1D4ED8)
+internal val IngresoRevisionLight = Color(0xFF7E22CE)
+internal val IngresoReparacionLight = Color(0xFF946200)
+internal val IngresoFirmaLight = Color(0xFF15803D)
+internal val IngresoEntregaLight = Color(0xFF0E7490)
+internal val IngresoSinEstadoLight = Color(0xFF64748B)
+
+// Estados de los ingresos: tema oscuro.
+internal val IngresoRegistradoDark = Color(0xFF93C5FD)
+internal val IngresoRevisionDark = Color(0xFFD8B4FE)
+internal val IngresoReparacionDark = Color(0xFFFCD34D)
+internal val IngresoFirmaDark = Color(0xFF86EFAC)
+internal val IngresoEntregaDark = Color(0xFF67E8F9)
+internal val IngresoSinEstadoDark = Color(0xFFCBD5E1)

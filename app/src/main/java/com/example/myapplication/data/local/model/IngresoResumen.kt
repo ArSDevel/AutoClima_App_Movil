@@ -9,5 +9,6 @@ data class IngresoResumen(
     val nombreCliente: String,
     val telefonoCliente: String,
     val emailCliente: String?,
-    val fechaEntrada: Long
+    val fechaEntrada: Long,
+    val estado: String = EstadoIngreso.NO_DISPONIBLE.name
 )
