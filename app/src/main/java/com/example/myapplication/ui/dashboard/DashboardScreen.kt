@@ -412,6 +412,55 @@ private fun DashboardContentPreview() {
                         telefonoCliente = "8100000000",
                         emailCliente = "cliente@example.com",
                         fechaEntrada = 1788955200000L,
+                        estado = EstadoIngreso.EN_REPARACION.name
+                    )
+                )
+            ),
+            onBusquedaChange = {},
+            onEstadoChange = {},
+            onReintentar = {},
+            onLogout = {},
+            accionesDisponibles = listOf(
+                IngresoAccion.VER_PDF,
+                IngresoAccion.FIRMAR,
+                IngresoAccion.EDITAR,
+                IngresoAccion.ELIMINAR
+            ),
+            onAccionIngreso = { _, _ -> }
+        )
+    }
+}
+
+
+@Preview(
+    name = "Dashboard en teléfono",
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800
+)
+@Preview(
+    name = "Dashboard con espacio amplio",
+    showBackground = true,
+    widthDp = 800,
+    heightDp = 852
+)
+@Composable
+private fun DashboardContentPreview2() {
+    MyApplicationTheme(darkTheme = false) {
+        DashboardContent(
+            uiState = DashboardUiState(
+                cargando = false,
+                ingresos = listOf(
+                    IngresoResumen(
+                        ingresoId = 1L,
+                        placa = "ABC-123",
+                        modelo = "Honda Civic",
+                        color = "Rojo",
+                        numeroSerie = "SERIE-DE-EJEMPLO",
+                        nombreCliente = "Cliente de ejemplo",
+                        telefonoCliente = "8100000000",
+                        emailCliente = "cliente@example.com",
+                        fechaEntrada = 1788955200000L,
                         estado = EstadoIngreso.LISTO_PARA_FIRMA.name
                     )
                 )

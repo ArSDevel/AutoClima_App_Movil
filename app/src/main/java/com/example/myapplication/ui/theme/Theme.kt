@@ -47,36 +47,37 @@ private val LightColorScheme = lightColorScheme(
 
 // Colores generales para modo oscuro.
 private val DarkColorScheme = darkColorScheme(
-    primary = AutoClimasBlueLight,
-    onPrimary = AutoClimasNavy,
-    primaryContainer = AutoClimasHeaderBlue,
-    onPrimaryContainer = AutoClimasIce,
+    primary = AutoClimasDarkPrimary,
+    onPrimary = AutoClimasDarkOnPrimary,
+    primaryContainer = AutoClimasDarkPrimaryContainer,
+    onPrimaryContainer = AutoClimasDarkText,
 
-    secondary = AutoClimasRedLight,
-    onSecondary = AutoClimasRedDeep,
-    secondaryContainer = AutoClimasRedDeep,
-    onSecondaryContainer = AutoClimasRedContainer,
+    secondary = AutoClimasDarkRed,
+    onSecondary = AutoClimasDarkOnRed,
+    secondaryContainer = AutoClimasDarkRedContainer,
+    onSecondaryContainer = AutoClimasDarkText,
 
-    tertiary = AutoClimasIce,
-    onTertiary = AutoClimasHeaderBlue,
-    tertiaryContainer = AutoClimasSlate,
-    onTertiaryContainer = AutoClimasIce,
+    tertiary = AutoClimasDarkHeader,
+    onTertiary = AutoClimasDarkText,
+    tertiaryContainer = AutoClimasDarkSurfaceVariant,
+    onTertiaryContainer = AutoClimasDarkText,
 
-    background = AutoClimasNavy,
-    onBackground = AutoClimasGrayLight,
+    background = AutoClimasDarkBackground,
+    onBackground = AutoClimasDarkText,
 
-    surface = AutoClimasSlateDark,
-    onSurface = AutoClimasGrayLight,
-    surfaceVariant = AutoClimasSlate,
-    onSurfaceVariant = AutoClimasBorder,
+    surface = AutoClimasDarkSurface,
+    onSurface = AutoClimasDarkText,
+    surfaceVariant = AutoClimasDarkSurfaceVariant,
+    onSurfaceVariant = AutoClimasDarkTextSecondary,
+    surfaceTint = AutoClimasDarkPrimary,
 
-    outline = AutoClimasBorder,
-    outlineVariant = AutoClimasSlateMuted,
+    outline = AutoClimasDarkOutline,
+    outlineVariant = AutoClimasDarkOutlineVariant,
 
     error = AutoClimasErrorDark,
     onError = AutoClimasOnErrorDark,
     errorContainer = AutoClimasErrorContainerDark,
-    onErrorContainer = AutoClimasErrorContainer
+    onErrorContainer = AutoClimasOnErrorContainerDark
 )
 
 @Composable
