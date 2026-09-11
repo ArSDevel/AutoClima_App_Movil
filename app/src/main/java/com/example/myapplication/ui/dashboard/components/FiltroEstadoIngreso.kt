@@ -37,7 +37,8 @@ fun FiltroEstadoIngreso(
 ) {
     var menuAbierto by remember { mutableStateOf(false) }
     val textoSeleccionado = stringResource(etiquetaEstado(estadoSeleccionado))
-    val descripcionFiltro = stringResource(R.string.dashboard_filter_description, textoSeleccionado)
+    val descripcionFiltro = stringResource(R.string.dashboard_filter_description,
+        textoSeleccionado)
 
     Box(modifier = modifier) {
         OutlinedButton(
@@ -45,45 +46,29 @@ fun FiltroEstadoIngreso(
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.semantics { contentDescription = descripcionFiltro }
         ) {
-            Icon(
-                imageVector = Icons.Default.FilterList,
-                contentDescription = null
-            )
-
+            Icon(imageVector = Icons.Default.FilterList,
+                contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = textoSeleccionado,
-                style = MaterialTheme.typography.labelLarge
-            )
-
+            Text(text = textoSeleccionado,
+                style = MaterialTheme.typography.labelLarge)
             Spacer(modifier = Modifier.width(4.dp))
-
-            Icon(
-                imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = null
-            )
+            Icon(imageVector = Icons.Default.ArrowDropDown,
+                contentDescription = null)
         }
-
         DropdownMenu(
             expanded = menuAbierto,
             onDismissRequest = { menuAbierto = false }
         ) {
-            OpcionEstado(
-                texto = stringResource(R.string.dashboard_filter_all),
+            OpcionEstado(texto = stringResource(R.string.dashboard_filter_all),
                 seleccionada = estadoSeleccionado == null,
                 onClick = { menuAbierto = false
-                    onEstadoSeleccionado(null)
-                }
+                    onEstadoSeleccionado(null) }
             )
-
             EstadoIngreso.entries.forEach { estado ->
-                OpcionEstado(
-                    texto = stringResource(etiquetaEstado(estado)),
+                OpcionEstado(texto = stringResource(etiquetaEstado(estado)),
                     seleccionada = estadoSeleccionado == estado,
                     onClick = { menuAbierto = false
-                        onEstadoSeleccionado(estado)
-                    }
+                        onEstadoSeleccionado(estado) }
                 )
             }
         }
@@ -100,8 +85,7 @@ private fun OpcionEstado(
         text = { Text(text = texto, style = MaterialTheme.typography.bodyLarge) },
         trailingIcon = {
             if (seleccionada) {
-                Icon(
-                    imageVector = Icons.Default.Check,
+                Icon(imageVector = Icons.Default.Check,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -120,6 +104,8 @@ private fun etiquetaEstado(estado: EstadoIngreso?): Int {
         EstadoIngreso.EN_REPARACION -> R.string.dashboard_status_repair
         EstadoIngreso.LISTO_PARA_FIRMA -> R.string.dashboard_status_signature
         EstadoIngreso.LISTO_PARA_ENTREGA -> R.string.dashboard_status_delivery
+        EstadoIngreso.ENTREGADO -> R.string.dashboard_status_delivered
+        EstadoIngreso.CANCELADO -> R.string.dashboard_status_cancelled
         EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown
     }
 }
@@ -128,6 +114,7 @@ private fun etiquetaEstado(estado: EstadoIngreso?): Int {
 @Composable
 private fun FiltroEstadoIngresoPreview() {
     var estado by remember { mutableStateOf<EstadoIngreso?>(null) }
+
     MyApplicationTheme(darkTheme = false) {
         FiltroEstadoIngreso(
             estadoSeleccionado = estado,

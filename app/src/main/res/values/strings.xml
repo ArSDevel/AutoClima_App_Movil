@@ -1,41 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Aplicación -->
     <string name="app_name">My Application</string>
+
     <!-- Inicio de sesión -->
     <string name="login_title">Iniciar sesión</string>
     <string name="login_description">Ingresa tus credenciales para continuar</string>
-
     <string name="login_username_label">Usuario</string>
     <string name="login_username_placeholder">Ingresa tu usuario</string>
-
     <string name="login_password_label">Contraseña</string>
     <string name="login_password_placeholder">Ingresa tu contraseña</string>
-
     <string name="login_show_password">Mostrar contraseña</string>
     <string name="login_hide_password">Ocultar contraseña</string>
-
     <string name="login_button">Iniciar sesión</string>
+    <string name="login_loading">Iniciando sesión…</string>
+    <string name="login_logo_description">Logotipo de AutoClimas</string>
 
     <!-- Dashboard: encabezado y navegación -->
     <string name="dashboard_title">AutoClimas</string>
     <string name="dashboard_section_title">Ingresos al taller</string>
+    <string name="dashboard_overview_description">Consulta los ingresos y da seguimiento a los vehículos del taller.</string>
     <string name="dashboard_open_menu">Abrir menú</string>
     <string name="dashboard_logout">Cerrar sesión</string>
+    <string name="dashboard_logo_description">Logotipo de AutoClimas</string>
 
     <!-- Dashboard: búsqueda -->
-    <string name="dashboard_search_label">Buscar ingreso por N.placa o N.Serie</string>
-    <string name="dashboard_search_placeholder">Buscar por placa o número de serie</string>
+    <string name="dashboard_search_label">Buscar ingreso</string>
+    <string name="dashboard_search_placeholder">Placa, serie, modelo o cliente</string>
+    <string name="dashboard_no_results_description">Revisa los datos de búsqueda e intenta nuevamente.</string>
     <string name="dashboard_clear_search">Limpiar búsqueda</string>
 
-    <!-- Dashboard: estados de la pantalla -->
+    <!-- Dashboard: carga, errores y resultados vacíos -->
     <string name="dashboard_loading">Cargando ingresos…</string>
     <string name="dashboard_empty_title">No hay ingresos registrados</string>
     <string name="dashboard_empty_description">Los ingresos aparecerán aquí cuando se registren.</string>
     <string name="dashboard_no_results_title">No se encontraron coincidencias</string>
-    <string name="dashboard_no_results_description">Revisa la placa o el número de serie e intenta nuevamente.</string>
     <string name="dashboard_load_error">No fue posible cargar los ingresos.</string>
     <string name="dashboard_retry">Reintentar</string>
+    <string name="dashboard_results_count">Resultados: %1$d</string>
 
-    <!-- Dashboard: datos de cada ingreso -->
+    <!-- Dashboard: datos del ingreso -->
     <string name="dashboard_plate">Placa</string>
     <string name="dashboard_model">Modelo</string>
     <string name="dashboard_color">Color</string>
@@ -46,15 +51,63 @@
     <string name="dashboard_entry_date">Fecha de entrada</string>
     <string name="dashboard_not_registered">No registrado</string>
 
-    <!-- Acciones de los ingresos -->
+    <!-- Dashboard: tarjeta -->
+    <string name="dashboard_card_view_detail">Ver detalle</string>
+    <string name="dashboard_card_more_data">Más datos</string>
+    <string name="dashboard_card_less_data">Menos datos</string>
+
+    <!-- Dashboard: filtros -->
+    <string name="dashboard_filters_title">Buscar y filtrar ingresos</string>
+    <string name="dashboard_clear_filters">Limpiar filtros</string>
+    <string name="dashboard_filter_all">Todos</string>
+    <string name="dashboard_filter_description">Filtrar por estado. Actual: %1$s</string>
+    <string name="dashboard_filter_no_results_description">Prueba otra búsqueda, ajusta el estado o la fecha de entrada, o limpia los filtros.</string>
+    <string name="dashboard_selector_value">%1$s: %2$s</string>
+
+    <!-- Dashboard: filtro por fecha de entrada -->
+    <string name="dashboard_date_filter_label">Entrada</string>
+    <string name="dashboard_date_all">Todas las fechas</string>
+    <string name="dashboard_date_today">Hoy</string>
+    <string name="dashboard_date_last_seven_days">Últimos 7 días</string>
+    <string name="dashboard_date_this_month">Este mes</string>
+
+    <!-- Dashboard: ordenamiento -->
+    <string name="dashboard_sort_label">Orden</string>
+    <string name="dashboard_sort_recent">Más recientes</string>
+    <string name="dashboard_sort_oldest">Más antiguos</string>
+    <string name="dashboard_sort_plate">Placa A–Z</string>
+
+    <!-- Estados de los ingresos -->
+    <string name="dashboard_status_registered">Registrado</string>
+    <string name="dashboard_status_review">En revisión</string>
+    <string name="dashboard_status_repair">En reparación</string>
+    <string name="dashboard_status_signature">Listo para firma</string>
+    <string name="dashboard_status_delivery">Listo para entrega</string>
+    <string name="dashboard_status_delivered">Entregado</string>
+    <string name="dashboard_status_cancelled">Cancelado</string>
+    <string name="dashboard_status_unknown">Estado no disponible</string>
+
+    <!-- Acciones: consulta -->
     <string name="dashboard_action_pdf">Ver PDF</string>
-    <string name="dashboard_action_sign">Firmar</string>
+
+    <!-- Acciones: trabajo técnico -->
+    <string name="dashboard_action_start_review">Iniciar revisión</string>
     <string name="dashboard_action_checklist">Checklist</string>
-    <string name="dashboard_action_edit">Editar</string>
-    <string name="dashboard_action_delete">Eliminar</string>
+    <string name="dashboard_action_evidence">Evidencias</string>
+    <string name="dashboard_action_diagnosis">Diagnóstico</string>
+
+    <!-- Acciones: firma y cierre -->
+    <string name="dashboard_action_sign">Firmar</string>
+    <string name="dashboard_action_return_repair">Devolver a reparación</string>
     <string name="dashboard_action_deliver">Entregar</string>
 
-    <!-- Menú lateral -->
+    <!-- Acciones: administración del ingreso -->
+    <string name="dashboard_action_edit">Editar</string>
+    <string name="dashboard_action_cancel">Cancelar ingreso</string>
+    <string name="dashboard_action_delete">Eliminar</string>
+    <string name="dashboard_action_regularize">Regularizar estado</string>
+
+    <!-- Menú lateral: secciones -->
     <string name="dashboard_menu_title">Menú</string>
     <string name="dashboard_menu_home">Dashboard</string>
     <string name="dashboard_menu_registration">Registro</string>
@@ -64,20 +117,107 @@
     <string name="dashboard_menu_signature">Firma</string>
     <string name="dashboard_menu_history">Historial</string>
 
+    <!-- Menú lateral: presentación y disponibilidad -->
+    <string name="dashboard_drawer_description">Gestión de ingresos y seguimiento del taller.</string>
+    <string name="dashboard_drawer_main">Principal</string>
+    <string name="dashboard_drawer_coming_soon">Próximamente</string>
+    <string name="dashboard_drawer_pending_description">Estas secciones todavía no están disponibles. Los movimientos de cada ingreso se pueden consultar desde su detalle.</string>
     <string name="dashboard_section_pending">Esta sección está pendiente de integración.</string>
-    <string name="dashboard_logo_description">Logotipo de AutoClimas</string>
-    <string name="login_logo_description">Logotipo de AutoClimas</string>
 
-    <!-- Estados de los ingresos -->
-    <string name="dashboard_status_registered">Registrado</string>
-    <string name="dashboard_status_review">En revisión</string>
-    <string name="dashboard_status_repair">En reparación</string>
-    <string name="dashboard_status_signature">Listo para firma</string>
-    <string name="dashboard_status_delivery">Listo para entrega</string>
-    <string name="dashboard_status_unknown">Estado no disponible</string>
+    <!-- Registro y edición: encabezado -->
+    <string name="registro_title_new">Nuevo ingreso</string>
+    <string name="registro_title_edit">Editar ingreso</string>
 
-    <!-- Filtro de ingresos -->
-    <string name="dashboard_filter_all">Todos</string>
-    <string name="dashboard_filter_description">Filtrar por estado. Actual: %1$s</string>
-    <string name="dashboard_filter_no_results_description">Prueba otra búsqueda o selecciona Todos en el filtro de estados.</string>
+    <!-- Registro y edición: campos -->
+    <string name="registro_required_hint">Los campos con * son obligatorios.</string>
+    <string name="registro_required_label">%1$s *</string>
+    <string name="registro_clear_field">Limpiar %1$s</string>
+
+    <!-- Registro y edición: secciones -->
+    <string name="registro_section_vehicle">1. Datos del vehículo</string>
+    <string name="registro_section_customer">2. Datos del cliente</string>
+    <string name="registro_section_reception">3. Recepción del vehículo</string>
+
+    <!-- Registro y edición: recepción -->
+    <string name="registro_reason">Motivo del ingreso</string>
+    <string name="registro_initial_condition">Condición inicial</string>
+    <string name="registro_select_date">Seleccionar fecha</string>
+
+    <!-- Registro y edición: alcance de los cambios -->
+    <string name="registro_shared_warning">El cliente y el vehículo son fichas compartidas. Corregir sus datos también se reflejará en otras visitas que utilicen esas fichas.</string>
+    <string name="registro_contact_only">En este estado solo puedes modificar el teléfono y el correo electrónico.</string>
+    <string name="registro_read_only">Este ingreso está cerrado. Sus datos son de solo lectura.</string>
+
+    <!-- Registro y edición: evidencia -->
+    <string name="registro_evidence_title">Evidencia fotográfica</string>
+    <string name="registro_evidence_pending">La captura de fotografías está pendiente de integración. Puedes guardar los datos del ingreso sin adjuntar imágenes.</string>
+
+    <!-- Registro y edición: guardado -->
+    <string name="registro_save_new">Registrar ingreso</string>
+    <string name="registro_save_changes">Guardar cambios</string>
+    <string name="registro_saving">Guardando…</string>
+
+    <!-- Registro y edición: resultado -->
+    <string name="registro_created_success">Ingreso registrado</string>
+    <string name="registro_updated_success">Cambios guardados</string>
+    <string name="registro_saved_identifier">Ingreso n.º %1$d</string>
+    <string name="registro_another">Registrar otro vehículo</string>
+    <string name="registro_back_dashboard">Volver al dashboard</string>
+
+    <!-- Registro y edición: salida con cambios pendientes -->
+    <string name="registro_discard_title">¿Descartar los cambios?</string>
+    <string name="registro_discard_description">Tienes datos sin guardar. Si sales, perderás los cambios de este formulario.</string>
+    <string name="registro_discard_confirm">Descartar y salir</string>
+    <string name="registro_keep_editing">Seguir editando</string>
+
+    <!-- Preparación del formulario y sesión -->
+    <string name="navigation_loading_technician">Preparando el registro…</string>
+    <string name="navigation_technician_error">No fue posible obtener el técnico de la sesión. Reintenta o vuelve a iniciar sesión.</string>
+    <string name="navigation_loading_form">Preparando el formulario…</string>
+    <string name="navigation_ingreso_not_found">El ingreso solicitado ya no existe.</string>
+    <string name="navigation_form_error">No fue posible preparar el formulario. Intenta nuevamente.</string>
+
+    <!-- Detalle del ingreso: carga y encabezado -->
+    <string name="detalle_title">Detalle del ingreso</string>
+    <string name="detalle_back">Volver</string>
+    <string name="detalle_loading">Cargando expediente…</string>
+    <string name="detalle_load_error">No se pudo cargar el expediente</string>
+    <string name="detalle_processing">Procesando operación…</string>
+
+    <!-- Detalle del ingreso: secciones -->
+    <string name="detalle_vehicle">Vehículo</string>
+    <string name="detalle_customer">Cliente y contacto</string>
+    <string name="detalle_reception">Recepción</string>
+    <string name="detalle_actions">Acciones del ingreso</string>
+    <string name="detalle_edit_contact">Editar contacto</string>
+
+    <!-- Detalle del ingreso: disponibilidad -->
+    <string name="detalle_unknown_help">Este ingreso no tiene un estado reconocido. Revisa su situación antes de regularizarlo.</string>
+    <string name="detalle_closed">Este expediente está cerrado y solo permite consulta.</string>
+
+    <!-- Detalle del ingreso: confirmaciones -->
+    <string name="detalle_confirmation_target">Ingreso n.º %1$d · Placa: %2$s</string>
+    <string name="detalle_delete_warning">Se eliminarán esta captura y sus eventos asociados. Las fichas del cliente y del vehículo se conservarán. Esta operación no se puede deshacer desde la aplicación.</string>
+    <string name="detalle_cancel_warning">El ingreso quedará cancelado. Sus datos y el motivo se conservarán en el expediente.</string>
+    <string name="detalle_change_warning">El cambio quedará registrado con la fecha, el técnico y el motivo indicado.</string>
+    <string name="detalle_select_state">Selecciona el estado que corresponde:</string>
+    <string name="detalle_reason">Motivo obligatorio</string>
+    <string name="detalle_confirm">Confirmar</string>
+
+    <!-- Detalle del ingreso: historial -->
+    <string name="detalle_history">Historial del ingreso</string>
+    <string name="detalle_history_description">Operaciones registradas desde el ingreso.</string>
+    <string name="detalle_history_empty">Todavía no hay eventos registrados.</string>
+    <string name="detalle_event_created">Ingreso creado</string>
+    <string name="detalle_event_edited">Datos actualizados</string>
+    <string name="detalle_event_state">Cambio de estado</string>
+    <string name="detalle_event_other">Actividad registrada</string>
+    <string name="detalle_event_author">Técnico n.º %1$d</string>
+    <string name="detalle_event_transition">%1$s → %2$s</string>
+
+    <!-- Detalle del ingreso: módulos pendientes -->
+    <string name="detalle_pending_title">Módulos pendientes de integración</string>
+    <string name="detalle_pending_action">%1$s · Pendiente</string>
+    <string name="detalle_pending_description">Estas funciones se habilitarán cuando sus módulos puedan registrar y comprobar los requisitos del proceso.</string>
+
 </resources>

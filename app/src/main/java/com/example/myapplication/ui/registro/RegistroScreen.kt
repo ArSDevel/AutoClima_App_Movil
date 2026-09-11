@@ -1,552 +1,761 @@
 package com.example.myapplication.ui.registro
 
+import android.app.DatePickerDialog
+import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
+import com.example.myapplication.data.local.model.FormularioIngreso
+import com.example.myapplication.data.local.model.ReglasIngreso
 import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.dashboard.components.DashboardDrawer
 import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
+// Conecta el estado y las acciones del ViewModel con la interfaz.
 @Composable
 fun RegistroScreen(
     viewModel: RegistroViewModel,
     onLogout: () -> Unit,
     onMenuSeleccionado: (DashboardMenuOption) -> Unit,
-    modifier: Modifier = Modifier
+    tecnicoId: Long,
+    modifier: Modifier = Modifier,
+    onVerIngreso: ((Long) -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
     RegistroContent(
         uiState = uiState,
-        onPlacaChange = viewModel::onPlacaChange,
-        onModeloChange = viewModel::onModeloChange,
-        onColorChange = viewModel::onColorChange,
-        onNumeroSerieChange = viewModel::onNumeroSerieChange,
-        onNombreClienteChange = viewModel::onNombreClienteChange,
-        onTelefonoClienteChange = viewModel::onTelefonoClienteChange,
-        onEmailClienteChange = viewModel::onEmailClienteChange,
-        onFechaEntradaChange = viewModel::onFechaEntradaChange,
-        onLimpiarPlaca = viewModel::limpiarPlaca,
-        onLimpiarModelo = viewModel::limpiarModelo,
-        onLimpiarColor = viewModel::limpiarColor,
-        onLimpiarNumeroSerie = viewModel::limpiarNumeroSerie,
-        onLimpiarNombreCliente = viewModel::limpiarNombreCliente,
-        onLimpiarTelefonoCliente = viewModel::limpiarTelefonoCliente,
-        onLimpiarEmailCliente = viewModel::limpiarEmailCliente,
-        onLimpiarFechaEntrada = viewModel::limpiarFechaEntrada,
-        onRegistrar = { viewModel.registrarIngreso() },
+        onCampoChange = { campo, valor ->
+            when (campo) {
+                CampoRegistro.PLACA -> viewModel.onPlacaChange(valor)
+                CampoRegistro.MODELO -> viewModel.onModeloChange(valor)
+                CampoRegistro.COLOR -> viewModel.onColorChange(valor)
+                CampoRegistro.SERIE -> viewModel.onNumeroSerieChange(valor)
+                CampoRegistro.NOMBRE -> viewModel.onNombreClienteChange(valor)
+                CampoRegistro.TELEFONO -> viewModel.onTelefonoClienteChange(valor)
+                CampoRegistro.EMAIL -> viewModel.onEmailClienteChange(valor)
+                CampoRegistro.FECHA -> viewModel.onFechaEntradaChange(valor)
+                CampoRegistro.MOTIVO -> viewModel.onMotivoIngresoChange(valor)
+                CampoRegistro.CONDICION -> viewModel.onCondicionInicialChange(valor)
+            }
+        },
+        onGuardar = { viewModel.guardar(tecnicoId) },
+        onNuevaCaptura = viewModel::resetRegistroExitoso,
+        onReintentarCarga = viewModel::reintentarCarga,
         onLogout = onLogout,
         onMenuSeleccionado = onMenuSeleccionado,
-        onResetError = viewModel::resetMensajeError,
-        onResetExito = viewModel::resetRegistroExitoso,
+        onVerIngreso = onVerIngreso,
         modifier = modifier
     )
 }
 
+// Solo se utilizan para organizar los callbacks de esta pantalla.
+private enum class CampoRegistro {
+    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION
+}
+
+private enum class SalidaRegistro {
+    DASHBOARD, CERRAR_SESION
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistroContent(
+private fun RegistroContent(
     uiState: RegistroUiState,
-    onPlacaChange: (String) -> Unit,
-    onModeloChange: (String) -> Unit,
-    onColorChange: (String) -> Unit,
-    onNumeroSerieChange: (String) -> Unit,
-    onNombreClienteChange: (String) -> Unit,
-    onTelefonoClienteChange: (String) -> Unit,
-    onEmailClienteChange: (String) -> Unit,
-    onFechaEntradaChange: (String) -> Unit,
-    onLimpiarPlaca: () -> Unit,
-    onLimpiarModelo: () -> Unit,
-    onLimpiarColor: () -> Unit,
-    onLimpiarNumeroSerie: () -> Unit,
-    onLimpiarNombreCliente: () -> Unit,
-    onLimpiarTelefonoCliente: () -> Unit,
-    onLimpiarEmailCliente: () -> Unit,
-    onLimpiarFechaEntrada: () -> Unit,
-    onRegistrar: () -> Unit,
+    onCampoChange: (CampoRegistro, String) -> Unit,
+    onGuardar: () -> Unit,
+    onNuevaCaptura: () -> Unit,
+    onReintentarCarga: () -> Unit,
     onLogout: () -> Unit,
     onMenuSeleccionado: (DashboardMenuOption) -> Unit,
-    onResetError: () -> Unit,
-    onResetExito: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onVerIngreso: ((Long) -> Unit)? = null
 ) {
     val colors = MaterialTheme.colorScheme
-    val typography = MaterialTheme.typography
-
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
+    var salidaPendiente by rememberSaveable { mutableStateOf<SalidaRegistro?>(null) }
+    val mensajePendiente = stringResource(R.string.dashboard_section_pending)
 
-    LaunchedEffect(uiState.mensajeError) {
-        uiState.mensajeError?.let { msg ->
-            snackbarHostState.showSnackbar(msg)
-            onResetError()
+    val editable = !uiState.esEdicion || ReglasIngreso.editar(uiState.estadoIngreso)
+    val soloContacto = uiState.esEdicion && ReglasIngreso.soloContacto(uiState.estadoIngreso)
+    // El formulario solo admite cambios cuando terminó la carga.
+    val camposHabilitados = uiState.formularioDisponible && editable && !uiState.cargando && !uiState.registroExitoso
+    val datosCompletosHabilitados = camposHabilitados && !soloContacto
+
+    fun ejecutarSalida(destino: SalidaRegistro) {
+        when (destino) {
+            SalidaRegistro.DASHBOARD -> onMenuSeleccionado(DashboardMenuOption.DASHBOARD)
+            SalidaRegistro.CERRAR_SESION -> onLogout()
         }
     }
 
-    LaunchedEffect(uiState.registroExitoso) {
-        if (uiState.registroExitoso) {
-            snackbarHostState.showSnackbar("¡Ingreso registrado con éxito!")
-            onResetExito()
-        }
+    fun solicitarSalida(destino: SalidaRegistro) {
+        // Durante el guardado esperamos a que termine la operación.
+        // Durante una consulta inicial sí se permite salir.
+        if (uiState.cargando) return
+        if (uiState.tieneCambiosSinGuardar) { salidaPendiente = destino
+        } else { ejecutarSalida(destino) }
     }
 
     ModalNavigationDrawer(
         modifier = modifier.fillMaxSize(),
         drawerState = drawerState,
+        gesturesEnabled = !uiState.cargando,
         drawerContent = {
             DashboardDrawer(
                 opcionSeleccionada = DashboardMenuOption.REGISTRO,
                 onOpcionSeleccionada = { opcion ->
                     scope.launch {
                         drawerState.close()
-                        onMenuSeleccionado(opcion)
+                        if (!uiState.cargando) {
+                            when (opcion) {
+                                DashboardMenuOption.REGISTRO -> Unit
+                                DashboardMenuOption.DASHBOARD -> solicitarSalida(SalidaRegistro.DASHBOARD)
+                                else -> snackbar.showSnackbar(mensajePendiente)
+                            }
+                        }
                     }
                 },
-                onLogout = onLogout
+                onLogout = {
+                    scope.launch { drawerState.close()
+                        solicitarSalida(SalidaRegistro.CERRAR_SESION)
+                    }
+                }
             )
         }
     ) {
+        // También protege la salida mediante el botón Atrás de Android.
+        BackHandler {
+            if (drawerState.isOpen) { scope.launch { drawerState.close() } }
+            else { solicitarSalida(SalidaRegistro.DASHBOARD) }
+        }
         Scaffold(
             containerColor = colors.background,
+            snackbarHost = { SnackbarHost(snackbar) },
             topBar = {
                 TopAppBar(
                     title = {
-                        Text(
-                            text = "AutoClimas - Registro",
-                            style = typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 20.sp
-                            )
-                        )
+                        Column {
+                            Text(text = stringResource(R.string.dashboard_title),
+                                style = MaterialTheme.typography.titleLarge)
+                            Text(text = stringResource(
+                                if (uiState.esEdicion) { R.string.registro_title_edit
+                                } else { R.string.registro_title_new }),
+                                style = MaterialTheme.typography.labelMedium)
+                        }
                     },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                scope.launch { drawerState.open() }
-                            }
+                    navigationIcon = { IconButton(
+                        enabled = !uiState.cargando,
+                        onClick = { scope.launch { drawerState.open() } }
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = stringResource(R.string.dashboard_open_menu)
-                            )
+                            Icon(imageVector = Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.dashboard_open_menu))
                         }
                     },
                     actions = {
-                        Image(
-                            painter = painterResource(R.drawable.logo_autoclimas),
+                        Image(painter = painterResource(R.drawable.logo_autoclimas),
                             contentDescription = stringResource(R.string.dashboard_logo_description),
                             contentScale = ContentScale.Fit,
-                            modifier = Modifier
-                                .padding(end = 12.dp)
-                                .width(72.dp)
-                                .height(56.dp)
+                            modifier = Modifier.padding(end = 12.dp).width(72.dp).height(56.dp)
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color(0xFF1E3A8A),
-                        titleContentColor = Color.White,
-                        navigationIconContentColor = Color.White
+                        containerColor = colors.tertiary,
+                        titleContentColor = colors.onTertiary,
+                        navigationIconContentColor = colors.onTertiary
                     )
                 )
-            },
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
+            }
+        ) { padding ->
+            Box(
+                modifier = Modifier.fillMaxSize()
                     .background(AutoClimasGradients.loginBackground)
-                    .padding(innerPadding)
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 8.dp, vertical = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(padding).imePadding(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Tarjeta contenedora de formulario
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFFB5D1F8)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(10.dp, RoundedCornerShape(20.dp))
+                Column(modifier = Modifier
+                        .widthIn(max = 800.dp).fillMaxWidth()
+                        .verticalScroll(rememberScrollState()).padding(16.dp)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp, vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    Card(
+                        modifier = Modifier.fillMaxWidth().shadow(elevation = 10.dp, shape = MaterialTheme.shapes.large),
+                        shape = MaterialTheme.shapes.large,
+                        colors = CardDefaults.cardColors(containerColor = colors.surface, contentColor = colors.onSurface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        Column(modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(20.dp)
                         ) {
-                            // Columna Izquierda: Datos del Vehículo
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(14.dp)
-                            ) {
-                                RegistroCampoInput(
-                                    label = "Placa del Auto",
-                                    placeholder = "Ej. ABC-123",
-                                    valor = uiState.placa,
-                                    onValorChange = onPlacaChange,
-                                    onLimpiar = onLimpiarPlaca
-                                )
-
-                                RegistroCampoInput(
-                                    label = "Modelo del Auto",
-                                    placeholder = "Ej. Civic 2020",
-                                    valor = uiState.modelo,
-                                    onValorChange = onModeloChange,
-                                    onLimpiar = onLimpiarModelo
-                                )
-
-                                RegistroCampoInput(
-                                    label = "Color del Auto",
-                                    placeholder = "Ej. Rojo",
-                                    valor = uiState.color,
-                                    onValorChange = onColorChange,
-                                    onLimpiar = onLimpiarColor
-                                )
-
-                                RegistroCampoInput(
-                                    label = "Numero de Serie",
-                                    placeholder = "Ej. SERIE-1234",
-                                    valor = uiState.numeroSerie,
-                                    onValorChange = onNumeroSerieChange,
-                                    onLimpiar = onLimpiarNumeroSerie
-                                )
-                            }
-
-                            // Columna Derecha: Datos del Cliente y Fecha
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.spacedBy(14.dp)
-                            ) {
-                                RegistroCampoInput(
-                                    label = "Nombre del Cliente",
-                                    placeholder = "Ej. Juan Pérez",
-                                    valor = uiState.nombreCliente,
-                                    onValorChange = onNombreClienteChange,
-                                    onLimpiar = onLimpiarNombreCliente
-                                )
-
-                                RegistroCampoInput(
-                                    label = "Telefono del Cliente",
-                                    placeholder = "Ej. 8112345678",
-                                    valor = uiState.telefonoCliente,
-                                    onValorChange = onTelefonoClienteChange,
-                                    onLimpiar = onLimpiarTelefonoCliente
-                                )
-
-                                RegistroCampoInput(
-                                    label = "Email del Cliente",
-                                    placeholder = "Ej. mail@cliente.com",
-                                    valor = uiState.emailCliente,
-                                    onValorChange = onEmailClienteChange,
-                                    onLimpiar = onLimpiarEmailCliente
-                                )
-
-                                RegistroCampoInput(
-                                    label = "Fecha de Entrada",
-                                    placeholder = "Ej. 09/09/2026",
-                                    valor = uiState.fechaEntrada,
-                                    onValorChange = onFechaEntradaChange,
-                                    onLimpiar = onLimpiarFechaEntrada
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        // Botón destacado para Registrar Ingreso
-                        Button(
-                            onClick = onRegistrar,
-                            enabled = !uiState.cargando,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent
-                            ),
-                            contentPadding = PaddingValues(0.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(54.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(brush = AutoClimasGradients.primaryButton)
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (uiState.cargando) {
-                                    CircularProgressIndicator(
-                                        color = Color.White,
-                                        modifier = Modifier.size(26.dp)
+                            when {
+                                // No mostramos campos vacíos mientras
+                                // se está preparando una edición.
+                                uiState.cargandoIngreso -> {
+                                    CargaInicialRegistro(
+                                        onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD)}
                                     )
-                                } else {
+                                }
+                                // El reintento vuelve a consultar desde
+                                // el ViewModel, sin consultas en la pantalla.
+                                uiState.errorCarga != null -> {
+                                    ErrorCargaRegistro(mensaje = uiState.errorCarga,
+                                        onReintentar = onReintentarCarga,
+                                        onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD) }
+                                    )
+                                }
+
+                                uiState.registroExitoso -> {
+                                    ResultadoRegistro(uiState = uiState,
+                                        onNuevaCaptura = onNuevaCaptura,
+                                        onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD) },
+                                        onVerIngreso = onVerIngreso
+                                    )
+                                }
+                                else -> {
                                     Text(
-                                        text = "Registrar Ingreso",
-                                        style = TextStyle(
-                                            fontSize = 17.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.White
+                                        text = stringResource(if (uiState.esEdicion) { R.string.registro_title_edit
+                                            } else { R.string.registro_title_new }),
+                                        style = MaterialTheme.typography.headlineSmall)
+                                    Text(text = stringResource(R.string.registro_required_hint),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = colors.onSurfaceVariant)
+                                    if (uiState.esEdicion) {
+                                        Text(text = stringResource(R.string.registro_shared_warning),
+                                            style = MaterialTheme.typography.bodySmall)
+                                    }
+                                    if (soloContacto) {
+                                        Text(text = stringResource(R.string.registro_contact_only),
+                                            color = colors.primary)
+                                    }
+                                    if (!editable) {
+                                        Text(text = stringResource(R.string.registro_read_only),
+                                            color = colors.error)
+                                    }
+                                    SeccionRegistro(
+                                        titulo = stringResource(R.string.registro_section_vehicle)
+                                    ) {
+                                        CamposAdaptables(
+                                            primero = { CampoRegistroTexto(etiqueta = R.string.dashboard_plate,
+                                                obligatorio = true, valor = uiState.placa,
+                                                error = uiState.erroresCampos["placa"],
+                                                habilitado = datosCompletosHabilitados,
+                                                onCambio = { onCampoChange(CampoRegistro.PLACA, it) })
+                                            },
+                                            segundo = { CampoRegistroTexto(
+                                                etiqueta = R.string.dashboard_model,
+                                                obligatorio = true, valor = uiState.modelo,
+                                                error = uiState.erroresCampos["modelo"],
+                                                habilitado = datosCompletosHabilitados,
+                                                onCambio = { onCampoChange(CampoRegistro.MODELO, it) }
+                                                )
+                                            }
                                         )
-                                    )
+                                        CamposAdaptables(
+                                            primero = { CampoRegistroTexto(etiqueta = R.string.dashboard_color,
+                                                valor = uiState.color,
+                                                habilitado = datosCompletosHabilitados,
+                                                onCambio = { onCampoChange(CampoRegistro.COLOR, it) })
+                                            },
+                                            segundo = { CampoRegistroTexto(
+                                                etiqueta = R.string.dashboard_serial_number,
+                                                valor = uiState.numeroSerie, habilitado = datosCompletosHabilitados,
+                                                onCambio = { onCampoChange(CampoRegistro.SERIE, it) })
+                                            }
+                                        )
+                                    }
+                                    HorizontalDivider()
+                                    SeccionRegistro(
+                                        titulo = stringResource(R.string.registro_section_customer)
+                                    ) {
+                                        CampoRegistroTexto(etiqueta = R.string.dashboard_customer,
+                                            obligatorio = true, valor = uiState.nombreCliente,
+                                            error = uiState.erroresCampos["nombre"],
+                                            habilitado = datosCompletosHabilitados,
+                                            onCambio = { onCampoChange(CampoRegistro.NOMBRE, it) }
+                                        )
+                                        CamposAdaptables(
+                                            primero = { CampoRegistroTexto(
+                                                etiqueta = R.string.dashboard_phone,
+                                                obligatorio = true, valor = uiState.telefonoCliente,
+                                                error = uiState.erroresCampos["telefono"],
+                                                habilitado = camposHabilitados, tipo = KeyboardType.Phone,
+                                                onCambio = { onCampoChange(CampoRegistro.TELEFONO, it) })
+                                            },
+                                            segundo = { CampoRegistroTexto(
+                                                etiqueta = R.string.dashboard_email,
+                                                valor = uiState.emailCliente, error = uiState.erroresCampos["email"],
+                                                habilitado = camposHabilitados,
+                                                tipo = KeyboardType.Email,
+                                                onCambio = { onCampoChange(CampoRegistro.EMAIL, it) })
+                                            }
+                                        )
+                                    }
+
+                                    HorizontalDivider()
+
+                                    SeccionRegistro(
+                                        titulo = stringResource(R.string.registro_section_reception)
+                                    ) {
+                                        FechaRegistro(valor = uiState.fechaEntrada,
+                                            error = uiState.erroresCampos["fecha"],
+                                            habilitado = datosCompletosHabilitados,
+                                            onCambio = { onCampoChange(CampoRegistro.FECHA, it) })
+                                        CampoRegistroTexto(
+                                            etiqueta = R.string.registro_reason,
+                                            valor = uiState.motivoIngreso,
+                                            habilitado = datosCompletosHabilitados,
+                                            multilinea = true,
+                                            onCambio = { onCampoChange(CampoRegistro.MOTIVO, it) })
+                                        CampoRegistroTexto(
+                                            etiqueta = R.string.registro_initial_condition,
+                                            valor = uiState.condicionInicial,
+                                            habilitado = datosCompletosHabilitados,
+                                            multilinea = true,
+                                            onCambio = { onCampoChange(CampoRegistro.CONDICION, it) })
+                                    }
+                                    HorizontalDivider()
+                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Icon(imageVector = Icons.Default.PhotoCamera,
+                                            contentDescription = null,
+                                            tint = colors.primary)
+                                        Column(modifier = Modifier.weight(1f),
+                                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        ) {
+                                            Text(text = stringResource(R.string.registro_evidence_title),
+                                                style = MaterialTheme.typography.titleSmall)
+                                            Text(text = stringResource(R.string.registro_evidence_pending),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = colors.onSurfaceVariant)
+                                        }
+                                    }
+                                    uiState.mensajeError?.let { mensaje ->
+                                        Text(text = mensaje, color = colors.error,
+                                            style = MaterialTheme.typography.bodyMedium)
+                                    }
+                                    if (editable) {
+                                        Button(onClick = onGuardar,
+                                            enabled = camposHabilitados,
+                                            modifier = Modifier.fillMaxWidth().heightIn(min = 54.dp),
+                                            shape = MaterialTheme.shapes.small
+                                        ) {
+                                            if (uiState.cargando) {
+                                                CircularProgressIndicator(
+                                                    modifier = Modifier.size(20.dp),
+                                                    color = colors.primary,
+                                                    strokeWidth = 2.dp)
+                                                Spacer(Modifier.width(8.dp))
+                                            }
+                                            Text(text = stringResource(
+                                                when {uiState.cargando -> R.string.registro_saving
+                                                    uiState.esEdicion -> R.string.registro_save_changes
+                                                    else -> R.string.registro_save_new }))
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
+        }
+    }
 
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Botón visual de cámara ampliado (sin funcionalidad por el momento)
-                val cameraGradient = Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFF62A8EA),
-                        Color(0xFF2C7BD4)
-                    )
-                )
-
-                Surface(
-                    modifier = Modifier
-                        .width(220.dp)
-                        .height(115.dp)
-                        .clip(RoundedCornerShape(28.dp))
-                        .clickable {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("La función de captura de evidencia estará disponible próximamente.")
-                            }
-                        },
-                    shape = RoundedCornerShape(28.dp),
-                    color = Color.Transparent,
-                    shadowElevation = 10.dp
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(brush = cameraGradient),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PhotoCamera,
-                            contentDescription = "Cámara de evidencia (Próximamente)",
-                            tint = Color.Black,
-                            modifier = Modifier.size(56.dp)
-                        )
-                    }
+    salidaPendiente?.let { destino ->
+        AlertDialog(onDismissRequest = { salidaPendiente = null },
+            title = { Text(stringResource(R.string.registro_discard_title)) },
+            text = { Text(stringResource(R.string.registro_discard_description)) },
+            confirmButton = { TextButton(
+                    enabled = !uiState.cargando,
+                    onClick = { salidaPendiente = null
+                        ejecutarSalida(destino) }
+                ) { Text(stringResource(R.string.registro_discard_confirm)) }
+            },
+            dismissButton = { TextButton(onClick = { salidaPendiente = null }) {
+                    Text(stringResource(R.string.registro_keep_editing))
                 }
+            }
+        )
+    }
+}
 
-                Spacer(modifier = Modifier.height(20.dp))
+/* Estado de espera durante la consulta inicial del expediente.
+Permite volver sin esperar a que termine la consulta. */
+@Composable
+private fun CargaInicialRegistro(
+    onVolver: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        CircularProgressIndicator()
+        Text(text = stringResource(R.string.navigation_loading_form),
+            style = MaterialTheme.typography.bodyLarge)
+        TextButton(onClick = onVolver) {
+            Text(text = stringResource(R.string.registro_back_dashboard))
+        }
+    }
+}
+
+// Muestra el error de carga y delega el reintento al ViewModel.
+@Composable
+private fun ErrorCargaRegistro(
+    mensaje: String,
+    onReintentar: () -> Unit,
+    onVolver: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text(text = stringResource(R.string.navigation_form_error),
+            style = MaterialTheme.typography.titleLarge
+        )
+        Text(text = mensaje,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium)
+        Button(onClick = onReintentar,
+            modifier = Modifier.fillMaxWidth()
+        ) { Text(stringResource(R.string.dashboard_retry)) }
+        TextButton(onClick = onVolver, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.registro_back_dashboard))
+        }
+    }
+}
+
+@Composable
+private fun SeccionRegistro(
+    titulo: String,
+    contenido: @Composable () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Text(text = titulo,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        contenido()
+    }
+}
+
+/* Utiliza las mismas entradas en una o dos columnas.
+La distribución depende del ancho, no de la orientación.*/
+@Composable
+private fun CamposAdaptables(
+    primero: @Composable () -> Unit,
+    segundo: @Composable () -> Unit
+) {
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()
+    ) {
+        if (maxWidth >= 560.dp) {
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Box(Modifier.weight(1f)) { primero() }
+                Box(Modifier.weight(1f)) { segundo() }
+            }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                primero()
+                segundo()
             }
         }
     }
 }
 
-/**
- * Campo de texto personalizado con placeholder en una sola línea ajustada sin corte ni salto de renglón.
- */
+/* Etiqueta externa y campo Material 3.
+El botón de limpiar conserva un área táctil estándar. */
 @Composable
-fun RegistroCampoInput(
-    label: String,
-    placeholder: String,
+private fun CampoRegistroTexto(
+    @StringRes etiqueta: Int,
     valor: String,
-    onValorChange: (String) -> Unit,
-    onLimpiar: () -> Unit,
-    modifier: Modifier = Modifier
+    onCambio: (String) -> Unit,
+    habilitado: Boolean,
+    error: String? = null,
+    obligatorio: Boolean = false,
+    multilinea: Boolean = false,
+    tipo: KeyboardType = KeyboardType.Text
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp)
-    ) {
-        // Caja principal del Input
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-                .height(58.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(Color(0xFFCDE0FD))
-                .border(
-                    width = 1.dp,
-                    color = Color(0xFF627B9B),
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(start = 10.dp, end = 2.dp, top = 16.dp, bottom = 4.dp),
-            contentAlignment = Alignment.CenterStart
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                BasicTextField(
-                    value = valor,
-                    onValueChange = onValorChange,
-                    singleLine = true,
-                    textStyle = TextStyle(
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F172A)
-                    ),
-                    modifier = Modifier.weight(1f),
-                    decorationBox = { innerTextField ->
-                        Box(contentAlignment = Alignment.CenterStart) {
-                            if (valor.isEmpty()) {
-                                Text(
-                                    text = placeholder,
-                                    fontSize = 12.sp,
-                                    maxLines = 1,
-                                    softWrap = false,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = Color(0xFF64748B)
-                                )
-                            }
-                            innerTextField()
-                        }
-                    }
-                )
+    val nombre = stringResource(etiqueta)
+    val textoEtiqueta = if (obligatorio) {
+        stringResource(R.string.registro_required_label, nombre)
+    } else {
+        nombre
+    }
 
-                IconButton(
-                    onClick = onLimpiar,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Cancel,
-                        contentDescription = "Limpiar $label",
-                        tint = Color(0xFF4A5568),
-                        modifier = Modifier.size(20.dp)
-                    )
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(text = textoEtiqueta,
+            style = MaterialTheme.typography.labelLarge)
+        OutlinedTextField(
+            value = valor, onValueChange = onCambio,
+            enabled = habilitado, modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.small, singleLine = !multilinea,
+            minLines = if (multilinea) 3 else 1, isError = error != null,
+            keyboardOptions = KeyboardOptions(keyboardType = tipo),
+            trailingIcon = {
+                if (valor.isNotEmpty() && habilitado) {
+                    IconButton(onClick = { onCambio("") }) {
+                        Icon(imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.registro_clear_field, nombre))
+                    }
                 }
             }
-        }
+        )
 
-        // Etiqueta flotante montada sobre el borde superior
-        Surface(
-            modifier = Modifier
-                .padding(start = 10.dp)
-                .align(Alignment.TopStart),
-            color = Color.White,
-            shape = RoundedCornerShape(4.dp),
-            shadowElevation = 2.dp
-        ) {
-            Text(
-                text = label,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B),
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+        if (error != null) {
+            Text(text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
             )
         }
     }
 }
 
+@Composable
+private fun FechaRegistro(
+    valor: String,
+    error: String?,
+    habilitado: Boolean,
+    onCambio: (String) -> Unit
+) {
+    val context = LocalContext.current
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(text = stringResource(R.string.registro_required_label,
+            stringResource(R.string.dashboard_entry_date)),
+            style = MaterialTheme.typography.labelLarge)
+        OutlinedButton(enabled = habilitado,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            onClick = {
+                val calendario = Calendar.getInstance()
+                FormularioIngreso.interpretarFecha(valor)?.let { calendario.time = it }
+                DatePickerDialog(
+                    context, { _, anio, mes, dia ->
+                        val seleccionada = Calendar.getInstance().apply {
+                            clear()
+                            set(anio, mes, dia)
+                        }
+                        onCambio(FormularioIngreso.formatearFecha(seleccionada.timeInMillis))
+                    },
+                    calendario.get(Calendar.YEAR),
+                    calendario.get(Calendar.MONTH),
+                    calendario.get(Calendar.DAY_OF_MONTH)
+                ).show()
+            }
+        ) {
+            Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(text = valor.ifBlank { stringResource(R.string.registro_select_date) })
+        }
+        if (error != null) {
+            Text(text = error, color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+@Composable
+private fun ResultadoRegistro(
+    uiState: RegistroUiState,
+    onNuevaCaptura: () -> Unit,
+    onVolver: () -> Unit,
+    onVerIngreso: ((Long) -> Unit)?
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(48.dp))
+        Text(text = stringResource(
+                if (uiState.esEdicion) { R.string.registro_updated_success
+                } else { R.string.registro_created_success }),
+            style = MaterialTheme.typography.headlineSmall)
+        uiState.idRegistrado?.let { id ->
+            Text(text = stringResource(R.string.registro_saved_identifier, id))
+            onVerIngreso?.let { abrir ->
+                Button(enabled = !uiState.cargando,
+                    onClick = { abrir(id) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.dashboard_card_view_detail)) }
+            }
+        }
+
+        if (!uiState.esEdicion) {
+            OutlinedButton(enabled = !uiState.cargando,
+                onClick = onNuevaCaptura, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.registro_another))
+            }
+        }
+
+        TextButton(enabled = !uiState.cargando,
+            onClick = onVolver, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.registro_back_dashboard))
+        }
+    }
+}
+
 @Preview(
-    name = "Registro Screen Preview",
+    name = "Registro · teléfono",
     showBackground = true,
     widthDp = 400,
-    heightDp = 800
+    heightDp = 850
+)
+@Preview(
+    name = "Registro · ancho",
+    showBackground = true,
+    widthDp = 800,
+    heightDp = 850
 )
 @Composable
-private fun RegistroScreenPreview() {
+private fun RegistroClaroPreview() {
     MyApplicationTheme(darkTheme = false) {
         RegistroContent(
             uiState = RegistroUiState(
                 placa = "ABC-123",
-                nombreCliente = "Juan Pérez",
-                modelo = "Civic 2020",
-                telefonoCliente = "8112345678"
+                nombreCliente = "Cliente de ejemplo",
+                modelo = "Honda Civic",
+                telefonoCliente = "8100000000"
             ),
-            onPlacaChange = {},
-            onModeloChange = {},
-            onColorChange = {},
-            onNumeroSerieChange = {},
-            onNombreClienteChange = {},
-            onTelefonoClienteChange = {},
-            onEmailClienteChange = {},
-            onFechaEntradaChange = {},
-            onLimpiarPlaca = {},
-            onLimpiarModelo = {},
-            onLimpiarColor = {},
-            onLimpiarNumeroSerie = {},
-            onLimpiarNombreCliente = {},
-            onLimpiarTelefonoCliente = {},
-            onLimpiarEmailCliente = {},
-            onLimpiarFechaEntrada = {},
-            onRegistrar = {},
+            onCampoChange = { _, _ -> },
+            onGuardar = {},
+            onNuevaCaptura = {},
+            onReintentarCarga = {},
             onLogout = {},
-            onMenuSeleccionado = {},
-            onResetError = {},
-            onResetExito = {}
+            onMenuSeleccionado = {}
+        )
+    }
+}
+
+@Preview(
+    name = "Registro · oscuro",
+    showBackground = true,
+    widthDp = 400,
+    heightDp = 2000
+)
+@Composable
+private fun RegistroOscuroPreview() {
+    MyApplicationTheme(darkTheme = true) {
+        RegistroContent(
+            uiState = RegistroUiState(),
+            onCampoChange = { _, _ -> },
+            onGuardar = {},
+            onNuevaCaptura = {},
+            onReintentarCarga = {},
+            onLogout = {},
+            onMenuSeleccionado = {}
+        )
+    }
+}
+
+@Preview(
+    name = "Edición · cargando",
+    showBackground = true,
+    widthDp = 400,
+    heightDp = 850
+)
+@Composable
+private fun RegistroCargandoPreview() {
+    MyApplicationTheme(darkTheme = false) {
+        RegistroContent(
+            uiState = RegistroUiState(
+                ingresoIdEnEdicion = 1L,
+                cargandoIngreso = true
+            ),
+            onCampoChange = { _, _ -> },
+            onGuardar = {},
+            onNuevaCaptura = {},
+            onReintentarCarga = {},
+            onLogout = {},
+            onMenuSeleccionado = {}
+        )
+    }
+}
+
+@Preview(
+    name = "Edición · error de carga",
+    showBackground = true,
+    widthDp = 400,
+    heightDp = 850
+)
+@Composable
+private fun RegistroErrorCargaPreview() {
+    MyApplicationTheme(darkTheme = true) {
+        RegistroContent(
+            uiState = RegistroUiState(
+                ingresoIdEnEdicion = 1L,
+                errorCarga = "No fue posible cargar el ingreso."
+            ),
+            onCampoChange = { _, _ -> },
+            onGuardar = {},
+            onNuevaCaptura = {},
+            onReintentarCarga = {},
+            onLogout = {},
+            onMenuSeleccionado = {}
         )
     }
 }
