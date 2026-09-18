@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import com.example.myapplication.data.local.model.EstadoIngreso
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -330,7 +331,24 @@ fun DiagnosticoScreen(
                                     habilitado = !estado.guardando &&
                                             !estado.guardadoExitoso,
                                     soloLectura = !estado.permiteEdicion,
-                                    erroresCampos = estado.erroresCampos
+                                    erroresCampos = estado.erroresCampos,
+                                    mensajeBloqueo = when {
+                                        estado.permiteEdicion -> null
+
+                                        estado.estadoActual == EstadoIngreso.REGISTRADO ->
+                                            stringResource(R.string.diagnostico_quote_blocked_registered)
+
+                                        estado.estadoActual == EstadoIngreso.ENTREGADO ||
+                                                estado.estadoActual == EstadoIngreso.CANCELADO ->
+                                            stringResource(R.string.diagnostico_quote_blocked_closed)
+
+                                        estado.estadoActual == EstadoIngreso.EN_REVISION ||
+                                                estado.estadoActual == EstadoIngreso.EN_REPARACION ->
+                                            stringResource(R.string.diagnostico_quote_blocked_checklist)
+
+                                        else ->
+                                            stringResource(R.string.diagnostico_quote_blocked_stage)
+                                    }
                                 )
                             }
 

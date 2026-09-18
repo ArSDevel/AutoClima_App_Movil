@@ -415,4 +415,10 @@
     <string name="diagnostico_selector_empty">Todavía no hay ingresos registrados.</string>
     <string name="diagnostico_selector_no_results">No hay ingresos que coincidan con la búsqueda.</string>
     <string name="diagnostico_selector_open">Abrir diagnóstico</string>
+
+    <!-- Motivos de bloqueo de la cotización -->
+    <string name="diagnostico_quote_blocked_registered">Para capturar la cotización, inicia la revisión desde el detalle del ingreso y guarda el checklist.</string>
+    <string name="diagnostico_quote_blocked_checklist">Guarda primero el checklist de este ingreso para habilitar las notas y la cotización.</string>
+    <string name="diagnostico_quote_blocked_closed">Este ingreso está cerrado. La cotización solo está disponible para consulta.</string>
+    <string name="diagnostico_quote_blocked_stage">En esta etapa la cotización es de consulta. Solo puede modificarse durante la revisión o la reparación.</string>
 </resources>

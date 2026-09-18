@@ -8,6 +8,13 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.example.myapplication.ui.theme.AutoClimasGradients
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -57,6 +64,7 @@ fun ChecklistScreen(
     onVolver: () -> Unit
 ) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
+    val colors = MaterialTheme.colorScheme
     var confirmarSalida by rememberSaveable { mutableStateOf(false) }
 
     // Se utiliza tanto desde la barra superior como
@@ -81,7 +89,10 @@ fun ChecklistScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.checklist_title))
+                    Text(
+                        text = stringResource(R.string.checklist_title),
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 },
                 navigationIcon = {
                     IconButton(
@@ -95,13 +106,31 @@ fun ChecklistScreen(
                             )
                         )
                     }
-                }
+                },
+                actions = {
+                    Image(
+                        painter = painterResource(R.drawable.logo_autoclimas),
+                        contentDescription = stringResource(
+                            R.string.dashboard_logo_description
+                        ),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .width(72.dp)
+                            .height(56.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colors.tertiary,
+                    titleContentColor = colors.onTertiary,
+                    navigationIconContentColor = colors.onTertiary
+                )
             )
         }
     ) { padding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
+                .background(AutoClimasGradients.loginBackground)
                 .padding(padding),
             contentAlignment = Alignment.TopCenter
         ) {

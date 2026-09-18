@@ -10,6 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -67,7 +73,25 @@ fun SeleccionIngresoChecklistScreen(
                             )
                         )
                     }
-                }
+                },
+                actions = {
+                    Image(
+                        painter = painterResource(R.drawable.logo_autoclimas),
+                        contentDescription = stringResource(
+                            R.string.dashboard_logo_description
+                        ),
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .padding(end = 12.dp)
+                            .width(72.dp)
+                            .height(56.dp)
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.tertiary,
+                    titleContentColor = MaterialTheme.colorScheme.onTertiary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
+                )
             )
         }
     ) { padding ->

@@ -35,7 +35,8 @@ fun CotizacionDiagnostico(
     modifier: Modifier = Modifier,
     habilitado: Boolean = true,
     soloLectura: Boolean = false,
-    erroresCampos: Map<String, String> = emptyMap()
+    erroresCampos: Map<String, String> = emptyMap(),
+    mensajeBloqueo: String? = null
 ) {
     val colors = MaterialTheme.colorScheme
     val totalCentavos = formulario.totalEnCentavos()
@@ -45,6 +46,22 @@ fun CotizacionDiagnostico(
         icono = Icons.Default.List,
         modifier = modifier
     ) {
+        // Explica el bloqueo junto a la cotización,
+// sin obligar al usuario a regresar al inicio del reporte.
+        if (soloLectura && !mensajeBloqueo.isNullOrBlank()) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
+                color = colors.secondaryContainer,
+                contentColor = colors.onSecondaryContainer
+            ) {
+                Text(
+                    text = mensajeBloqueo,
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
         if (formulario.conceptos.isEmpty()) {
             Text(text = stringResource(R.string.diagnostico_quote_pending),
                 style = MaterialTheme.typography.bodyMedium,
