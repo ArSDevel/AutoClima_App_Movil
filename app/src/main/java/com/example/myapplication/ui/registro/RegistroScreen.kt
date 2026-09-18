@@ -1,13 +1,10 @@
 package com.example.myapplication.ui.registro
 
-import android.app.DatePickerDialog
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,13 +18,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Assignment
+import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -41,8 +37,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -62,7 +56,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -70,14 +63,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
-import com.example.myapplication.data.local.model.FormularioIngreso
 import com.example.myapplication.data.local.model.ReglasIngreso
 import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.dashboard.components.DashboardDrawer
+import com.example.myapplication.ui.registro.components.CampoRegistroTexto
+import com.example.myapplication.ui.registro.components.CamposAdaptables
+import com.example.myapplication.ui.registro.components.CargaInicialRegistro
+import com.example.myapplication.ui.registro.components.ErrorCargaRegistro
+import com.example.myapplication.ui.registro.components.FechaRegistro
+import com.example.myapplication.ui.registro.components.ResultadoRegistro
+import com.example.myapplication.ui.registro.components.SeccionRegistro
 import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 // Conecta el estado y las acciones del ViewModel con la interfaz.
 @Composable
@@ -122,7 +120,9 @@ private enum class CampoRegistro {
 }
 
 private enum class SalidaRegistro {
-    DASHBOARD, CERRAR_SESION
+    DASHBOARD,
+    CHECKLIST,
+    CERRAR_SESION
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -153,8 +153,17 @@ private fun RegistroContent(
 
     fun ejecutarSalida(destino: SalidaRegistro) {
         when (destino) {
-            SalidaRegistro.DASHBOARD -> onMenuSeleccionado(DashboardMenuOption.DASHBOARD)
-            SalidaRegistro.CERRAR_SESION -> onLogout()
+            SalidaRegistro.DASHBOARD -> {
+                onMenuSeleccionado(DashboardMenuOption.DASHBOARD)
+            }
+
+            SalidaRegistro.CHECKLIST -> {
+                onMenuSeleccionado(DashboardMenuOption.CHECKLIST)
+            }
+
+            SalidaRegistro.CERRAR_SESION -> {
+                onLogout()
+            }
         }
     }
 
@@ -176,10 +185,19 @@ private fun RegistroContent(
                 onOpcionSeleccionada = { opcion ->
                     scope.launch {
                         drawerState.close()
+
                         if (!uiState.cargando) {
                             when (opcion) {
                                 DashboardMenuOption.REGISTRO -> Unit
-                                DashboardMenuOption.DASHBOARD -> solicitarSalida(SalidaRegistro.DASHBOARD)
+
+                                DashboardMenuOption.DASHBOARD -> {
+                                    solicitarSalida(SalidaRegistro.DASHBOARD)
+                                }
+
+                                DashboardMenuOption.CHECKLIST -> {
+                                    solicitarSalida(SalidaRegistro.CHECKLIST)
+                                }
+
                                 else -> snackbar.showSnackbar(mensajePendiente)
                             }
                         }
@@ -300,7 +318,9 @@ private fun RegistroContent(
                                             color = colors.error)
                                     }
                                     SeccionRegistro(
-                                        titulo = stringResource(R.string.registro_section_vehicle)
+                                        titulo = stringResource(R.string.registro_section_vehicle),
+                                        descripcion = stringResource(R.string.registro_vehicle_description),
+                                        icono = Icons.Default.DirectionsCar
                                     ) {
                                         CamposAdaptables(
                                             primero = { CampoRegistroTexto(etiqueta = R.string.dashboard_plate,
@@ -333,7 +353,9 @@ private fun RegistroContent(
                                     }
                                     HorizontalDivider()
                                     SeccionRegistro(
-                                        titulo = stringResource(R.string.registro_section_customer)
+                                        titulo = stringResource(R.string.registro_section_customer),
+                                        descripcion = stringResource(R.string.registro_customer_description),
+                                        icono = Icons.Default.Person
                                     ) {
                                         CampoRegistroTexto(etiqueta = R.string.dashboard_customer,
                                             obligatorio = true, valor = uiState.nombreCliente,
@@ -362,7 +384,9 @@ private fun RegistroContent(
                                     HorizontalDivider()
 
                                     SeccionRegistro(
-                                        titulo = stringResource(R.string.registro_section_reception)
+                                        titulo = stringResource(R.string.registro_section_reception),
+                                        descripcion = stringResource(R.string.registro_reception_description),
+                                        icono = Icons.Default.Assignment
                                     ) {
                                         FechaRegistro(valor = uiState.fechaEntrada,
                                             error = uiState.erroresCampos["fecha"],
@@ -444,218 +468,6 @@ private fun RegistroContent(
                 }
             }
         )
-    }
-}
-
-/* Estado de espera durante la consulta inicial del expediente.
-Permite volver sin esperar a que termine la consulta. */
-@Composable
-private fun CargaInicialRegistro(
-    onVolver: () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        CircularProgressIndicator()
-        Text(text = stringResource(R.string.navigation_loading_form),
-            style = MaterialTheme.typography.bodyLarge)
-        TextButton(onClick = onVolver) {
-            Text(text = stringResource(R.string.registro_back_dashboard))
-        }
-    }
-}
-
-// Muestra el error de carga y delega el reintento al ViewModel.
-@Composable
-private fun ErrorCargaRegistro(
-    mensaje: String,
-    onReintentar: () -> Unit,
-    onVolver: () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Text(text = stringResource(R.string.navigation_form_error),
-            style = MaterialTheme.typography.titleLarge
-        )
-        Text(text = mensaje,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyMedium)
-        Button(onClick = onReintentar,
-            modifier = Modifier.fillMaxWidth()
-        ) { Text(stringResource(R.string.dashboard_retry)) }
-        TextButton(onClick = onVolver, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.registro_back_dashboard))
-        }
-    }
-}
-
-@Composable
-private fun SeccionRegistro(
-    titulo: String,
-    contenido: @Composable () -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        Text(text = titulo,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-        contenido()
-    }
-}
-
-/* Utiliza las mismas entradas en una o dos columnas.
-La distribución depende del ancho, no de la orientación.*/
-@Composable
-private fun CamposAdaptables(
-    primero: @Composable () -> Unit,
-    segundo: @Composable () -> Unit
-) {
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()
-    ) {
-        if (maxWidth >= 560.dp) {
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Box(Modifier.weight(1f)) { primero() }
-                Box(Modifier.weight(1f)) { segundo() }
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                primero()
-                segundo()
-            }
-        }
-    }
-}
-
-/* Etiqueta externa y campo Material 3.
-El botón de limpiar conserva un área táctil estándar. */
-@Composable
-private fun CampoRegistroTexto(
-    @StringRes etiqueta: Int,
-    valor: String,
-    onCambio: (String) -> Unit,
-    habilitado: Boolean,
-    error: String? = null,
-    obligatorio: Boolean = false,
-    multilinea: Boolean = false,
-    tipo: KeyboardType = KeyboardType.Text
-) {
-    val nombre = stringResource(etiqueta)
-    val textoEtiqueta = if (obligatorio) {
-        stringResource(R.string.registro_required_label, nombre)
-    } else {
-        nombre
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        Text(text = textoEtiqueta,
-            style = MaterialTheme.typography.labelLarge)
-        OutlinedTextField(
-            value = valor, onValueChange = onCambio,
-            enabled = habilitado, modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.small, singleLine = !multilinea,
-            minLines = if (multilinea) 3 else 1, isError = error != null,
-            keyboardOptions = KeyboardOptions(keyboardType = tipo),
-            trailingIcon = {
-                if (valor.isNotEmpty() && habilitado) {
-                    IconButton(onClick = { onCambio("") }) {
-                        Icon(imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(R.string.registro_clear_field, nombre))
-                    }
-                }
-            }
-        )
-
-        if (error != null) {
-            Text(text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
-
-@Composable
-private fun FechaRegistro(
-    valor: String,
-    error: String?,
-    habilitado: Boolean,
-    onCambio: (String) -> Unit
-) {
-    val context = LocalContext.current
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(text = stringResource(R.string.registro_required_label,
-            stringResource(R.string.dashboard_entry_date)),
-            style = MaterialTheme.typography.labelLarge)
-        OutlinedButton(enabled = habilitado,
-            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-            onClick = {
-                val calendario = Calendar.getInstance()
-                FormularioIngreso.interpretarFecha(valor)?.let { calendario.time = it }
-                DatePickerDialog(
-                    context, { _, anio, mes, dia ->
-                        val seleccionada = Calendar.getInstance().apply {
-                            clear()
-                            set(anio, mes, dia)
-                        }
-                        onCambio(FormularioIngreso.formatearFecha(seleccionada.timeInMillis))
-                    },
-                    calendario.get(Calendar.YEAR),
-                    calendario.get(Calendar.MONTH),
-                    calendario.get(Calendar.DAY_OF_MONTH)
-                ).show()
-            }
-        ) {
-            Icon(imageVector = Icons.Default.DateRange, contentDescription = null)
-            Spacer(Modifier.width(8.dp))
-            Text(text = valor.ifBlank { stringResource(R.string.registro_select_date) })
-        }
-        if (error != null) {
-            Text(text = error, color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall)
-        }
-    }
-}
-
-@Composable
-private fun ResultadoRegistro(
-    uiState: RegistroUiState,
-    onNuevaCaptura: () -> Unit,
-    onVolver: () -> Unit,
-    onVerIngreso: ((Long) -> Unit)?
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Icon(imageVector = Icons.Default.CheckCircle, contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(48.dp))
-        Text(text = stringResource(
-                if (uiState.esEdicion) { R.string.registro_updated_success
-                } else { R.string.registro_created_success }),
-            style = MaterialTheme.typography.headlineSmall)
-        uiState.idRegistrado?.let { id ->
-            Text(text = stringResource(R.string.registro_saved_identifier, id))
-            onVerIngreso?.let { abrir ->
-                Button(enabled = !uiState.cargando,
-                    onClick = { abrir(id) }, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.dashboard_card_view_detail)) }
-            }
-        }
-
-        if (!uiState.esEdicion) {
-            OutlinedButton(enabled = !uiState.cargando,
-                onClick = onNuevaCaptura, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.registro_another))
-            }
-        }
-
-        TextButton(enabled = !uiState.cargando,
-            onClick = onVolver, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.registro_back_dashboard))
-        }
     }
 }
 

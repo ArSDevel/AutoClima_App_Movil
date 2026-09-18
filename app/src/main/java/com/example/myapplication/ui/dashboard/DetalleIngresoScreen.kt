@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import com.example.myapplication.data.repository.ChecklistRepository
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -68,7 +69,8 @@ fun DetalleIngresoScreen(
     viewModel: DetalleIngresoViewModel,
     tecnicoId: Long,
     onVolver: () -> Unit,
-    onEditar: (Long) -> Unit
+    onEditar: (Long) -> Unit,
+    onAbrirChecklist: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DetalleIngresoContent(
@@ -78,9 +80,10 @@ fun DetalleIngresoScreen(
         onReintentar = viewModel::reintentar,
         onLimpiarError = viewModel::limpiarErrorOperacion,
         onConsumirExito = viewModel::consumirOperacionExitosa,
+        onAbrirChecklist = onAbrirChecklist,
         onConfirmar = { accion, motivo, destino ->
             when (accion) {
-                IngresoAccion.INICIAR_REVISION -> viewModel.iniciarRevision(motivo, tecnicoId)
+                IngresoAccion.INICIAR_REVISION -> viewModel.iniciarRevision(tecnicoId)
                 IngresoAccion.DEVOLVER_A_REPARACION -> viewModel.devolverAReparacion(motivo, tecnicoId)
                 IngresoAccion.CANCELAR -> viewModel.cancelar(motivo, tecnicoId)
                 IngresoAccion.REGULARIZAR_ESTADO ->
@@ -104,7 +107,8 @@ private fun DetalleIngresoContent(
     onReintentar: () -> Unit,
     onLimpiarError: () -> Unit,
     onConsumirExito: () -> Unit,
-    onConfirmar: (IngresoAccion, String, EstadoIngreso) -> Unit
+    onConfirmar: (IngresoAccion, String, EstadoIngreso) -> Unit,
+    onAbrirChecklist: (Long) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     val ingreso = uiState.ingreso
@@ -284,6 +288,27 @@ private fun DetalleIngresoContent(
                         if (ReglasIngreso.estaCerrado(estado)) {
                             Text(stringResource(R.string.detalle_closed))
                         }
+                        // Permite capturar durante revisión y reparación.
+                        // En otras etapas permite consultar un checklist ya guardado.
+                        val permiteEditarChecklist = ChecklistRepository.puedeEditar(estado)
+
+                        val tieneChecklistGuardado = uiState.historial.any {
+                            it.accion == "CHECKLIST"
+                        }
+
+                        if (permiteEditarChecklist || tieneChecklistGuardado) {
+                            BotonDetalle(
+                                texto = if (permiteEditarChecklist) {
+                                    R.string.dashboard_action_checklist
+                                } else {
+                                    R.string.checklist_view
+                                },
+                                habilitado = accionesHabilitadas,
+                                onClick = {
+                                    onAbrirChecklist(ingreso.ingresoId)
+                                }
+                            )
+                        }
                         ModulosPendientesDetalle(estado)
                     }
                 }
@@ -308,6 +333,7 @@ private fun DetalleIngresoContent(
 val accion = accionPendiente
 if (accion != null && ingreso != null && !uiState.eliminado) {
     val esEliminar = accion == IngresoAccion.ELIMINAR
+    val requiereMotivo = accion != IngresoAccion.ELIMINAR && accion != IngresoAccion.INICIAR_REVISION
     AlertDialog(onDismissRequest = { cerrarConfirmacion() },
         title = { Text(stringResource(tituloConfirmacion(accion))) },
         text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -335,14 +361,18 @@ if (accion != null && ingreso != null && !uiState.eliminado) {
                         }
                     }
                 }
-                if (!esEliminar) {
-                    OutlinedTextField(value = motivo,
-                        onValueChange = { motivo = it
+                if (requiereMotivo) {
+                    OutlinedTextField(
+                        value = motivo,
+                        onValueChange = {
+                            motivo = it
                             onLimpiarError()
                         },
                         label = { Text(stringResource(R.string.detalle_reason)) },
                         enabled = !uiState.procesando,
-                        minLines = 2, modifier = Modifier.fillMaxWidth())
+                        minLines = 2,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
                 uiState.errorOperacion?.let {
                     Text(text = it, color = colors.error)
@@ -351,11 +381,14 @@ if (accion != null && ingreso != null && !uiState.eliminado) {
             }
         },
         confirmButton = {
-            TextButton(enabled = accionesHabilitadas && (esEliminar || motivo.isNotBlank()),
-                onClick = { onConfirmar(accion,
-                        motivo.trim(),
-                        destinoRegularizacion) }
-            ) { Text(stringResource(R.string.detalle_confirm)) } },
+            TextButton(
+                enabled = accionesHabilitadas && (!requiereMotivo || motivo.isNotBlank()),
+                onClick = {
+                    onConfirmar(accion, motivo.trim(), destinoRegularizacion)
+                }
+            ) {
+                Text(stringResource(R.string.detalle_confirm))
+            } },
         dismissButton = {
             TextButton(enabled = !uiState.procesando, onClick = { cerrarConfirmacion() }) {
                 Text(stringResource(R.string.detalle_back)) }
@@ -474,10 +507,10 @@ private fun EventoDetalle(evento: EventoIngreso) {
             "CREADO" -> R.string.detalle_event_created
             "EDITADO" -> R.string.detalle_event_edited
             "ESTADO" -> R.string.detalle_event_state
+            "CHECKLIST" -> R.string.detalle_event_checklist
             else -> R.string.detalle_event_other
         }
     )
-
     PanelDetalle(titulo = titulo) {
         Text(text = fechaDetalle(evento.fecha),
             style = MaterialTheme.typography.labelMedium)
@@ -499,7 +532,6 @@ private fun EventoDetalle(evento: EventoIngreso) {
 private fun ModulosPendientesDetalle(estado: EstadoIngreso) {
     val recursos = when (estado) {
         EstadoIngreso.EN_REVISION -> listOf(
-            R.string.dashboard_action_checklist,
             R.string.dashboard_action_evidence,
             R.string.dashboard_action_diagnosis
         )
@@ -546,6 +578,7 @@ private fun DetalleClaroPreview() {
             onReintentar = {},
             onLimpiarError = {},
             onConsumirExito = {},
+            onAbrirChecklist = {},
             onConfirmar = { _, _, _ -> }
         )
     }
@@ -567,6 +600,7 @@ private fun DetalleOscuroPreview() {
             onReintentar = {},
             onLimpiarError = {},
             onConsumirExito = {},
+            onAbrirChecklist = {},
             onConfirmar = { _, _, _ -> }
         )
     }

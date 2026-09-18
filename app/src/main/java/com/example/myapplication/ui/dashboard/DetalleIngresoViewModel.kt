@@ -67,11 +67,11 @@ class DetalleIngresoViewModel(
         cargarDetalle()
     }
 
-    fun iniciarRevision(motivo: String, tecnicoId: Long) {
+    fun iniciarRevision(tecnicoId: Long) {
         ejecutarOperacion(accion = IngresoAccion.INICIAR_REVISION) {
-            repository.cambiarEstado(ingresoId = ingresoId, destino = EstadoIngreso.EN_REVISION,
-                motivo = motivo, tecnicoId = tecnicoId
-            )
+            repository.cambiarEstado(
+                ingresoId = ingresoId, destino = EstadoIngreso.EN_REVISION,
+                motivo = "Revisión iniciada.", tecnicoId = tecnicoId)
         }
     }
 

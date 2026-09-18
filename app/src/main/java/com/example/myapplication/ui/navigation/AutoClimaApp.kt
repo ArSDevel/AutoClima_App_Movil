@@ -17,6 +17,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.myapplication.data.local.AppDatabase
 import com.example.myapplication.data.local.repository.DashboardRepository
 import com.example.myapplication.data.repository.RegistroRepository
+import com.example.myapplication.ui.checklist.SeleccionIngresoChecklistScreen
 import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.dashboard.DashboardScreen
 import com.example.myapplication.ui.dashboard.DashboardViewModel
@@ -29,6 +30,10 @@ import com.example.myapplication.ui.login.LoginViewModel
 import com.example.myapplication.ui.registro.RegistroScreen
 import com.example.myapplication.ui.registro.RegistroViewModel
 import com.example.myapplication.ui.registro.RegistroViewModelFactory
+import com.example.myapplication.data.repository.ChecklistRepository
+import com.example.myapplication.ui.checklist.ChecklistScreen
+import com.example.myapplication.ui.checklist.ChecklistViewModel
+import com.example.myapplication.ui.checklist.ChecklistViewModelFactory
 
 // Coordina la navegación y conecta las dependencias necesarias para cada pantalla.
 @Composable
@@ -38,6 +43,7 @@ fun AutoClimaApp() {
     val tecnicoDao = remember(baseDeDatos) { baseDeDatos.tecnicoDao() }
     val dashboardRepository = remember(baseDeDatos) { DashboardRepository(baseDeDatos = baseDeDatos) }
     val registroRepository = remember(baseDeDatos) { RegistroRepository(baseDeDatos = baseDeDatos) }
+    val checklistRepository = remember(baseDeDatos) { ChecklistRepository(baseDeDatos = baseDeDatos) }
 
     // Construye el ViewModel de inicio de sesión.
     val loginFactory = remember(tecnicoDao) {
@@ -114,6 +120,8 @@ fun AutoClimaApp() {
         backStack.add(RegistroRoute(userId = uiState.id, ingresoId = ingresoId))
     }
 
+
+
     // Abre el expediente de un ingreso existente.
     fun abrirDetalle(ingresoId: Long) {
         if (!sesionValida || ingresoId <= 0) return
@@ -126,6 +134,56 @@ fun AutoClimaApp() {
         if (backStack.lastOrNull() == destino) return
         backStack.add(destino)
     }
+
+    // Abre la selección de ingreso desde el menú lateral.
+    fun abrirSeleccionChecklist() {
+        if (!sesionValida) return
+
+        val destino = SeleccionIngresoChecklistRoute(
+            userId = uiState.id
+        )
+
+        if (backStack.lastOrNull() == destino) return
+
+        // Desde Registro, la pantalla ya confirmó la salida
+        // si existían cambios pendientes.
+        // Retirar su entrada evita conservar un formulario descartado.
+        if (backStack.lastOrNull() is RegistroRoute) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino)
+        }
+    }
+
+    // Abre el checklist conservando el detalle debajo en la pila.
+    fun abrirChecklist(ingresoId: Long) {
+        if (!sesionValida || ingresoId <= 0) return
+
+        val destino = ChecklistRoute(
+            userId = uiState.id,
+            ingresoId = ingresoId
+        )
+
+        if (backStack.lastOrNull() == destino) return
+
+        backStack.add(destino)
+    }
+
+    // Retira el checklist y recupera el detalle del mismo ingreso.
+    fun volverDelChecklist(ingresoId: Long) {
+        if (!sesionValida) return
+
+        val actual = backStack.lastOrNull()
+
+        if (actual is ChecklistRoute && actual.ingresoId == ingresoId) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+
+        abrirDetalle(ingresoId)
+    }
+
     NavDisplay(backStack = backStack,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
@@ -153,6 +211,7 @@ fun AutoClimaApp() {
                                 when (opcion) {
                                     DashboardMenuOption.REGISTRO -> abrirRegistro()
                                     DashboardMenuOption.DASHBOARD -> volverAlDashboard()
+                                    DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
                                     else -> Unit
                                 }
                             },
@@ -170,14 +229,17 @@ fun AutoClimaApp() {
                             RegistroViewModelFactory(repo = registroRepository, dashboardRepository = dashboardRepository, ingresoId = key.ingresoId) }
                         val registroViewModel: RegistroViewModel =
                             viewModel(factory = registroFactory)
-                        RegistroScreen(viewModel = registroViewModel, tecnicoId = tecnicoId, onLogout = {
+                            RegistroScreen(viewModel = registroViewModel, tecnicoId = tecnicoId, onLogout = {
                                 cerrarSesion()
                             },
-                            onMenuSeleccionado = { opcion ->
-                                when (opcion) {
-                                    DashboardMenuOption.DASHBOARD -> volverAlDashboard()
-                                    DashboardMenuOption.REGISTRO -> Unit
-                                    else -> Unit } },
+                                onMenuSeleccionado = { opcion ->
+                                    when (opcion) {
+                                        DashboardMenuOption.DASHBOARD -> volverAlDashboard()
+                                        DashboardMenuOption.REGISTRO -> Unit
+                                        DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
+                                        else -> Unit
+                                    }
+                                },
                             onVerIngreso = { ingresoId -> abrirDetalle(ingresoId) }
                         )
                     }
@@ -189,10 +251,63 @@ fun AutoClimaApp() {
                             DetalleIngresoViewModelFactory(ingresoId = key.ingresoId, repository = dashboardRepository)
                         }
                         val detalleViewModel: DetalleIngresoViewModel = viewModel(factory = detalleFactory)
-                        DetalleIngresoScreen(viewModel = detalleViewModel,
+                        DetalleIngresoScreen(
+                            viewModel = detalleViewModel,
                             tecnicoId = tecnicoId,
                             onVolver = { volverAlDashboard() },
-                            onEditar = { ingresoId -> abrirRegistro(ingresoId) }
+                            onEditar = { ingresoId -> abrirRegistro(ingresoId) },
+                            onAbrirChecklist = { ingresoId -> abrirChecklist(ingresoId) }
+                        )
+                    }
+                }
+                is ChecklistRoute -> NavEntry(key) {
+                    if (sesionValida && tecnicoId != null &&
+                        key.userId == uiState.id) {
+                        val checklistFactory = remember(
+                            key.ingresoId,
+                            checklistRepository,
+                            dashboardRepository) {
+                            ChecklistViewModelFactory(
+                                ingresoId = key.ingresoId,
+                                repo = checklistRepository,
+                                dashboardRepository = dashboardRepository
+                            )
+                        }
+
+                        val checklistViewModel: ChecklistViewModel = viewModel(
+                            factory = checklistFactory
+                        )
+
+                        ChecklistScreen(
+                            viewModel = checklistViewModel,
+                            tecnicoId = tecnicoId,
+                            onVolver = {
+                                volverDelChecklist(key.ingresoId)
+                            }
+                        )
+                    }
+                }
+                is SeleccionIngresoChecklistRoute -> NavEntry(key) {
+                    if (sesionValida && key.userId == uiState.id) {
+                        // Esta instancia pertenece al selector.
+                        // No modifica la búsqueda ni los filtros del dashboard.
+                        val selectorViewModel: DashboardViewModel = viewModel(
+                            factory = dashboardFactory
+                        )
+
+                        SeleccionIngresoChecklistScreen(
+                            viewModel = selectorViewModel,
+                            onVolver = {
+                                if (backStack.lastOrNull() == key) {
+                                    backStack.removeAt(backStack.lastIndex)
+                                }
+                            },
+                            onSeleccionarIngreso = { ingresoId ->
+                                // Conserva el detalle debajo del checklist.
+                                // Al salir del checklist se mostrará ese expediente.
+                                abrirDetalle(ingresoId)
+                                abrirChecklist(ingresoId)
+                            }
                         )
                     }
                 }

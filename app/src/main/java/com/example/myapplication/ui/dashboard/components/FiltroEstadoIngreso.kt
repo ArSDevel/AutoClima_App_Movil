@@ -12,6 +12,11 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,16 +49,28 @@ fun FiltroEstadoIngreso(
         OutlinedButton(
             onClick = { menuAbierto = true },
             shape = MaterialTheme.shapes.small,
-            modifier = Modifier.semantics { contentDescription = descripcionFiltro }
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 52.dp)
+                .semantics {
+                    contentDescription = descripcionFiltro
+                }
         ) {
-            Icon(imageVector = Icons.Default.FilterList,
-                contentDescription = null)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = textoSeleccionado,
-                style = MaterialTheme.typography.labelLarge)
-            Spacer(modifier = Modifier.width(4.dp))
-            Icon(imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = null)
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) { Icon(imageVector = Icons.Default.FilterList,
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.CenterStart))
+                Text(text = textoSeleccionado,
+                    style = MaterialTheme.typography.labelLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(horizontal = 32.dp))
+                Icon(imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null,
+                    modifier = Modifier.align(Alignment.CenterEnd))
+            }
         }
         DropdownMenu(
             expanded = menuAbierto,

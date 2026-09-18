@@ -133,6 +133,13 @@ fun DashboardDrawer(
                         onClick = { onOpcionSeleccionada(DashboardMenuOption.REGISTRO)
                         }
                     )
+                    OpcionPrincipalDrawer(
+                        opcion = DashboardMenuOption.CHECKLIST,
+                        seleccionada = opcionSeleccionada == DashboardMenuOption.CHECKLIST,
+                        onClick = {
+                            onOpcionSeleccionada(DashboardMenuOption.CHECKLIST)
+                        }
+                    )
                 }
             }
 
@@ -156,9 +163,12 @@ fun DashboardDrawer(
 
                     HorizontalDivider()
                     DashboardMenuOption.entries
-                        .filter { opcion -> opcion != DashboardMenuOption.DASHBOARD &&
-                                opcion != DashboardMenuOption.REGISTRO }
-                        .forEach { opcion -> OpcionPendienteDrawer(opcion) }
+                        .filter { opcion ->
+                            opcion != DashboardMenuOption.DASHBOARD &&
+                                    opcion != DashboardMenuOption.REGISTRO &&
+                                    opcion != DashboardMenuOption.CHECKLIST }
+                        .forEach { opcion ->
+                            OpcionPendienteDrawer(opcion) }
                 }
             }
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
+import com.example.myapplication.ui.dashboard.components.SelectorDashboard
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -143,9 +144,15 @@ fun DashboardContent(
                 onOpcionSeleccionada = { opcion ->
                     scope.launch {
                         drawerState.close()
+
                         when (opcion) {
                             DashboardMenuOption.DASHBOARD -> Unit
-                            DashboardMenuOption.REGISTRO -> onMenuSeleccionado(opcion)
+
+                            DashboardMenuOption.REGISTRO,
+                            DashboardMenuOption.CHECKLIST -> {
+                                onMenuSeleccionado(opcion)
+                            }
+
                             else -> snackbarState.showSnackbar(mensajePendiente)
                         }
                     }
@@ -220,21 +227,23 @@ fun DashboardContent(
                             Text(text = stringResource(R.string.dashboard_filters_title),
                                 style = MaterialTheme.typography.titleMedium)
                             BuscadorIngreso(textoBusqueda = uiState.textoBusqueda, onBusquedaChange = onBusquedaChange)
-                            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                FiltroEstadoIngreso(estadoSeleccionado = uiState.estadoSeleccionado,
-                                    onEstadoSeleccionado = onEstadoChange)
+                                FiltroEstadoIngreso(
+                                    estadoSeleccionado = uiState.estadoSeleccionado,
+                                    onEstadoSeleccionado = onEstadoChange,
+                                    modifier = Modifier.fillMaxWidth())
                                 SelectorDashboard(
                                     titulo = stringResource(R.string.dashboard_date_filter_label),
                                     seleccionado = uiState.fechaSeleccionada, opciones = FiltroFechaIngreso.entries,
-                                    etiqueta = ::etiquetaFecha, onSeleccionar = onFechaChange)
+                                    etiqueta = ::etiquetaFecha,onSeleccionar = onFechaChange)
                                 SelectorDashboard(
                                     titulo = stringResource(R.string.dashboard_sort_label),
                                     seleccionado = uiState.ordenSeleccionado, opciones = OrdenIngreso.entries,
                                     etiqueta = ::etiquetaOrden, onSeleccionar = onOrdenChange)
                             }
-
                             if (uiState.hayFiltrosActivos) {
                                 TextButton(onClick = onLimpiarFiltros) {
                                     Text(stringResource(R.string.dashboard_clear_filters))
@@ -317,52 +326,6 @@ fun DashboardContent(
     }
 }
 
-/**
- * Selector visual compartido por fecha y orden.
- * Solo comunica la selección; no realiza consultas.
- */
-@Composable
-private fun <T> SelectorDashboard(
-    titulo: String,
-    seleccionado: T,
-    opciones: List<T>,
-    etiqueta: (T) -> Int,
-    onSeleccionar: (T) -> Unit
-) {
-    var abierto by remember { mutableStateOf(false) }
-    val textoSeleccionado = stringResource(etiqueta(seleccionado))
-    Box {
-        OutlinedButton(onClick = { abierto = true },
-            shape = MaterialTheme.shapes.small
-        ) {
-            Text(text = stringResource(R.string.dashboard_selector_value, titulo,
-                    textoSeleccionado),
-                style = MaterialTheme.typography.labelLarge)
-            Spacer(Modifier.width(4.dp))
-            Icon(imageVector = Icons.Default.ArrowDropDown,
-                contentDescription = null)
-        }
-        DropdownMenu(expanded = abierto,
-            onDismissRequest = { abierto = false }
-        ) {
-            opciones.forEach { opcion ->
-                DropdownMenuItem(
-                    text = { Text(stringResource(etiqueta(opcion))) },
-                    trailingIcon = {
-                        if (opcion == seleccionado) {
-                            Icon(imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary)
-                        }
-                    },
-                    onClick = { abierto = false
-                        onSeleccionar(opcion)
-                    }
-                )
-            }
-        }
-    }
-}
 
 @StringRes
 private fun etiquetaFecha(filtro: FiltroFechaIngreso): Int {

@@ -26,12 +26,18 @@ class FakeTecnicoDao : TecnicoDao {
     }
 
     override suspend fun login(usuario: String, passwordHash: String): Tecnico? {
-        return tecnicos.find { it.usuario == usuario && it.passwordHash == passwordHash }
+        return tecnicos.find {
+            it.usuario == usuario && it.passwordHash == passwordHash
+        }
     }
 
     override suspend fun insertar(tecnico: Tecnico): Long {
         tecnicos.add(tecnico)
-        return tecnicos.size.toLong()
+        return tecnico.tecnicoId
+    }
+
+    override suspend fun obtener(id: Long): Tecnico? {
+        return tecnicos.find { it.tecnicoId == id }
     }
 }
 

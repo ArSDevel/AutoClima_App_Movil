@@ -21,6 +21,19 @@ data class RegistroRoute(
     val ingresoId: Long? = null
 ) : NavKey
 
+// Permite seleccionar el ingreso antes de abrir su checklist.
+@Serializable
+data class SeleccionIngresoChecklistRoute(
+    val userId: String
+) : NavKey
+
+// Checklist asociado a un ingreso existente.
+@Serializable
+data class ChecklistRoute(
+    val userId: String,
+    val ingresoId: Long
+) : NavKey
+
 // Expediente de un ingreso existente.
 @Serializable
 data class DetalleIngresoRoute(

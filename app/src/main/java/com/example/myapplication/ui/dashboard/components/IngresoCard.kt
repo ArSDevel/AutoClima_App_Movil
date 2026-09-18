@@ -7,6 +7,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Tag
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -119,17 +128,43 @@ fun IngresoCard(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Identificación principal del vehículo.
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)
+            // Identificación principal del vehículo y del expediente.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                Text(text = stringResource(R.string.dashboard_plate),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = colors.onSurfaceVariant)
-                Text(text = ingreso.placa,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = colors.primary)
-                Text(text = ingreso.modelo,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = colors.onSurface)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) { Text(text = stringResource(
+                            R.string.dashboard_card_identifier,
+                            ingreso.ingresoId),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = colors.onSurfaceVariant)
+                    Text(text = stringResource(R.string.dashboard_plate),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = colors.onSurfaceVariant)
+                    Text(text = ingreso.placa,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = colors.primary)
+                    Text(text = ingreso.modelo,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colors.onSurface)
+                }
+                Surface(shape = MaterialTheme.shapes.medium,
+                    color = colors.primaryContainer,
+                    contentColor = colors.onPrimaryContainer
+                ) {
+                    Box(
+                        modifier = Modifier.size(52.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(imageVector = Icons.Default.DirectionsCar,
+                            contentDescription = null,
+                            modifier = Modifier.size(28.dp))
+                    }
+                }
             }
             // El estado se comunica mediante color y texto.
             Surface(color = colorEstado.copy(alpha = 0.12f),
@@ -150,13 +185,31 @@ fun IngresoCard(
             // Información esencial siempre visible.
             DatosPrincipales(ingreso = ingreso, fechaFormateada = fechaFormateada)
             // Información secundaria desplegable.
+            // Información complementaria disponible al desplegar la tarjeta.
             AnimatedVisibility(visible = expandido) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     HorizontalDivider(color = colors.outlineVariant)
-                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_color), valor = ingreso.color)
-                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_serial_number), valor = ingreso.numeroSerie)
-                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_email), valor = ingreso.emailCliente)
+                    Text(text = stringResource(R.string.dashboard_card_additional),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = colors.onSurface)
+                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_color),
+                        valor = ingreso.color, icono = Icons.Default.Palette)
+                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_serial_number),
+                        valor = ingreso.numeroSerie, icono = Icons.Default.Tag)
+                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_email),
+                        valor = ingreso.emailCliente,
+                        icono = Icons.Default.Email)
+                    HorizontalDivider(color = colors.outlineVariant)
+                    Text(text = stringResource(R.string.detalle_reception),
+                        style = MaterialTheme.typography.titleSmall, color = colors.onSurface)
+                    DatoIngreso(
+                        etiqueta = stringResource(R.string.registro_reason),
+                        valor = ingreso.motivoIngreso, icono = Icons.Default.Description)
+                    DatoIngreso(etiqueta = stringResource(R.string.registro_initial_condition),
+                        valor = ingreso.condicionInicial, icono = Icons.Default.Info)
                 }
             }
             // Las opciones se acomodan según el espacio disponible.
@@ -199,47 +252,44 @@ private fun DatosPrincipales(
     ingreso: IngresoResumen,
     fechaFormateada: String
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxWidth()
     ) {
         if (maxWidth >= 520.dp) {
             Row(modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
                 Column(modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_customer), valor = ingreso.nombreCliente)
-                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_phone), valor = ingreso.telefonoCliente)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_customer),
+                        valor = ingreso.nombreCliente,
+                        icono = Icons.Default.Person)
+                    DatoIngreso(etiqueta = stringResource(R.string.dashboard_phone),
+                        valor = ingreso.telefonoCliente,
+                        icono = Icons.Default.Phone)
                 }
-                DatoIngreso(etiqueta = stringResource(R.string.dashboard_entry_date), valor = fechaFormateada, modifier = Modifier.weight(1f))
+                DatoIngreso(etiqueta = stringResource(R.string.dashboard_entry_date),
+                    valor = fechaFormateada,
+                    icono = Icons.Default.DateRange,
+                    modifier = Modifier.weight(1f)
+                )
             }
         } else {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                DatoIngreso(etiqueta = stringResource(R.string.dashboard_customer), valor = ingreso.nombreCliente)
-                DatoIngreso(etiqueta = stringResource(R.string.dashboard_phone), valor = ingreso.telefonoCliente)
-                DatoIngreso(etiqueta = stringResource(R.string.dashboard_entry_date), valor = fechaFormateada)
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) { DatoIngreso(
+                    etiqueta = stringResource(R.string.dashboard_customer),
+                    valor = ingreso.nombreCliente,
+                    icono = Icons.Default.Person)
+                DatoIngreso(
+                    etiqueta = stringResource(R.string.dashboard_phone),
+                    valor = ingreso.telefonoCliente,
+                    icono = Icons.Default.Phone)
+                DatoIngreso(
+                    etiqueta = stringResource(R.string.dashboard_entry_date),
+                    valor = fechaFormateada,
+                    icono = Icons.Default.DateRange)
             }
         }
-    }
-}
-
-@Composable
-private fun DatoIngreso(
-    etiqueta: String,
-    valor: String?,
-    modifier: Modifier = Modifier
-) {
-    val texto = valor?.takeIf { it.isNotBlank() } ?:
-    stringResource(R.string.dashboard_not_registered)
-
-    Column(modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(3.dp)
-    ) {
-        Text(text = etiqueta, style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = texto, style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface)
     }
 }
 

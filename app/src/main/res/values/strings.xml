@@ -219,5 +219,81 @@
     <string name="detalle_pending_title">Módulos pendientes de integración</string>
     <string name="detalle_pending_action">%1$s · Pendiente</string>
     <string name="detalle_pending_description">Estas funciones se habilitarán cuando sus módulos puedan registrar y comprobar los requisitos del proceso.</string>
+    <string name="dashboard_card_identifier">Ingreso n.º %1$d</string>
+    <string name="dashboard_card_additional">Información complementaria</string>
+    <!-- Descripciones de las secciones del formulario -->
+    <string name="registro_vehicle_description">Identifica el vehículo y sus características.</string>
+    <string name="registro_customer_description">Registra al cliente y sus medios de contacto.</string>
+    <string name="registro_reception_description">Indica cuándo ingresó y cómo se recibió el vehículo.</string>
 
+    <!-- Respuestas del checklist -->
+    <string name="checklist_answer_yes">Sí</string>
+    <string name="checklist_answer_no">No</string>
+    <string name="checklist_answer_required">Selecciona Sí o No para continuar.</string>
+
+    <!-- Secciones del checklist -->
+    <string name="checklist_section_progress">%1$d de %2$d respondidas</string>
+
+    <string name="checklist_section_refrigerant_title">Refrigerante y fugas</string>
+    <string name="checklist_section_refrigerant_description">Registra los resultados de la revisión del refrigerante y la detección de fugas.</string>
+
+    <string name="checklist_section_compressor_title">Compresor y transmisión</string>
+    <string name="checklist_section_compressor_description">Registra el funcionamiento del compresor y la condición de su banda.</string>
+
+    <string name="checklist_section_ventilation_title">Ventilación y limpieza</string>
+    <string name="checklist_section_ventilation_description">Registra el funcionamiento de los ventiladores y las obstrucciones detectadas.</string>
+
+    <!-- Pantalla de checklist -->
+    <string name="checklist_title">Checklist de revisión</string>
+    <string name="checklist_back">Volver</string>
+    <string name="checklist_retry">Reintentar</string>
+    <string name="checklist_not_found">El ingreso ya no existe.</string>
+    <string name="checklist_ingreso_number">Ingreso n.º %1$d</string>
+    <string name="checklist_instructions">Responde cada pregunta según la revisión realizada. Sí y No cuentan como respuestas; ninguna opción está seleccionada inicialmente.</string>
+    <string name="checklist_read_only">Modo de consulta. La edición del checklist está disponible únicamente durante la revisión o la reparación.</string>
+
+    <!-- Preguntas -->
+    <string name="checklist_question_refrigerant">¿Falta gas refrigerante?</string>
+    <string name="checklist_question_hoses">¿Hay fugas visibles en las mangueras de alta o baja presión?</string>
+    <string name="checklist_question_uv">¿Se detectaron fugas con luz UV?</string>
+    <string name="checklist_question_engagement">¿El compresor embraga al encender el sistema?</string>
+    <string name="checklist_question_compressor_damage">¿El compresor presenta daño interno o está amarrado?</string>
+    <string name="checklist_question_belt">¿La banda del compresor está desgastada o rota?</string>
+    <string name="checklist_question_fans">¿Funcionan los abanicos o ventiladores del radiador?</string>
+    <string name="checklist_question_filter">¿El filtro de cabina está sucio u obstruido?</string>
+    <string name="checklist_question_condenser">¿El condensador presenta obstrucción por basura o lodo?</string>
+
+    <!-- Observaciones y guardado -->
+    <string name="checklist_comments">Comentarios del técnico</string>
+    <string name="checklist_comments_help">Opcional. Describe hallazgos y observaciones de la revisión.</string>
+    <string name="checklist_save">Guardar checklist</string>
+    <string name="checklist_save_changes">Guardar cambios</string>
+    <string name="checklist_saving">Guardando…</string>
+    <string name="checklist_unsaved_changes">Hay cambios sin guardar.</string>
+    <string name="checklist_saved_record">Checklist guardado, sin cambios pendientes.</string>
+    <string name="checklist_new_record">Checklist nuevo, todavía sin guardar.</string>
+    <string name="checklist_saved_title">Checklist guardado</string>
+    <string name="checklist_saved_message">Las respuestas quedaron guardadas y la operación se registró en el historial del ingreso.</string>
+    <string name="checklist_back_to_detail">Volver al detalle</string>
+    <string name="checklist_stay">Permanecer aquí</string>
+
+    <!-- Salida con cambios pendientes -->
+    <string name="checklist_leave_title">¿Salir sin guardar?</string>
+    <string name="checklist_leave_message">Los cambios realizados desde el último guardado se perderán.</string>
+    <string name="checklist_discard">Salir sin guardar</string>
+    <string name="checklist_keep_editing">Seguir editando</string>
+
+    <string name="checklist_view">Consultar checklist</string>
+    <string name="detalle_event_checklist">Checklist de revisión</string>
+
+    <!-- Selección de ingreso para checklist -->
+    <string name="checklist_selector_title">Seleccionar ingreso</string>
+    <string name="checklist_selector_description">Busca el vehículo y selecciona el ingreso cuyo checklist deseas abrir.</string>
+    <string name="checklist_selector_search">Placa, serie, modelo o cliente</string>
+    <string name="checklist_selector_error">No fue posible cargar los ingresos.</string>
+    <string name="checklist_selector_empty">Todavía no hay ingresos registrados.</string>
+    <string name="checklist_selector_no_results">No hay ingresos que coincidan con la búsqueda.</string>
+    <string name="checklist_selector_edit_help">Permite capturar o actualizar las respuestas del checklist.</string>
+    <string name="checklist_selector_consult_help">Solo consulta. Si todavía no tiene un checklist, las respuestas aparecerán pendientes. Para capturarlo, el ingreso debe estar en revisión o reparación.</string>
+    <string name="checklist_selector_open">Abrir checklist</string>
 </resources>
