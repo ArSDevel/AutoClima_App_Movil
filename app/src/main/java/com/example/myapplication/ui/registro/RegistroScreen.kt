@@ -122,6 +122,7 @@ private enum class CampoRegistro {
 private enum class SalidaRegistro {
     DASHBOARD,
     CHECKLIST,
+    DIAGNOSTICO,
     CERRAR_SESION
 }
 
@@ -154,17 +155,13 @@ private fun RegistroContent(
     fun ejecutarSalida(destino: SalidaRegistro) {
         when (destino) {
             SalidaRegistro.DASHBOARD -> {
-                onMenuSeleccionado(DashboardMenuOption.DASHBOARD)
-            }
-
+                onMenuSeleccionado(DashboardMenuOption.DASHBOARD) }
             SalidaRegistro.CHECKLIST -> {
-                onMenuSeleccionado(DashboardMenuOption.CHECKLIST)
-            }
-
+                onMenuSeleccionado(DashboardMenuOption.CHECKLIST) }
+            SalidaRegistro.DIAGNOSTICO -> {
+                onMenuSeleccionado(DashboardMenuOption.DIAGNOSTICO) }
             SalidaRegistro.CERRAR_SESION -> {
-                onLogout()
-            }
-        }
+                onLogout() } }
     }
 
     fun solicitarSalida(destino: SalidaRegistro) {
@@ -183,25 +180,17 @@ private fun RegistroContent(
             DashboardDrawer(
                 opcionSeleccionada = DashboardMenuOption.REGISTRO,
                 onOpcionSeleccionada = { opcion ->
-                    scope.launch {
-                        drawerState.close()
-
+                    scope.launch { drawerState.close()
                         if (!uiState.cargando) {
                             when (opcion) {
                                 DashboardMenuOption.REGISTRO -> Unit
-
                                 DashboardMenuOption.DASHBOARD -> {
-                                    solicitarSalida(SalidaRegistro.DASHBOARD)
-                                }
-
+                                    solicitarSalida(SalidaRegistro.DASHBOARD) }
                                 DashboardMenuOption.CHECKLIST -> {
-                                    solicitarSalida(SalidaRegistro.CHECKLIST)
-                                }
-
-                                else -> snackbar.showSnackbar(mensajePendiente)
-                            }
-                        }
-                    }
+                                    solicitarSalida(SalidaRegistro.CHECKLIST) }
+                                DashboardMenuOption.DIAGNOSTICO -> {
+                                    solicitarSalida(SalidaRegistro.DIAGNOSTICO) }
+                                else -> snackbar.showSnackbar(mensajePendiente) } } }
                 },
                 onLogout = {
                     scope.launch { drawerState.close()

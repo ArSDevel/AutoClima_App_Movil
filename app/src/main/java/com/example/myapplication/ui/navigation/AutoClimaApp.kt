@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.myapplication.ui.diagnostico.SeleccionIngresoDiagnosticoScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -22,6 +23,10 @@ import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.dashboard.DashboardScreen
 import com.example.myapplication.ui.dashboard.DashboardViewModel
 import com.example.myapplication.ui.dashboard.DashboardViewModelFactory
+import com.example.myapplication.data.local.repository.DiagnosticoRepository
+import com.example.myapplication.ui.diagnostico.DiagnosticoScreen
+import com.example.myapplication.ui.diagnostico.DiagnosticoViewModel
+import com.example.myapplication.ui.diagnostico.DiagnosticoViewModelFactory
 import com.example.myapplication.ui.dashboard.DetalleIngresoScreen
 import com.example.myapplication.ui.dashboard.DetalleIngresoViewModel
 import com.example.myapplication.ui.dashboard.DetalleIngresoViewModelFactory
@@ -44,6 +49,7 @@ fun AutoClimaApp() {
     val dashboardRepository = remember(baseDeDatos) { DashboardRepository(baseDeDatos = baseDeDatos) }
     val registroRepository = remember(baseDeDatos) { RegistroRepository(baseDeDatos = baseDeDatos) }
     val checklistRepository = remember(baseDeDatos) { ChecklistRepository(baseDeDatos = baseDeDatos) }
+    val diagnosticoRepository = remember(baseDeDatos) { DiagnosticoRepository(baseDeDatos = baseDeDatos) }
 
     // Construye el ViewModel de inicio de sesión.
     val loginFactory = remember(tecnicoDao) {
@@ -157,6 +163,27 @@ fun AutoClimaApp() {
         }
     }
 
+    // Abre la selección de ingreso desde el menú lateral.
+    fun abrirSeleccionDiagnostico() {
+        if (!sesionValida) return
+
+        val destino = SeleccionIngresoDiagnosticoRoute(
+            userId = uiState.id
+        )
+
+        if (backStack.lastOrNull() == destino) return
+
+        // Registro ya solicitó confirmar la salida si había cambios.
+        // Retiramos su entrada para no conservar el formulario descartado.
+        if (backStack.lastOrNull() is RegistroRoute) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino)
+        }
+    }
+
     // Abre el checklist conservando el detalle debajo en la pila.
     fun abrirChecklist(ingresoId: Long) {
         if (!sesionValida || ingresoId <= 0) return
@@ -169,6 +196,33 @@ fun AutoClimaApp() {
         if (backStack.lastOrNull() == destino) return
 
         backStack.add(destino)
+    }
+
+    // Abre el diagnóstico conservando el detalle debajo.
+    fun abrirDiagnostico(ingresoId: Long) {
+        if (!sesionValida || ingresoId <= 0) return
+
+        val destino = DiagnosticoRoute(
+            userId = uiState.id,
+            ingresoId = ingresoId
+        )
+
+        if (backStack.lastOrNull() == destino) return
+
+        backStack.add(destino)
+    }
+
+    // Retira el diagnóstico y recupera el expediente correspondiente.
+    fun volverDelDiagnostico(ingresoId: Long) {
+        if (!sesionValida) return
+
+        val actual = backStack.lastOrNull()
+
+        if (actual is DiagnosticoRoute && actual.ingresoId == ingresoId) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+
+        abrirDetalle(ingresoId)
     }
 
     // Retira el checklist y recupera el detalle del mismo ingreso.
@@ -212,6 +266,7 @@ fun AutoClimaApp() {
                                     DashboardMenuOption.REGISTRO -> abrirRegistro()
                                     DashboardMenuOption.DASHBOARD -> volverAlDashboard()
                                     DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
+                                    DashboardMenuOption.DIAGNOSTICO -> abrirSeleccionDiagnostico()
                                     else -> Unit
                                 }
                             },
@@ -237,6 +292,7 @@ fun AutoClimaApp() {
                                         DashboardMenuOption.DASHBOARD -> volverAlDashboard()
                                         DashboardMenuOption.REGISTRO -> Unit
                                         DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
+                                        DashboardMenuOption.DIAGNOSTICO -> abrirSeleccionDiagnostico()
                                         else -> Unit
                                     }
                                 },
@@ -255,8 +311,11 @@ fun AutoClimaApp() {
                             viewModel = detalleViewModel,
                             tecnicoId = tecnicoId,
                             onVolver = { volverAlDashboard() },
-                            onEditar = { ingresoId -> abrirRegistro(ingresoId) },
-                            onAbrirChecklist = { ingresoId -> abrirChecklist(ingresoId) }
+                            onEditar = { ingresoId ->
+                                abrirRegistro(ingresoId) },
+                            onAbrirChecklist = { ingresoId ->
+                                abrirChecklist(ingresoId) },
+                            onAbrirDiagnostico = { ingresoId -> abrirDiagnostico(ingresoId) }
                         )
                     }
                 }
@@ -307,6 +366,63 @@ fun AutoClimaApp() {
                                 // Al salir del checklist se mostrará ese expediente.
                                 abrirDetalle(ingresoId)
                                 abrirChecklist(ingresoId)
+                            }
+                        )
+                    }
+                }
+                is DiagnosticoRoute -> NavEntry(key) {
+                    if (
+                        sesionValida &&
+                        tecnicoId != null &&
+                        key.userId == uiState.id
+                    ) {
+                        val diagnosticoFactory = remember(
+                            key.ingresoId,
+                            diagnosticoRepository,
+                            dashboardRepository,
+                            checklistRepository
+                        ) {
+                            DiagnosticoViewModelFactory(
+                                ingresoId = key.ingresoId,
+                                repository = diagnosticoRepository,
+                                dashboardRepository = dashboardRepository,
+                                checklistRepository = checklistRepository
+                            )
+                        }
+
+                        val diagnosticoViewModel: DiagnosticoViewModel = viewModel(
+                            factory = diagnosticoFactory
+                        )
+
+                        DiagnosticoScreen(
+                            viewModel = diagnosticoViewModel,
+                            tecnicoId = tecnicoId,
+                            onVolver = {
+                                volverDelDiagnostico(key.ingresoId)
+                            }
+                        )
+                    }
+                }
+                is SeleccionIngresoDiagnosticoRoute -> NavEntry(key) {
+                    if (sesionValida && key.userId == uiState.id) {
+                        // Instancia exclusiva de esta entrada de navegación.
+                        // Conserva independientes los filtros del dashboard.
+                        val selectorViewModel: DashboardViewModel = viewModel(
+                            factory = dashboardFactory
+                        )
+
+                        SeleccionIngresoDiagnosticoScreen(
+                            viewModel = selectorViewModel,
+                            onVolver = {
+                                if (backStack.lastOrNull() == key) {
+                                    backStack.removeAt(backStack.lastIndex)
+                                }
+                            },
+                            onSeleccionarIngreso = { ingresoId ->
+                                // Coloca el detalle debajo del diagnóstico.
+                                // Al terminar, el usuario vuelve al expediente.
+                                abrirDetalle(ingresoId)
+                                abrirDiagnostico(ingresoId)
                             }
                         )
                     }

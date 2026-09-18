@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import com.example.myapplication.data.repository.ChecklistRepository
 import androidx.compose.foundation.layout.fillMaxWidth
+import com.example.myapplication.data.local.repository.DiagnosticoRepository
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -70,7 +71,8 @@ fun DetalleIngresoScreen(
     tecnicoId: Long,
     onVolver: () -> Unit,
     onEditar: (Long) -> Unit,
-    onAbrirChecklist: (Long) -> Unit
+    onAbrirChecklist: (Long) -> Unit,
+    onAbrirDiagnostico: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DetalleIngresoContent(
@@ -80,6 +82,7 @@ fun DetalleIngresoScreen(
         onReintentar = viewModel::reintentar,
         onLimpiarError = viewModel::limpiarErrorOperacion,
         onConsumirExito = viewModel::consumirOperacionExitosa,
+        onAbrirDiagnostico = onAbrirDiagnostico,
         onAbrirChecklist = onAbrirChecklist,
         onConfirmar = { accion, motivo, destino ->
             when (accion) {
@@ -108,7 +111,8 @@ private fun DetalleIngresoContent(
     onLimpiarError: () -> Unit,
     onConsumirExito: () -> Unit,
     onConfirmar: (IngresoAccion, String, EstadoIngreso) -> Unit,
-    onAbrirChecklist: (Long) -> Unit
+    onAbrirChecklist: (Long) -> Unit,
+    onAbrirDiagnostico: (Long) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
     val ingreso = uiState.ingreso
@@ -309,6 +313,20 @@ private fun DetalleIngresoContent(
                                 }
                             )
                         }
+
+                    // El reporte puede abrirse en cualquier etapa.
+// La pantalla y el repositorio controlan si permite guardar.
+                    BotonDetalle(
+                        texto = if (DiagnosticoRepository.puedeEditar(estado)) {
+                            R.string.dashboard_action_diagnosis
+                        } else {
+                            R.string.diagnostico_view
+                        },
+                        habilitado = accionesHabilitadas,
+                        onClick = {
+                            onAbrirDiagnostico(ingreso.ingresoId)
+                        }
+                    )
                         ModulosPendientesDetalle(estado)
                     }
                 }
@@ -508,6 +526,7 @@ private fun EventoDetalle(evento: EventoIngreso) {
             "EDITADO" -> R.string.detalle_event_edited
             "ESTADO" -> R.string.detalle_event_state
             "CHECKLIST" -> R.string.detalle_event_checklist
+            "DIAGNOSTICO" -> R.string.detalle_event_diagnosis
             else -> R.string.detalle_event_other
         }
     )
@@ -547,6 +566,12 @@ private fun ModulosPendientesDetalle(estado: EstadoIngreso) {
             R.string.dashboard_action_pdf,
             R.string.dashboard_action_deliver
         )
+        EstadoIngreso.EN_REVISION -> listOf(
+            R.string.dashboard_action_evidence
+        )
+        EstadoIngreso.EN_REPARACION -> listOf(
+            R.string.dashboard_action_evidence
+        )
         else -> emptyList()
     }
     if (recursos.isNotEmpty()) {
@@ -575,6 +600,7 @@ private fun DetalleClaroPreview() {
             uiState = estadoDetallePreview(),
             onVolver = {},
             onEditar = {},
+            onAbrirDiagnostico = {},
             onReintentar = {},
             onLimpiarError = {},
             onConsumirExito = {},
@@ -599,6 +625,7 @@ private fun DetalleOscuroPreview() {
             onEditar = {},
             onReintentar = {},
             onLimpiarError = {},
+            onAbrirDiagnostico = {},
             onConsumirExito = {},
             onAbrirChecklist = {},
             onConfirmar = { _, _, _ -> }

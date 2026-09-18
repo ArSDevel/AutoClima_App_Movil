@@ -296,4 +296,123 @@
     <string name="checklist_selector_edit_help">Permite capturar o actualizar las respuestas del checklist.</string>
     <string name="checklist_selector_consult_help">Solo consulta. Si todavía no tiene un checklist, las respuestas aparecerán pendientes. Para capturarlo, el ingreso debe estar en revisión o reparación.</string>
     <string name="checklist_selector_open">Abrir checklist</string>
+
+    <!-- Conceptos de cotización -->
+    <string name="diagnostico_concept_number">Concepto %1$d</string>
+    <string name="diagnostico_concept_remove">Quitar concepto %1$d</string>
+    <string name="diagnostico_concept_description">Descripción</string>
+    <string name="diagnostico_concept_description_hint">Ej. Refrigerante o mano de obra</string>
+    <string name="diagnostico_concept_amount">Importe</string>
+    <string name="diagnostico_concept_amount_hint">0.00</string>
+    <string name="diagnostico_concept_amount_help">Importe de este concepto, sin separadores de miles.</string>
+    <string name="diagnostico_currency_symbol">$</string>
+    <string name="diagnostico_currency_code">MXN</string>
+
+    <!-- Hallazgos del diagnóstico -->
+    <string name="diagnostico_findings_title">Reporte de problemas</string>
+    <string name="diagnostico_findings_description">Hallazgos registrados durante la revisión del vehículo.</string>
+    <string name="diagnostico_findings_count">Hallazgos registrados: %1$d</string>
+
+    <string name="diagnostico_checklist_pending">La revisión está pendiente. Guarda el checklist para mostrar sus resultados en este reporte.</string>
+    <string name="diagnostico_findings_empty">El checklist no señala problemas en los puntos evaluados. Esto no descarta fallas fuera de esa revisión.</string>
+
+    <string name="diagnostico_checklist_comments_title">Comentarios de la revisión</string>
+    <string name="diagnostico_checklist_comments_empty">Sin comentarios adicionales en el checklist.</string>
+
+    <string name="diagnostico_finding_refrigerant">Falta de gas refrigerante.</string>
+    <string name="diagnostico_finding_hoses">Fugas visibles en las mangueras de alta o baja presión.</string>
+    <string name="diagnostico_finding_uv">Fugas detectadas con luz UV.</string>
+    <string name="diagnostico_finding_engagement">El compresor no embraga al encender el sistema.</string>
+    <string name="diagnostico_finding_compressor">El compresor presenta daño interno o está amarrado.</string>
+    <string name="diagnostico_finding_belt">La banda del compresor está desgastada o rota.</string>
+    <string name="diagnostico_finding_fans">Los abanicos o ventiladores del radiador no funcionan.</string>
+    <string name="diagnostico_finding_filter">El filtro de cabina está sucio u obstruido.</string>
+    <string name="diagnostico_finding_condenser">El condensador presenta obstrucción por basura o lodo.</string>
+
+    <!-- Sección de cotización -->
+    <string name="diagnostico_quote_title">Cotización</string>
+    <string name="diagnostico_quote_description">Conceptos e importes definidos por el mecánico.</string>
+    <string name="diagnostico_quote_pending">Cotización pendiente. Todavía no se han agregado conceptos.</string>
+    <string name="diagnostico_quote_add">Agregar concepto</string>
+    <string name="diagnostico_quote_total">Total de la cotización</string>
+    <string name="diagnostico_quote_total_amount">%1$s MXN</string>
+    <string name="diagnostico_quote_invalid_total">Revisa los importes para calcular el total.</string>
+    <string name="diagnostico_quote_total_help">Suma de los importes capturados. No se agregan cargos automáticamente.</string>
+
+    <!-- Datos del ingreso en el diagnóstico -->
+    <string name="diagnostico_data_title">Datos del ingreso</string>
+    <string name="diagnostico_data_description">Información del vehículo, cliente y recepción.</string>
+    <string name="diagnostico_data_ingreso">Ingreso n.º %1$d</string>
+    <string name="diagnostico_data_status">Estado: %1$s</string>
+
+    <string name="diagnostico_data_vehicle">Vehículo</string>
+    <string name="diagnostico_data_plate">Placa</string>
+    <string name="diagnostico_data_model">Marca y modelo</string>
+    <string name="diagnostico_data_color">Color</string>
+    <string name="diagnostico_data_serial">Número de serie</string>
+
+    <string name="diagnostico_data_customer">Cliente</string>
+    <string name="diagnostico_data_name">Nombre</string>
+    <string name="diagnostico_data_phone">Teléfono</string>
+    <string name="diagnostico_data_email">Correo electrónico</string>
+
+    <string name="diagnostico_data_reception">Recepción</string>
+    <string name="diagnostico_data_entry_date">Fecha de entrada</string>
+    <string name="diagnostico_data_reason">Motivo del ingreso</string>
+    <string name="diagnostico_data_initial_condition">Condición inicial</string>
+    <string name="diagnostico_data_not_provided">No registrado</string>
+
+    <!-- Pantalla de diagnóstico -->
+    <string name="diagnostico_title">Diagnóstico</string>
+    <string name="diagnostico_back">Volver</string>
+    <string name="diagnostico_retry">Reintentar</string>
+    <string name="diagnostico_loading">Cargando reporte…</string>
+    <string name="diagnostico_load_error_title">No se pudo abrir el diagnóstico</string>
+    <string name="diagnostico_not_found">El ingreso ya no existe.</string>
+    <string name="diagnostico_report_description">Reporte del vehículo con los hallazgos de la revisión, las observaciones del mecánico y la cotización.</string>
+
+    <!-- Disponibilidad de edición -->
+    <string name="diagnostico_requires_checklist">Para guardar el diagnóstico, primero completa y guarda el checklist. La edición está disponible durante la revisión y la reparación.</string>
+    <string name="diagnostico_read_only">Modo de consulta. En esta etapa no se pueden modificar las notas ni la cotización.</string>
+
+    <!-- Notas del mecánico -->
+    <string name="diagnostico_notes_title">Observaciones del mecánico</string>
+    <string name="diagnostico_notes_description">Notas adicionales para explicar al cliente los resultados y el trabajo propuesto.</string>
+    <string name="diagnostico_notes_label">Observaciones adicionales</string>
+    <string name="diagnostico_notes_hint">Describe los hallazgos y las recomendaciones para este vehículo.</string>
+
+    <!-- Evidencias pendientes -->
+    <string name="diagnostico_evidence_title">Evidencias fotográficas</string>
+    <string name="diagnostico_evidence_pending">Las fotografías estarán disponibles cuando se integre el módulo de evidencias.</string>
+
+    <!-- Guardado y envío -->
+    <string name="diagnostico_save">Guardar diagnóstico</string>
+    <string name="diagnostico_save_changes">Guardar cambios</string>
+    <string name="diagnostico_saving">Guardando…</string>
+    <string name="diagnostico_send">Enviar al cliente</string>
+    <string name="diagnostico_send_pending">El envío aún no está disponible. Guardar conserva las notas y la cotización en la aplicación.</string>
+    <string name="diagnostico_unsaved_changes">Hay cambios sin guardar.</string>
+    <string name="diagnostico_saved_record">Notas y cotización guardadas, sin cambios pendientes.</string>
+    <string name="diagnostico_new_record">Diagnóstico todavía sin guardar.</string>
+    <string name="diagnostico_saved_title">Diagnóstico guardado</string>
+    <string name="diagnostico_saved_message">Las notas y la cotización quedaron guardadas. La operación se registró en el historial del ingreso.</string>
+    <string name="diagnostico_stay">Permanecer aquí</string>
+
+    <!-- Confirmación de salida -->
+    <string name="diagnostico_leave_title">¿Salir sin guardar?</string>
+    <string name="diagnostico_leave_message">Se perderán los cambios pendientes en las observaciones y la cotización.</string>
+    <string name="diagnostico_discard">Salir sin guardar</string>
+    <string name="diagnostico_keep_editing">Seguir editando</string>
+
+    <string name="diagnostico_view">Consultar diagnóstico</string>
+    <string name="detalle_event_diagnosis">Diagnóstico y cotización</string>
+
+    <!-- Selección de ingreso para diagnóstico -->
+    <string name="diagnostico_selector_title">Seleccionar ingreso</string>
+    <string name="diagnostico_selector_description">Selecciona el ingreso para consultar su reporte o preparar la cotización. Para guardar cambios debe estar en revisión o reparación y tener un checklist guardado.</string>
+    <string name="diagnostico_selector_search">Placa, serie, modelo o cliente</string>
+    <string name="diagnostico_selector_error">No fue posible cargar los ingresos.</string>
+    <string name="diagnostico_selector_empty">Todavía no hay ingresos registrados.</string>
+    <string name="diagnostico_selector_no_results">No hay ingresos que coincidan con la búsqueda.</string>
+    <string name="diagnostico_selector_open">Abrir diagnóstico</string>
 </resources>

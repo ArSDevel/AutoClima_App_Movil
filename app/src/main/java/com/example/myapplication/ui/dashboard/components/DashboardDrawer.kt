@@ -140,6 +140,13 @@ fun DashboardDrawer(
                             onOpcionSeleccionada(DashboardMenuOption.CHECKLIST)
                         }
                     )
+                    OpcionPrincipalDrawer(
+                        opcion = DashboardMenuOption.DIAGNOSTICO,
+                        seleccionada = opcionSeleccionada == DashboardMenuOption.DIAGNOSTICO,
+                        onClick = {
+                            onOpcionSeleccionada(DashboardMenuOption.DIAGNOSTICO)
+                        }
+                    )
                 }
             }
 
@@ -166,7 +173,8 @@ fun DashboardDrawer(
                         .filter { opcion ->
                             opcion != DashboardMenuOption.DASHBOARD &&
                                     opcion != DashboardMenuOption.REGISTRO &&
-                                    opcion != DashboardMenuOption.CHECKLIST }
+                                    opcion != DashboardMenuOption.CHECKLIST &&
+                                    opcion != DashboardMenuOption.DIAGNOSTICO }
                         .forEach { opcion ->
                             OpcionPendienteDrawer(opcion) }
                 }

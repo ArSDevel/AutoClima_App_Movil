@@ -144,19 +144,13 @@ fun DashboardContent(
                 onOpcionSeleccionada = { opcion ->
                     scope.launch {
                         drawerState.close()
-
                         when (opcion) {
                             DashboardMenuOption.DASHBOARD -> Unit
-
                             DashboardMenuOption.REGISTRO,
-                            DashboardMenuOption.CHECKLIST -> {
-                                onMenuSeleccionado(opcion)
-                            }
-
-                            else -> snackbarState.showSnackbar(mensajePendiente)
-                        }
-                    }
-                },
+                            DashboardMenuOption.CHECKLIST,
+                            DashboardMenuOption.DIAGNOSTICO -> {
+                                onMenuSeleccionado(opcion) }
+                            else -> snackbarState.showSnackbar(mensajePendiente) } } },
                 onLogout = onLogout
             )
         }

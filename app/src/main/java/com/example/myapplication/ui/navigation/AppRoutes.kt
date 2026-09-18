@@ -27,6 +27,19 @@ data class SeleccionIngresoChecklistRoute(
     val userId: String
 ) : NavKey
 
+// Selección del ingreso cuyo diagnóstico se desea abrir.
+@Serializable
+data class SeleccionIngresoDiagnosticoRoute(
+    val userId: String
+) : NavKey
+
+// Reporte y cotización asociados a un ingreso.
+@Serializable
+data class DiagnosticoRoute(
+    val userId: String,
+    val ingresoId: Long
+) : NavKey
+
 // Checklist asociado a un ingreso existente.
 @Serializable
 data class ChecklistRoute(
