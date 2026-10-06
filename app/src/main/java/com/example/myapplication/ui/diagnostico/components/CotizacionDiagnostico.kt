@@ -47,7 +47,6 @@ fun CotizacionDiagnostico(
         modifier = modifier
     ) {
         // Explica el bloqueo junto a la cotización,
-// sin obligar al usuario a regresar al inicio del reporte.
         if (soloLectura && !mensajeBloqueo.isNullOrBlank()) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),

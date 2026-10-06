@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Aplicación -->
-    <string name="app_name">My Application</string>
+    <string name="app_name">Autoclimas</string>
 
     <!-- Inicio de sesión -->
     <string name="login_title">Iniciar sesión</string>
