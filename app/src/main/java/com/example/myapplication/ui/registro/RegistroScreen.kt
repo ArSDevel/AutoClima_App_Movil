@@ -76,6 +76,13 @@ import com.example.myapplication.ui.registro.components.SeccionRegistro
 import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.launch
+import androidx.compose.ui.draw.clip
+import coil.compose.AsyncImage
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
+import coil.compose.AsyncImage
+import java.io.File
 
 // Conecta el estado y las acciones del ViewModel con la interfaz.
 @Composable
@@ -84,6 +91,7 @@ fun RegistroScreen(
     onLogout: () -> Unit,
     onMenuSeleccionado: (DashboardMenuOption) -> Unit,
     tecnicoId: Long,
+    onTomarFotoClick: () -> Unit,
     modifier: Modifier = Modifier,
     onVerIngreso: ((Long) -> Unit)? = null
 ) {
@@ -107,6 +115,7 @@ fun RegistroScreen(
         onGuardar = { viewModel.guardar(tecnicoId) },
         onNuevaCaptura = viewModel::resetRegistroExitoso,
         onReintentarCarga = viewModel::reintentarCarga,
+        onTomarFotoClick = onTomarFotoClick,
         onLogout = onLogout,
         onMenuSeleccionado = onMenuSeleccionado,
         onVerIngreso = onVerIngreso,
@@ -136,6 +145,7 @@ private fun RegistroContent(
     onReintentarCarga: () -> Unit,
     onLogout: () -> Unit,
     onMenuSeleccionado: (DashboardMenuOption) -> Unit,
+    onTomarFotoClick: () -> Unit,
     modifier: Modifier = Modifier,
     onVerIngreso: ((Long) -> Unit)? = null
 ) {
@@ -395,21 +405,57 @@ private fun RegistroContent(
                                             onCambio = { onCampoChange(CampoRegistro.CONDICION, it) })
                                     }
                                     HorizontalDivider()
-                                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(imageVector = Icons.Default.PhotoCamera,
-                                            contentDescription = null,
-                                            tint = colors.primary)
-                                        Column(modifier = Modifier.weight(1f),
-                                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                                        Row(
+                                            modifier = Modifier.weight(1f),
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
-                                            Text(text = stringResource(R.string.registro_evidence_title),
-                                                style = MaterialTheme.typography.titleSmall)
-                                            Text(text = stringResource(R.string.registro_evidence_pending),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = colors.onSurfaceVariant)
+                                            Icon(
+                                                imageVector = Icons.Default.PhotoCamera,
+                                                contentDescription = null,
+                                                tint = colors.primary
+                                            )
+                                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                                Text(
+                                                    text = stringResource(R.string.registro_evidence_title),
+                                                    style = MaterialTheme.typography.titleSmall
+                                                )
+                                                Text(
+                                                    text = if (uiState.fotoPath.isNullOrEmpty()) "Sin foto adjunta" else "Foto adjuntada",
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = colors.onSurfaceVariant
+                                                )
+                                            }
+                                        }
+
+                                        // Botón que abre la cámara
+                                        Button(
+                                            onClick = onTomarFotoClick,
+                                            enabled = camposHabilitados
+                                        ) {
+                                            Text(if (uiState.fotoPath.isNullOrEmpty()) "Tomar foto" else "Cambiar foto")
                                         }
                                     }
+
+// Muestra la vista previa si ya hay foto guardada en el estado
+                                    if (!uiState.fotoPath.isNullOrEmpty()) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        AsyncImage(
+                                            model = java.io.File(uiState.fotoPath ?: ""),
+                                            contentDescription = "Vista previa del vehículo",
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(180.dp)
+                                                .clip(MaterialTheme.shapes.medium),
+                                            contentScale = ContentScale.Crop
+                                        )
+                                    }
+
                                     uiState.mensajeError?.let { mensaje ->
                                         Text(text = mensaje, color = colors.error,
                                             style = MaterialTheme.typography.bodyMedium)
@@ -487,7 +533,8 @@ private fun RegistroClaroPreview() {
             onNuevaCaptura = {},
             onReintentarCarga = {},
             onLogout = {},
-            onMenuSeleccionado = {}
+            onMenuSeleccionado = {},
+            onTomarFotoClick = {}
         )
     }
 }
@@ -508,7 +555,8 @@ private fun RegistroOscuroPreview() {
             onNuevaCaptura = {},
             onReintentarCarga = {},
             onLogout = {},
-            onMenuSeleccionado = {}
+            onMenuSeleccionado = {},
+            onTomarFotoClick = {}
         )
     }
 }
@@ -532,7 +580,8 @@ private fun RegistroCargandoPreview() {
             onNuevaCaptura = {},
             onReintentarCarga = {},
             onLogout = {},
-            onMenuSeleccionado = {}
+            onMenuSeleccionado = {},
+            onTomarFotoClick = {}
         )
     }
 }
@@ -556,7 +605,8 @@ private fun RegistroErrorCargaPreview() {
             onNuevaCaptura = {},
             onReintentarCarga = {},
             onLogout = {},
-            onMenuSeleccionado = {}
+            onMenuSeleccionado = {},
+            onTomarFotoClick = {}
         )
     }
 }

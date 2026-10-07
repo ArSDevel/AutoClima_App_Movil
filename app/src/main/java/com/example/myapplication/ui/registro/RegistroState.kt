@@ -19,6 +19,8 @@ data class RegistroUiState(
     val motivoIngreso: String = "",
     val condicionInicial: String = "",
     // Carga inicial del expediente para edición
+    val fotoPath: String? = null, // 👈 1. Campo para la ruta de la foto actual
+    val fotoPathOriginal: String? = null, // 👈 2. Campo para comparar si la foto cambió
     val cargandoIngreso: Boolean = false,
     val errorCarga: String? = null,
     // Estado de la operación de guardado
@@ -57,7 +59,8 @@ data class RegistroUiState(
             email = emailCliente,
             fecha = fechaEntrada,
             motivo = motivoIngreso,
-            condicion = condicionInicial
+            condicion = condicionInicial,
+
         )
     }
 }

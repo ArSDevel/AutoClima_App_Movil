@@ -147,6 +147,13 @@ fun DashboardDrawer(
                             onOpcionSeleccionada(DashboardMenuOption.DIAGNOSTICO)
                         }
                     )
+                    OpcionPrincipalDrawer(
+                        opcion = DashboardMenuOption.EVIDENCIAS,
+                        seleccionada = opcionSeleccionada == DashboardMenuOption.EVIDENCIAS,
+                        onClick = {
+                            onOpcionSeleccionada(DashboardMenuOption.EVIDENCIAS)
+                        }
+                    )
                 }
             }
 
@@ -174,7 +181,9 @@ fun DashboardDrawer(
                             opcion != DashboardMenuOption.DASHBOARD &&
                                     opcion != DashboardMenuOption.REGISTRO &&
                                     opcion != DashboardMenuOption.CHECKLIST &&
-                                    opcion != DashboardMenuOption.DIAGNOSTICO }
+                                    opcion != DashboardMenuOption.DIAGNOSTICO
+                                    opcion != DashboardMenuOption.EVIDENCIAS
+                        }
                         .forEach { opcion ->
                             OpcionPendienteDrawer(opcion) }
                 }

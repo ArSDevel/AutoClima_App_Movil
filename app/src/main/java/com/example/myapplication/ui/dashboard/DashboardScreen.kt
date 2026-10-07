@@ -148,8 +148,9 @@ fun DashboardContent(
                             DashboardMenuOption.DASHBOARD -> Unit
                             DashboardMenuOption.REGISTRO,
                             DashboardMenuOption.CHECKLIST,
-                            DashboardMenuOption.DIAGNOSTICO -> {
-                                onMenuSeleccionado(opcion) }
+                            DashboardMenuOption.EVIDENCIAS -> { // <-- AGREGA EVIDENCIAS AQUÍ
+                                onMenuSeleccionado(opcion)
+                            }
                             else -> snackbarState.showSnackbar(mensajePendiente) } } },
                 onLogout = onLogout
             )

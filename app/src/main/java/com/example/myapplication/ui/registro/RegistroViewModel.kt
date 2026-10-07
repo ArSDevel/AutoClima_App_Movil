@@ -179,6 +179,15 @@ class RegistroViewModel(
         cambiarCampo("condicion") { it.copy(condicionInicial = valor) }
     }
 
+    fun onFotoTomada(path: String) {
+        _uiState.update { estadoActual ->
+            estadoActual.copy(
+                fotoPath = path,
+                tieneCambiosSinGuardar = true
+            )
+        }
+    }
+
     fun guardar(tecnicoId: Long) {
         val actual = _uiState.value
         // Evita guardar antes de cargar el expediente,

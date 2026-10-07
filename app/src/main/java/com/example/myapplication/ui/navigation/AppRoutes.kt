@@ -53,3 +53,15 @@ data class DetalleIngresoRoute(
     val userId: String,
     val ingresoId: Long
 ) : NavKey
+// Cámara de evidencias.
+@Serializable
+data object CamaraRoute : NavKey {
+    /* Nota: Si tu interfaz NavKey te marca un error pidiendo implementar
+       el método serializer(), cópialo de tu LoginRoute y cambia el
+       nombre a CamaraRoute */
+}
+
+// Galería de evidencias.
+@Serializable
+data object GaleriaRoute : NavKey {
+}

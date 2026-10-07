@@ -25,6 +25,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import com.example.myapplication.data.local.dao.EvidenciaDao
+import com.example.myapplication.data.local.entity.Evidencia
+
 
 @Database(
     entities = [
@@ -35,9 +38,10 @@ import kotlinx.coroutines.launch
         ChecklistDiagnostico::class,
         EventoIngreso::class,
         Diagnostico::class,
-        ConceptoCotizacion::class
+        ConceptoCotizacion::class,
+        Evidencia::class
     ],
-    version = 6,
+    version = 8,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -48,7 +52,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun ingresoDao(): IngresoDao
     abstract fun checklistDao(): ChecklistDao
     abstract fun diagnosticoDao(): DiagnosticoDao
-
+    abstract fun evidenciaDao(): EvidenciaDao
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null

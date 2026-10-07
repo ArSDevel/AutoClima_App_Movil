@@ -39,6 +39,14 @@ import com.example.myapplication.data.repository.ChecklistRepository
 import com.example.myapplication.ui.checklist.ChecklistScreen
 import com.example.myapplication.ui.checklist.ChecklistViewModel
 import com.example.myapplication.ui.checklist.ChecklistViewModelFactory
+import com.example.myapplication.ui.navigation.CamaraRoute
+import com.example.myapplication.ui.navigation.GaleriaRoute
+import com.example.myapplication.ui.camara.PantallaCamara
+import com.example.myapplication.ui.camara.PantallaGaleria
+import com.example.myapplication.ui.camara.CamaraViewModel
+import com.example.myapplication.ui.camara.CamaraViewModelFactory
+import androidx.room.Room
+import androidx.compose.runtime.collectAsState
 
 // Coordina la navegación y conecta las dependencias necesarias para cada pantalla.
 @Composable
@@ -267,6 +275,11 @@ fun AutoClimaApp() {
                                     DashboardMenuOption.DASHBOARD -> volverAlDashboard()
                                     DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
                                     DashboardMenuOption.DIAGNOSTICO -> abrirSeleccionDiagnostico()
+                                    DashboardMenuOption.EVIDENCIAS -> {
+                                        if (backStack.lastOrNull() != CamaraRoute) {
+                                            backStack.add(CamaraRoute)
+                                        }
+                                    }
                                     else -> Unit
                                 }
                             },
@@ -284,7 +297,15 @@ fun AutoClimaApp() {
                             RegistroViewModelFactory(repo = registroRepository, dashboardRepository = dashboardRepository, ingresoId = key.ingresoId) }
                         val registroViewModel: RegistroViewModel =
                             viewModel(factory = registroFactory)
-                            RegistroScreen(viewModel = registroViewModel, tecnicoId = tecnicoId, onLogout = {
+                            RegistroScreen(
+                                viewModel = registroViewModel,
+                                tecnicoId = tecnicoId,
+                                onTomarFotoClick = {
+                                    if (backStack.lastOrNull() != CamaraRoute) {
+                                        backStack.add(CamaraRoute)
+                                    }
+                                },
+                                onLogout = {
                                 cerrarSesion()
                             },
                                 onMenuSeleccionado = { opcion ->
@@ -293,6 +314,11 @@ fun AutoClimaApp() {
                                         DashboardMenuOption.REGISTRO -> Unit
                                         DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
                                         DashboardMenuOption.DIAGNOSTICO -> abrirSeleccionDiagnostico()
+                                        DashboardMenuOption.EVIDENCIAS -> {
+                                            if (backStack.lastOrNull() != CamaraRoute) {
+                                                backStack.add(CamaraRoute)
+                                            }
+                                        }
                                         else -> Unit
                                     }
                                 },
@@ -426,6 +452,46 @@ fun AutoClimaApp() {
                             }
                         )
                     }
+                }
+                is CamaraRoute -> NavEntry(key) {
+                    val camaraFactory = remember(baseDeDatos) {
+                        CamaraViewModelFactory(dao = baseDeDatos.evidenciaDao())
+                    }
+                    val camaraViewModel: CamaraViewModel = viewModel(factory = camaraFactory)
+
+                    PantallaCamara(
+                        onNavigateToGallery = {
+                            if (backStack.lastOrNull() != GaleriaRoute) {
+                                backStack.add(GaleriaRoute)
+                            }
+                        },
+                        onPhotoTaken = { file ->
+                            camaraViewModel.guardarEvidencia(file.absolutePath)
+                        },
+                        onVolver = {
+                            if (backStack.lastOrNull() == key) {
+                                backStack.removeAt(backStack.lastIndex)
+                            }
+                        }
+                    )
+                }
+
+                is GaleriaRoute -> NavEntry(key) {
+                    val camaraFactory = remember(baseDeDatos) {
+                        CamaraViewModelFactory(dao = baseDeDatos.evidenciaDao())
+                    }
+                    val camaraViewModel: CamaraViewModel = viewModel(factory = camaraFactory)
+
+                    val listaEvidencias by camaraViewModel.listaEvidencias.collectAsState()
+
+                    PantallaGaleria(
+                        listaEvidencias = listaEvidencias,
+                        onNavigateToCamera = {
+                            if (backStack.lastOrNull() == GaleriaRoute) {
+                                backStack.removeAt(backStack.lastIndex)
+                            }
+                        }
+                    )
                 }
                 else -> error("Ruta no reconocida: $key")
             }

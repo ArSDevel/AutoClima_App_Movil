@@ -21,5 +21,6 @@ data class Ingreso(
     val fecha: Long,
     val motivoIngreso: String? = null,
     val condicionInicial: String? = null,
-    val estado: String = EstadoIngreso.REGISTRADO.name // 👈 nace como "REGISTRADO"
+    val estado: String = EstadoIngreso.REGISTRADO.name, // 👈 Asegúrate de que lleve esta coma
+    val fotoPath: String? = null
 )
