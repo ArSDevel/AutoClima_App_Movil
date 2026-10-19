@@ -336,7 +336,7 @@
     <string name="diagnostico_quote_add">Agregar concepto</string>
     <string name="diagnostico_quote_total">Total</string>
     <string name="diagnostico_quote_total_amount">%1$s MXN</string>
-    <string name="diagnostico_quote_invalid_total">Revisa los importes para calcular el total.</string>
+    <string name="diagnostico_quote_invalid_total">Completa los importes para ver el total.</string>
     <string name="diagnostico_quote_total_help">Suma de los importes capturados. No se agregan cargos automáticamente.</string>
 
     <!-- Datos del ingreso en el diagnóstico -->
@@ -585,4 +585,5 @@
     <string name="historial_open_short">Abrir ingreso</string>
     <string name="diagnostico_findings_ok">Sin problemas</string>
     <string name="drawer_role">Técnico</string>
+    <string name="diagnostico_concept_short">Concepto</string>
 </resources>

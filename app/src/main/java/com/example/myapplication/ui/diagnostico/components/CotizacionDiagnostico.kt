@@ -93,7 +93,7 @@ fun CotizacionDiagnostico(
                         modifier = Modifier.weight(1f),
                         enabled = habilitado,
                         readOnly = soloLectura,
-                        placeholder = { Text(stringResource(R.string.diagnostico_concept_description)) },
+                        placeholder = { Text(stringResource(R.string.diagnostico_concept_short), maxLines = 1, softWrap = false) },
                         isError = erroresCampos["conceptos.$indice.descripcion"] != null,
                         supportingText = erroresCampos["conceptos.$indice.descripcion"]?.let { { Text(it) } },
                         keyboardOptions = KeyboardOptions(
@@ -141,10 +141,17 @@ fun CotizacionDiagnostico(
                     Text(text = stringResource(R.string.diagnostico_quote_total),
                         style = MaterialTheme.typography.titleMedium)
                     Text(
-                        text = if (totalCentavos != null) formatearImporte(totalCentavos)
-                        else stringResource(R.string.diagnostico_quote_invalid_total),
+                        text = if (totalCentavos != null) formatearImporte(totalCentavos) else "—",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold
+                    )
+                }
+                // Si falta algún importe, el aviso va aparte y en pequeño.
+                if (totalCentavos == null) {
+                    Text(
+                        text = stringResource(R.string.diagnostico_quote_invalid_total),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
                     )
                 }
             }

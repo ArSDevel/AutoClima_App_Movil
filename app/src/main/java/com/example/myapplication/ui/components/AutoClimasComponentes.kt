@@ -344,13 +344,17 @@ fun DialogoAviso(
                         onClick = onSecundario,
                         enabled = habilitado,
                         modifier = Modifier.weight(1f).height(56.dp),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
-                    ) { Text(textoSecundario, style = MaterialTheme.typography.titleMedium, maxLines = 1) }
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
+                    ) { Text(textoSecundario, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp), maxLines = 1,
+                        softWrap = false, overflow = TextOverflow.Ellipsis) }
                     androidx.compose.material3.Button(
                         onClick = onPrincipal,
                         modifier = Modifier.weight(1f).height(56.dp),
-                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
-                    ) { Text(textoPrincipal, style = MaterialTheme.typography.titleMedium, maxLines = 1) }
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
+                    ) { Text(textoPrincipal, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp), maxLines = 1,
+                        softWrap = false, overflow = TextOverflow.Ellipsis) }
                 }
             }
         }
