@@ -34,7 +34,7 @@ private val LightColorScheme = lightColorScheme(
     tertiaryContainer = AutoClimasIce,
     onTertiaryContainer = AutoClimasNavy,
     // Fondo general
-    background = AutoClimasGrayLight,
+    background = AutoClimasIce,
     onBackground = AutoClimasNavy,
     // Superficies y textos
     surface = AutoClimasWhite,

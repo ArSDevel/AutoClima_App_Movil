@@ -13,6 +13,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -33,6 +36,8 @@ class RegistroViewModel(
 
     // Referencia para detectar cambios reales en el formulario.
     private var formularioInicial = _uiState.value.aFormulario()
+    private var fotosJob: Job? = null
+
     init {
         // Un registro nuevo no necesita consultar un expediente.
         if (ingresoId != null) { cargarIngreso(ingresoId) }
@@ -54,7 +59,7 @@ class RegistroViewModel(
 
         viewModelScope.launch {
             try {
-                // Cargamos una fotografía inicial del expediente.
+                // Cargamos una copia inicial de los datos del expediente.
                 // No observamos continuamente para evitar sobrescribir
                 // los cambios que el usuario haga en el formulario.
                 val ingreso = dashboardRepository.observarIngresoPorId(id).first()
@@ -65,7 +70,8 @@ class RegistroViewModel(
                     }
                     return@launch
                 }
-                aplicarIngreso(ingreso)
+                aplicarIngreso(ingreso, repo.obtenerFotos(id).map { it.rutaImagen })
+                observarFotosGuardadas(id)
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (_: Exception) {
@@ -78,8 +84,68 @@ class RegistroViewModel(
         }
     }
 
+    // Actualiza únicamente las fotos al volver de Evidencias.
+    // Los campos que el usuario está escribiendo se conservan.
+    private fun observarFotosGuardadas(id: Long) {
+        fotosJob?.cancel()
+        fotosJob = viewModelScope.launch {
+            try {
+                combine(repo.observarFotos(id), dashboardRepository.observarIngresoPorId(id)) { fotos, ingreso ->
+                    fotos to ingreso
+                }.collect { (fotos, ingreso) ->
+                    if (ingreso != null) {
+                        _uiState.update { actual ->
+                            // El guardado actual actualizará su propia referencia al terminar.
+                            if (actual.cargando || actual.registroExitoso) return@update actual
+                            val guardadas = (fotos.map { it.rutaImagen } + listOfNotNull(ingreso.fotoPath)).distinct()
+                            val elegida = if (actual.fotoPath != actual.fotoPathOriginal &&
+                                (actual.fotoPath in guardadas || actual.fotoPath in actual.fotosNuevas)) {
+                                actual.fotoPath
+                            } else ingreso.fotoPath ?: actual.fotosNuevas.firstOrNull()
+                            actual.copy(
+                                fotosGuardadas = guardadas,
+                                fotoPathOriginal = ingreso.fotoPath,
+                                fotoPath = elegida,
+                                estadoIngreso = EstadoIngreso.desdeValor(ingreso.estado),
+                                tieneCambiosSinGuardar = actual.aFormulario() != formularioInicial ||
+                                        actual.fotosNuevas.isNotEmpty() || elegida != ingreso.fotoPath
+                            )
+                        }
+                    }
+                }
+            } catch (cancelacion: CancellationException) {
+                throw cancelacion
+            } catch (_: Exception) {
+                _uiState.update { it.copy(mensajeError = "No fue posible actualizar las fotografías. Vuelve a abrir el ingreso.") }
+            }
+        }
+    }
+
     // Permite repetir una consulta fallida.
     // Nunca recarga un formulario que ya tiene cambios pendientes.
+    // Paso del formulario al que pertenece cada campo: 0 cliente, 1 vehículo, 2 recepción.
+    private fun pasoDeCampo(campo: String): Int = when (campo) {
+        "nombre", "telefono", "email" -> 0
+        "placa", "modelo", "color", "serie" -> 1
+        else -> 2
+    }
+
+    // Comprueba solo los campos del paso indicado. Si hay errores los marca y devuelve false.
+    fun validarPaso(paso: Int): Boolean {
+        val actual = _uiState.value
+        val soloContacto = actual.esEdicion && ReglasIngreso.soloContacto(actual.estadoIngreso)
+        val errores = actual.aFormulario().errores(soloContacto = soloContacto)
+            .filterKeys { pasoDeCampo(it) == paso }
+        if (errores.isEmpty()) return true
+        _uiState.update { it.copy(erroresCampos = it.erroresCampos + errores, mensajeError = null) }
+        return false
+    }
+
+    // Cambia el paso del formulario sin perder lo capturado.
+    fun cambiarPaso(valor: Int) {
+        _uiState.update { it.copy(paso = valor.coerceIn(0, 2)) }
+    }
+
     fun reintentarCarga() {
         val id = ingresoId ?: return
         val actual = _uiState.value
@@ -89,7 +155,7 @@ class RegistroViewModel(
     }
 
     // Prepara los campos y establece la referencia inicial.
-    private fun aplicarIngreso(ingreso: IngresoResumen) {
+    private fun aplicarIngreso(ingreso: IngresoResumen, fotos: List<String>) {
         val estado = EstadoIngreso.desdeValor(ingreso.estado)
         val nuevoEstado = RegistroUiState(
             placa = ingreso.placa, modelo = ingreso.modelo,
@@ -101,6 +167,9 @@ class RegistroViewModel(
             condicionInicial = ingreso.condicionInicial.orEmpty(),
             ingresoIdEnEdicion = ingreso.ingresoId,
             estadoIngreso = estado,
+            fotoPath = ingreso.fotoPath,
+            fotoPathOriginal = ingreso.fotoPath,
+            fotosGuardadas = (fotos + listOfNotNull(ingreso.fotoPath)).distinct(),
             mensajeError = if (ReglasIngreso.editar(estado)) { null } else {
                 "Este ingreso está cerrado y no permite modificaciones."
             }
@@ -134,13 +203,14 @@ class RegistroViewModel(
             val modificado = transformar(actual)
             modificado.copy(mensajeError = null,
                 erroresCampos = actual.erroresCampos - campo,
-                tieneCambiosSinGuardar = modificado.aFormulario() != formularioInicial
+                tieneCambiosSinGuardar = modificado.aFormulario() != formularioInicial ||
+                        modificado.fotoPath != modificado.fotoPathOriginal || modificado.fotosNuevas.isNotEmpty()
             )
         }
     }
 
     fun onPlacaChange(valor: String) {
-        cambiarCampo("placa") { it.copy(placa = valor) }
+        cambiarCampo("placa") { it.copy(placa = FormularioIngreso.normalizarPlaca(valor)) }
     }
 
     fun onModeloChange(valor: String) {
@@ -179,11 +249,34 @@ class RegistroViewModel(
         cambiarCampo("condicion") { it.copy(condicionInicial = valor) }
     }
 
+    // La fotografía respeta las mismas restricciones que los datos del vehículo.
     fun onFotoTomada(path: String) {
-        _uiState.update { estadoActual ->
-            estadoActual.copy(
-                fotoPath = path,
-                tieneCambiosSinGuardar = true
+        if (path.isBlank()) return
+        cambiarCampo("foto") {
+            it.copy(
+                fotosNuevas = (it.fotosNuevas + path).distinct(),
+                fotoPath = it.fotoPath ?: path
+            )
+        }
+    }
+
+    fun seleccionarFotoPrincipal(ruta: String) {
+        val actual = _uiState.value
+        if (ruta !in actual.fotosNuevas && ruta !in actual.fotosGuardadas) return
+        cambiarCampo("foto") { it.copy(fotoPath = ruta) }
+    }
+
+    // Las fotos guardadas se administran desde Evidencias.
+    // Un borrador nuevo sí puede quedarse sin fotografías.
+    fun quitarFotoPendiente(ruta: String) {
+        if (ruta !in _uiState.value.fotosNuevas) return
+        cambiarCampo("foto") {
+            val restantes = it.fotosNuevas - ruta
+            it.copy(
+                fotosNuevas = restantes,
+                fotoPath = if (it.fotoPath == ruta) {
+                    it.fotosGuardadas.firstOrNull() ?: restantes.firstOrNull()
+                } else it.fotoPath
             )
         }
     }
@@ -212,7 +305,11 @@ class RegistroViewModel(
         val errores = formulario.errores(soloContacto = soloContacto)
 
         if (errores.isNotEmpty()) {
-            _uiState.update { it.copy(erroresCampos = errores, mensajeError = "Revisa los campos señalados.") }
+            // Lleva al técnico al primer paso que tiene algo por corregir.
+            val primerPaso = errores.keys.minOf { pasoDeCampo(it) }
+            _uiState.update {
+                it.copy(erroresCampos = errores, mensajeError = "Revisa los campos señalados.", paso = primerPaso)
+            }
             return
         }
 
@@ -225,8 +322,15 @@ class RegistroViewModel(
             try {
                 val idEnEdicion = actual.ingresoIdEnEdicion
                 val idGuardado = if (idEnEdicion != null) {
-                    dashboardRepository.editar(
-                        ingresoId = idEnEdicion, formulario = formulario, tecnicoId = tecnicoId)
+                    repo.editarIngreso(
+                        ingresoId = idEnEdicion,
+                        formulario = formulario,
+                        tecnicoId = tecnicoId,
+                        nuevaFotoPath = actual.fotoPath.takeIf {
+                            it != actual.fotoPathOriginal
+                        },
+                        nuevasFotosPaths = actual.fotosNuevas
+                    )
                     idEnEdicion
                 } else {
                     repo.registrarIngreso(
@@ -236,12 +340,21 @@ class RegistroViewModel(
                         numeroSerie = formulario.numeroSerie,
                         fechaEntrada = fechaDeNuevoIngreso(formulario.fecha),
                         tecnicoId = tecnicoId, motivoIngreso = formulario.motivo,
-                        condicionInicial = formulario.condicion
+                        condicionInicial = formulario.condicion,
+                        fotoPath = actual.fotoPath,
+                        fotosPaths = actual.fotosNuevas
                     )
                 }
                 formularioInicial = formulario
                 _uiState.update {
-                    it.copy(registroExitoso = true, idRegistrado = idGuardado, tieneCambiosSinGuardar = false)
+                    it.copy(
+                        registroExitoso = true,
+                        idRegistrado = idGuardado,
+                        tieneCambiosSinGuardar = false,
+                        fotoPathOriginal = actual.fotoPath,
+                        fotosGuardadas = (actual.fotosGuardadas + actual.fotosNuevas).distinct(),
+                        fotosNuevas = emptyList()
+                    )
                 }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion

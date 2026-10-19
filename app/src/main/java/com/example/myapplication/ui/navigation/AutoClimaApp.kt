@@ -1,167 +1,241 @@
 package com.example.myapplication.ui.navigation
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.myapplication.ui.diagnostico.SeleccionIngresoDiagnosticoScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.example.myapplication.ui.historial.HistorialScreen
+import com.example.myapplication.ui.historial.HistorialViewModel
+import com.example.myapplication.ui.historial.HistorialViewModelFactory
+import com.example.myapplication.data.local.repository.HistorialRepository
+import com.example.myapplication.R
 import com.example.myapplication.data.local.AppDatabase
 import com.example.myapplication.data.local.repository.DashboardRepository
+import com.example.myapplication.data.local.repository.DiagnosticoRepository
+import com.example.myapplication.data.local.repository.EvidenciaRepository
+import com.example.myapplication.data.repository.ChecklistRepository
 import com.example.myapplication.data.repository.RegistroRepository
+import com.example.myapplication.ui.camara.CamaraIngresoViewModel
+import com.example.myapplication.ui.camara.CamaraIngresoViewModelFactory
+import com.example.myapplication.ui.camara.EvidenciasIngresoScreen
+import com.example.myapplication.ui.camara.PantallaCamara
+import com.example.myapplication.ui.camara.SeleccionIngresoEvidenciasScreen
+import com.example.myapplication.ui.checklist.ChecklistScreen
+import com.example.myapplication.ui.checklist.ChecklistViewModel
+import com.example.myapplication.ui.checklist.ChecklistViewModelFactory
 import com.example.myapplication.ui.checklist.SeleccionIngresoChecklistScreen
 import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.dashboard.DashboardScreen
 import com.example.myapplication.ui.dashboard.DashboardViewModel
 import com.example.myapplication.ui.dashboard.DashboardViewModelFactory
-import com.example.myapplication.data.local.repository.DiagnosticoRepository
-import com.example.myapplication.ui.diagnostico.DiagnosticoScreen
-import com.example.myapplication.ui.diagnostico.DiagnosticoViewModel
-import com.example.myapplication.ui.diagnostico.DiagnosticoViewModelFactory
 import com.example.myapplication.ui.dashboard.DetalleIngresoScreen
 import com.example.myapplication.ui.dashboard.DetalleIngresoViewModel
 import com.example.myapplication.ui.dashboard.DetalleIngresoViewModelFactory
+import com.example.myapplication.ui.diagnostico.DiagnosticoScreen
+import com.example.myapplication.ui.diagnostico.DiagnosticoViewModel
+import com.example.myapplication.ui.diagnostico.DiagnosticoViewModelFactory
+import com.example.myapplication.ui.diagnostico.SeleccionIngresoDiagnosticoScreen
 import com.example.myapplication.ui.login.LoginScreen
 import com.example.myapplication.ui.login.LoginViewModel
 import com.example.myapplication.ui.registro.RegistroScreen
 import com.example.myapplication.ui.registro.RegistroViewModel
 import com.example.myapplication.ui.registro.RegistroViewModelFactory
-import com.example.myapplication.data.repository.ChecklistRepository
-import com.example.myapplication.ui.checklist.ChecklistScreen
-import com.example.myapplication.ui.checklist.ChecklistViewModel
-import com.example.myapplication.ui.checklist.ChecklistViewModelFactory
-import com.example.myapplication.ui.navigation.CamaraRoute
-import com.example.myapplication.ui.navigation.GaleriaRoute
-import com.example.myapplication.ui.camara.PantallaCamara
-import com.example.myapplication.ui.camara.PantallaGaleria
-import com.example.myapplication.ui.camara.CamaraViewModel
-import com.example.myapplication.ui.camara.CamaraViewModelFactory
-import androidx.room.Room
-import androidx.compose.runtime.collectAsState
 
-// Coordina la navegación y conecta las dependencias necesarias para cada pantalla.
+// Coordina la navegación y las dependencias de cada pantalla.
 @Composable
 fun AutoClimaApp() {
     val contexto = LocalContext.current.applicationContext
-    val baseDeDatos = remember(contexto) { AppDatabase.getInstance(contexto) }
-    val tecnicoDao = remember(baseDeDatos) { baseDeDatos.tecnicoDao() }
-    val dashboardRepository = remember(baseDeDatos) { DashboardRepository(baseDeDatos = baseDeDatos) }
-    val registroRepository = remember(baseDeDatos) { RegistroRepository(baseDeDatos = baseDeDatos) }
-    val checklistRepository = remember(baseDeDatos) { ChecklistRepository(baseDeDatos = baseDeDatos) }
-    val diagnosticoRepository = remember(baseDeDatos) { DiagnosticoRepository(baseDeDatos = baseDeDatos) }
 
-    // Construye el ViewModel de inicio de sesión.
+    val baseDeDatos = remember(contexto) {
+        AppDatabase.getInstance(contexto)
+    }
+
+    val tecnicoDao = remember(baseDeDatos) {
+        baseDeDatos.tecnicoDao()
+    }
+
+    val dashboardRepository = remember(baseDeDatos) {
+        DashboardRepository(baseDeDatos = baseDeDatos)
+    }
+
+    val registroRepository = remember(baseDeDatos) {
+        RegistroRepository(baseDeDatos = baseDeDatos)
+    }
+
+    val checklistRepository = remember(baseDeDatos) {
+        ChecklistRepository(baseDeDatos = baseDeDatos)
+    }
+
+    val diagnosticoRepository = remember(baseDeDatos) {
+        DiagnosticoRepository(baseDeDatos = baseDeDatos)
+    }
+
+    val evidenciaRepository = remember(baseDeDatos, contexto) {
+        EvidenciaRepository(
+            baseDeDatos = baseDeDatos,
+            directorioArchivos = contexto.filesDir
+        )
+    }
+
     val loginFactory = remember(tecnicoDao) {
         object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                require(modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>
+            ): T {
+                require(
+                    modelClass.isAssignableFrom(
+                        LoginViewModel::class.java
+                    )
+                ) {
                     "ViewModel desconocido: ${modelClass.name}"
                 }
+
                 @Suppress("UNCHECKED_CAST")
                 return LoginViewModel(tecnicoDao) as T
             }
         }
     }
 
-    // Vive fuera de las entradas de navegación para conservar
-    // la sesión mientras se cambia de pantalla.
-    val loginViewModel: LoginViewModel = viewModel(factory = loginFactory)
+    // La sesión vive fuera de las entradas de navegación.
+    val loginViewModel: LoginViewModel = viewModel(
+        factory = loginFactory
+    )
+
     val uiState by loginViewModel.uiState.collectAsStateWithLifecycle()
-    // Identificador real obtenido al verificar las credenciales.
+
     val tecnicoId = uiState.tecnicoId
 
-    val sesionValida = uiState.isLoggedIn && tecnicoId != null && tecnicoId > 0 && uiState.id.isNotBlank()
+    val sesionValida = uiState.isLoggedIn &&
+            tecnicoId != null &&
+            tecnicoId > 0 &&
+            uiState.id.isNotBlank()
 
     val dashboardFactory = remember(dashboardRepository) {
-        DashboardViewModelFactory(repository = dashboardRepository)
+        DashboardViewModelFactory(
+            repository = dashboardRepository
+        )
     }
-    val backStack = rememberNavBackStack(LoginRoute)
-    // Ajusta la navegación cuando cambia la sesión.
-    LaunchedEffect(uiState.isLoggedIn, uiState.id, tecnicoId) {
-        if (!sesionValida) {
-            // Una sesión abierta debe incluir un técnico válido.
-            if (uiState.isLoggedIn) { loginViewModel.resetLoginState() }
 
-            if (backStack.size != 1 || backStack.lastOrNull() != LoginRoute) {
+    val backStack = rememberNavBackStack(LoginRoute)
+
+    LaunchedEffect(
+        uiState.isLoggedIn,
+        uiState.id,
+        tecnicoId
+    ) {
+        if (!sesionValida) {
+            if (uiState.isLoggedIn) {
+                loginViewModel.resetLoginState()
+            }
+
+            if (
+                backStack.size != 1 ||
+                backStack.lastOrNull() != LoginRoute
+            ) {
                 backStack.clear()
                 backStack.add(LoginRoute)
             }
         } else {
             val raiz = backStack.firstOrNull()
-            val perteneceAlUsuario = raiz is DashboardRoute && raiz.userId == uiState.id
+
+            val perteneceAlUsuario = raiz is DashboardRoute &&
+                    raiz.userId == uiState.id
+
             if (!perteneceAlUsuario) {
                 backStack.clear()
-                backStack.add(DashboardRoute(userId = uiState.id))
+                backStack.add(
+                    DashboardRoute(userId = uiState.id)
+                )
             }
         }
     }
 
-    // Limpia la sesión y retira las pantallas del usuario anterior.
     fun cerrarSesion() {
         loginViewModel.resetLoginState()
         backStack.clear()
         backStack.add(LoginRoute)
     }
 
-    // Regresa al dashboard sin agregar una pantalla duplicada.
     fun volverAlDashboard() {
         if (!sesionValida) return
+
         val raiz = backStack.firstOrNull()
-        if (raiz is DashboardRoute && raiz.userId == uiState.id) {
+
+        if (
+            raiz is DashboardRoute &&
+            raiz.userId == uiState.id
+        ) {
             while (backStack.size > 1) {
                 backStack.removeAt(backStack.lastIndex)
             }
         } else {
             backStack.clear()
-            backStack.add(DashboardRoute(userId = uiState.id))
+            backStack.add(
+                DashboardRoute(userId = uiState.id)
+            )
         }
     }
 
-    // Sin ID: registro nuevo. Con ID: edición.
+    fun volverUnaPantalla() {
+        if (backStack.size > 1) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+    }
+
     fun abrirRegistro(ingresoId: Long? = null) {
         if (!sesionValida) return
         if (ingresoId != null && ingresoId <= 0) return
         if (backStack.lastOrNull() is RegistroRoute) return
-        backStack.add(RegistroRoute(userId = uiState.id, ingresoId = ingresoId))
+
+        backStack.add(
+            RegistroRoute(
+                userId = uiState.id,
+                ingresoId = ingresoId
+            )
+        )
     }
 
-
-
-    // Abre el expediente de un ingreso existente.
     fun abrirDetalle(ingresoId: Long) {
         if (!sesionValida || ingresoId <= 0) return
-        // Al consultar el ingreso guardado, retiramos el formulario.
+
         if (backStack.lastOrNull() is RegistroRoute) {
             backStack.removeAt(backStack.lastIndex)
         }
-        val destino = DetalleIngresoRoute(userId = uiState.id, ingresoId = ingresoId)
-        // Si se editó desde el detalle, reutilizamos esa entrada.
-        if (backStack.lastOrNull() == destino) return
-        backStack.add(destino)
-    }
 
-    // Abre la selección de ingreso desde el menú lateral.
-    fun abrirSeleccionChecklist() {
-        if (!sesionValida) return
-
-        val destino = SeleccionIngresoChecklistRoute(
-            userId = uiState.id
+        val destino = DetalleIngresoRoute(
+            userId = uiState.id,
+            ingresoId = ingresoId
         )
 
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino)
+        }
+    }
+
+    // Registro confirma previamente la salida si tiene cambios.
+    fun abrirSelector(destino: NavKey) {
+        if (!sesionValida) return
         if (backStack.lastOrNull() == destino) return
 
-        // Desde Registro, la pantalla ya confirmó la salida
-        // si existían cambios pendientes.
-        // Retirar su entrada evita conservar un formulario descartado.
         if (backStack.lastOrNull() is RegistroRoute) {
             backStack.removeAt(backStack.lastIndex)
         }
@@ -171,28 +245,6 @@ fun AutoClimaApp() {
         }
     }
 
-    // Abre la selección de ingreso desde el menú lateral.
-    fun abrirSeleccionDiagnostico() {
-        if (!sesionValida) return
-
-        val destino = SeleccionIngresoDiagnosticoRoute(
-            userId = uiState.id
-        )
-
-        if (backStack.lastOrNull() == destino) return
-
-        // Registro ya solicitó confirmar la salida si había cambios.
-        // Retiramos su entrada para no conservar el formulario descartado.
-        if (backStack.lastOrNull() is RegistroRoute) {
-            backStack.removeAt(backStack.lastIndex)
-        }
-
-        if (backStack.lastOrNull() != destino) {
-            backStack.add(destino)
-        }
-    }
-
-    // Abre el checklist conservando el detalle debajo en la pila.
     fun abrirChecklist(ingresoId: Long) {
         if (!sesionValida || ingresoId <= 0) return
 
@@ -201,12 +253,11 @@ fun AutoClimaApp() {
             ingresoId = ingresoId
         )
 
-        if (backStack.lastOrNull() == destino) return
-
-        backStack.add(destino)
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino)
+        }
     }
 
-    // Abre el diagnóstico conservando el detalle debajo.
     fun abrirDiagnostico(ingresoId: Long) {
         if (!sesionValida || ingresoId <= 0) return
 
@@ -215,143 +266,275 @@ fun AutoClimaApp() {
             ingresoId = ingresoId
         )
 
-        if (backStack.lastOrNull() == destino) return
-
-        backStack.add(destino)
-    }
-
-    // Retira el diagnóstico y recupera el expediente correspondiente.
-    fun volverDelDiagnostico(ingresoId: Long) {
-        if (!sesionValida) return
-
-        val actual = backStack.lastOrNull()
-
-        if (actual is DiagnosticoRoute && actual.ingresoId == ingresoId) {
-            backStack.removeAt(backStack.lastIndex)
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino)
         }
-
-        abrirDetalle(ingresoId)
     }
 
-    // Retira el checklist y recupera el detalle del mismo ingreso.
-    fun volverDelChecklist(ingresoId: Long) {
-        if (!sesionValida) return
+    fun abrirEvidencias(ingresoId: Long) {
+        if (!sesionValida || ingresoId <= 0) return
 
-        val actual = backStack.lastOrNull()
+        val destino = EvidenciasIngresoRoute(
+            userId = uiState.id,
+            ingresoId = ingresoId
+        )
 
-        if (actual is ChecklistRoute && actual.ingresoId == ingresoId) {
-            backStack.removeAt(backStack.lastIndex)
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino)
         }
-
-        abrirDetalle(ingresoId)
     }
 
-    NavDisplay(backStack = backStack,
+    fun seleccionarMenu(opcion: DashboardMenuOption) {
+        when (opcion) {
+            DashboardMenuOption.DASHBOARD -> volverAlDashboard()
+
+            DashboardMenuOption.REGISTRO -> abrirRegistro()
+
+            DashboardMenuOption.CHECKLIST -> {
+                abrirSelector(
+                    SeleccionIngresoChecklistRoute(
+                        userId = uiState.id
+                    )
+                )
+            }
+
+            DashboardMenuOption.DIAGNOSTICO -> {
+                abrirSelector(
+                    SeleccionIngresoDiagnosticoRoute(
+                        userId = uiState.id
+                    )
+                )
+            }
+
+            DashboardMenuOption.EVIDENCIAS -> {
+                abrirSelector(
+                    SeleccionIngresoEvidenciasRoute(
+                        userId = uiState.id
+                    )
+                )
+            }
+
+            DashboardMenuOption.HISTORIAL -> abrirSelector(HistorialRoute(uiState.id))
+
+            else -> Unit
+        }
+    }
+
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.example.myapplication.ui.components.LocalNombreTecnico provides uiState.nombreTecnico
+    ) {
+    NavDisplay(
+        backStack = backStack,
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator()
         ),
-        onBack = { if (backStack.size > 1) {
-                backStack.removeAt(backStack.lastIndex)
-            }
-        },
+        onBack = { volverUnaPantalla() },
         entryProvider = { key ->
-            when (key) {
-                is LoginRoute -> NavEntry(key) {
-                    LoginScreen(
-                        viewModel = loginViewModel,
-                        onLoginSuccess = {}
-                    )
+            NavEntry(key) {
+                // Verifica que la entrada pertenezca a la sesión actual.
+                val usuarioRuta = when (key) {
+                    is HistorialRoute -> key.userId
+                    is DashboardRoute -> key.userId
+                    is RegistroRoute -> key.userId
+                    is DetalleIngresoRoute -> key.userId
+                    is ChecklistRoute -> key.userId
+                    is DiagnosticoRoute -> key.userId
+                    is EvidenciasIngresoRoute -> key.userId
+                    is SeleccionIngresoChecklistRoute -> key.userId
+                    is SeleccionIngresoDiagnosticoRoute -> key.userId
+                    is SeleccionIngresoEvidenciasRoute -> key.userId
+                    else -> null
                 }
-                is DashboardRoute -> NavEntry(key) {
-                    if (sesionValida && key.userId == uiState.id) {
-                        val dashboardViewModel: DashboardViewModel = viewModel(factory = dashboardFactory)
+
+                if (
+                    key != LoginRoute &&
+                    (!sesionValida || usuarioRuta != uiState.id)
+                ) {
+                    return@NavEntry
+                }
+
+                when (key) {
+                    LoginRoute -> {
+                        LoginScreen(
+                            viewModel = loginViewModel,
+                            onLoginSuccess = {}
+                        )
+                    }
+
+                    is DashboardRoute -> {
+                        val dashboardViewModel: DashboardViewModel =
+                            viewModel(factory = dashboardFactory)
+
                         DashboardScreen(
                             viewModel = dashboardViewModel,
                             onLogout = { cerrarSesion() },
-                            onMenuSeleccionado = { opcion ->
-                                when (opcion) {
-                                    DashboardMenuOption.REGISTRO -> abrirRegistro()
-                                    DashboardMenuOption.DASHBOARD -> volverAlDashboard()
-                                    DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
-                                    DashboardMenuOption.DIAGNOSTICO -> abrirSeleccionDiagnostico()
-                                    DashboardMenuOption.EVIDENCIAS -> {
-                                        if (backStack.lastOrNull() != CamaraRoute) {
-                                            backStack.add(CamaraRoute)
-                                        }
-                                    }
-                                    else -> Unit
-                                }
-                            },
-                            onEditarIngreso = { ingresoId -> abrirRegistro(ingresoId) },
-                            onVerDetalle = { ingresoId -> abrirDetalle(ingresoId) }
+                            onMenuSeleccionado = { seleccionarMenu(it) },
+                            onEditarIngreso = { abrirRegistro(it) },
+                            onVerDetalle = { abrirDetalle(it) },
+                            onVerFotos = { abrirEvidencias(it) },
+                            onAbrirChecklist = { abrirChecklist(it) },
+                            onAbrirDiagnostico = { abrirDiagnostico(it) }
                         )
                     }
-                }
 
-                is RegistroRoute -> NavEntry(key) {
-                    if (sesionValida && tecnicoId != null && key.userId == uiState.id) {
-                        // La fábrica pertenece a esta entrada y recibe
-                        // el ingreso que corresponde editar.
-                        val registroFactory = remember(registroRepository, dashboardRepository, key.ingresoId) {
-                            RegistroViewModelFactory(repo = registroRepository, dashboardRepository = dashboardRepository, ingresoId = key.ingresoId) }
+                    is HistorialRoute -> {
+                        val factory = remember(baseDeDatos) {
+                            HistorialViewModelFactory(HistorialRepository(baseDeDatos.ingresoDao()))
+                        }
+                        val historialViewModel: HistorialViewModel = viewModel(factory = factory)
+                        HistorialScreen(
+                            viewModel = historialViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onAbrirIngreso = { abrirDetalle(it) },
+                            onMenuSeleccionado = { seleccionarMenu(it) },
+                            onLogout = { cerrarSesion() }
+                        )
+                    }
+
+                    is RegistroRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val registroFactory = remember(
+                            registroRepository,
+                            dashboardRepository,
+                            key.ingresoId
+                        ) {
+                            RegistroViewModelFactory(
+                                repo = registroRepository,
+                                dashboardRepository = dashboardRepository,
+                                ingresoId = key.ingresoId
+                            )
+                        }
+
                         val registroViewModel: RegistroViewModel =
                             viewModel(factory = registroFactory)
+
+                        var mostrarCamara by rememberSaveable {
+                            mutableStateOf(false)
+                        }
+
+                        var mostrarAvisoGaleria by rememberSaveable {
+                            mutableStateOf(false)
+                        }
+
+                        BackHandler(enabled = mostrarCamara) {
+                            mostrarCamara = false
+                        }
+
+                        if (mostrarCamara) {
+                            PantallaCamara(
+                                onNavigateToGallery = {
+                                    val id = key.ingresoId
+
+                                    if (id != null) {
+                                        mostrarCamara = false
+                                        abrirEvidencias(id)
+                                    } else {
+                                        mostrarAvisoGaleria = true
+                                    }
+                                },
+                                onPhotoTaken = { archivo ->
+                                    // Devuelve la captura al mismo formulario.
+                                    registroViewModel.onFotoTomada(
+                                        archivo.absolutePath
+                                    )
+                                    mostrarCamara = false
+                                },
+                                onVolver = {
+                                    mostrarCamara = false
+                                }
+                            )
+                        } else {
                             RegistroScreen(
                                 viewModel = registroViewModel,
-                                tecnicoId = tecnicoId,
+                                tecnicoId = actor,
                                 onTomarFotoClick = {
-                                    if (backStack.lastOrNull() != CamaraRoute) {
-                                        backStack.add(CamaraRoute)
-                                    }
+                                    mostrarCamara = true
                                 },
-                                onLogout = {
-                                cerrarSesion()
-                            },
+                                onLogout = { cerrarSesion() },
                                 onMenuSeleccionado = { opcion ->
-                                    when (opcion) {
-                                        DashboardMenuOption.DASHBOARD -> volverAlDashboard()
-                                        DashboardMenuOption.REGISTRO -> Unit
-                                        DashboardMenuOption.CHECKLIST -> abrirSeleccionChecklist()
-                                        DashboardMenuOption.DIAGNOSTICO -> abrirSeleccionDiagnostico()
-                                        DashboardMenuOption.EVIDENCIAS -> {
-                                            if (backStack.lastOrNull() != CamaraRoute) {
-                                                backStack.add(CamaraRoute)
-                                            }
-                                        }
-                                        else -> Unit
+                                    if (
+                                        opcion != DashboardMenuOption.REGISTRO
+                                    ) {
+                                        seleccionarMenu(opcion)
                                     }
                                 },
-                            onVerIngreso = { ingresoId -> abrirDetalle(ingresoId) }
-                        )
-                    }
-                }
-
-                is DetalleIngresoRoute -> NavEntry(key) {
-                    if (sesionValida && tecnicoId != null && key.userId == uiState.id) {
-                        val detalleFactory = remember(key.ingresoId, dashboardRepository) {
-                            DetalleIngresoViewModelFactory(ingresoId = key.ingresoId, repository = dashboardRepository)
+                                onVerIngreso = { abrirDetalle(it) }
+                            )
                         }
-                        val detalleViewModel: DetalleIngresoViewModel = viewModel(factory = detalleFactory)
+
+                        if (mostrarAvisoGaleria) {
+                            AlertDialog(
+                                onDismissRequest = {
+                                    mostrarAvisoGaleria = false
+                                },
+                                title = {
+                                    Text(
+                                        stringResource(
+                                            R.string.evidence_registration_gallery_title
+                                        )
+                                    )
+                                },
+                                text = {
+                                    Text(
+                                        stringResource(
+                                            R.string.evidence_registration_gallery_message
+                                        )
+                                    )
+                                },
+                                confirmButton = {
+                                    TextButton(
+                                        onClick = {
+                                            mostrarAvisoGaleria = false
+                                        }
+                                    ) {
+                                        Text(
+                                            stringResource(
+                                                R.string.evidence_close
+                                            )
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    is DetalleIngresoRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val factory = remember(
+                            key.ingresoId,
+                            dashboardRepository
+                        ) {
+                            DetalleIngresoViewModelFactory(
+                                ingresoId = key.ingresoId,
+                                repository = dashboardRepository
+                            )
+                        }
+
+                        val detalleViewModel: DetalleIngresoViewModel =
+                            viewModel(factory = factory)
+
                         DetalleIngresoScreen(
                             viewModel = detalleViewModel,
-                            tecnicoId = tecnicoId,
-                            onVolver = { volverAlDashboard() },
-                            onEditar = { ingresoId ->
-                                abrirRegistro(ingresoId) },
-                            onAbrirChecklist = { ingresoId ->
-                                abrirChecklist(ingresoId) },
-                            onAbrirDiagnostico = { ingresoId -> abrirDiagnostico(ingresoId) }
+                            tecnicoId = actor,
+                            onVolver = { volverUnaPantalla() },
+                            onEditar = { abrirRegistro(it) },
+                            onAbrirChecklist = { abrirChecklist(it) },
+                            onAbrirDiagnostico = { abrirDiagnostico(it) },
+                            onAbrirEvidencias = { abrirEvidencias(it) }
                         )
                     }
-                }
-                is ChecklistRoute -> NavEntry(key) {
-                    if (sesionValida && tecnicoId != null &&
-                        key.userId == uiState.id) {
-                        val checklistFactory = remember(
+
+                    is ChecklistRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val factory = remember(
                             key.ingresoId,
                             checklistRepository,
-                            dashboardRepository) {
+                            dashboardRepository
+                        ) {
                             ChecklistViewModelFactory(
                                 ingresoId = key.ingresoId,
                                 repo = checklistRepository,
@@ -359,50 +542,43 @@ fun AutoClimaApp() {
                             )
                         }
 
-                        val checklistViewModel: ChecklistViewModel = viewModel(
-                            factory = checklistFactory
-                        )
+                        val checklistViewModel: ChecklistViewModel =
+                            viewModel(factory = factory)
 
-                        ChecklistScreen(
-                            viewModel = checklistViewModel,
-                            tecnicoId = tecnicoId,
-                            onVolver = {
-                                volverDelChecklist(key.ingresoId)
-                            }
-                        )
-                    }
-                }
-                is SeleccionIngresoChecklistRoute -> NavEntry(key) {
-                    if (sesionValida && key.userId == uiState.id) {
-                        // Esta instancia pertenece al selector.
-                        // No modifica la búsqueda ni los filtros del dashboard.
-                        val selectorViewModel: DashboardViewModel = viewModel(
-                            factory = dashboardFactory
-                        )
+                        val fotosChecklistFactory = remember(key.ingresoId, evidenciaRepository) {
+                            CamaraIngresoViewModelFactory(key.ingresoId, evidenciaRepository)
+                        }
+                        val fotosChecklist: CamaraIngresoViewModel = viewModel(factory = fotosChecklistFactory)
 
-                        SeleccionIngresoChecklistScreen(
-                            viewModel = selectorViewModel,
-                            onVolver = {
-                                if (backStack.lastOrNull() == key) {
-                                    backStack.removeAt(backStack.lastIndex)
-                                }
-                            },
-                            onSeleccionarIngreso = { ingresoId ->
-                                // Conserva el detalle debajo del checklist.
-                                // Al salir del checklist se mostrará ese expediente.
-                                abrirDetalle(ingresoId)
-                                abrirChecklist(ingresoId)
-                            }
-                        )
+                        var camaraChecklist by rememberSaveable { mutableStateOf(false) }
+                        BackHandler(enabled = camaraChecklist) { camaraChecklist = false }
+
+                        if (camaraChecklist) {
+                            PantallaCamara(
+                                onNavigateToGallery = { camaraChecklist = false },
+                                onPhotoTaken = { archivo ->
+                                    // La foto se guarda de inmediato en las evidencias del ingreso.
+                                    fotosChecklist.recibirFoto(archivo)
+                                    fotosChecklist.guardar(actor)
+                                    camaraChecklist = false
+                                },
+                                onVolver = { camaraChecklist = false }
+                            )
+                        } else {
+                            ChecklistScreen(
+                                viewModel = checklistViewModel,
+                                tecnicoId = actor,
+                                onVolver = { volverUnaPantalla() },
+                                evidenciasViewModel = fotosChecklist,
+                                onAgregarFoto = { camaraChecklist = true }
+                            )
+                        }
                     }
-                }
-                is DiagnosticoRoute -> NavEntry(key) {
-                    if (
-                        sesionValida &&
-                        tecnicoId != null &&
-                        key.userId == uiState.id
-                    ) {
-                        val diagnosticoFactory = remember(
+
+                    is DiagnosticoRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val factory = remember(
                             key.ingresoId,
                             diagnosticoRepository,
                             dashboardRepository,
@@ -416,85 +592,86 @@ fun AutoClimaApp() {
                             )
                         }
 
-                        val diagnosticoViewModel: DiagnosticoViewModel = viewModel(
-                            factory = diagnosticoFactory
-                        )
+                        val diagnosticoViewModel: DiagnosticoViewModel =
+                            viewModel(factory = factory)
+
+                        val fotosFactory = remember(key.ingresoId, evidenciaRepository) {
+                            CamaraIngresoViewModelFactory(key.ingresoId, evidenciaRepository)
+                        }
+                        val fotosDiagnostico: CamaraIngresoViewModel = viewModel(factory = fotosFactory)
 
                         DiagnosticoScreen(
                             viewModel = diagnosticoViewModel,
-                            tecnicoId = tecnicoId,
-                            onVolver = {
-                                volverDelDiagnostico(key.ingresoId)
-                            }
+                            evidenciasViewModel = fotosDiagnostico,
+                            tecnicoId = actor,
+                            onVolver = { volverUnaPantalla() },
+                            onAbrirChecklist = { abrirChecklist(key.ingresoId) },
+                            onAbrirEvidencias = { abrirEvidencias(key.ingresoId) }
                         )
                     }
-                }
-                is SeleccionIngresoDiagnosticoRoute -> NavEntry(key) {
-                    if (sesionValida && key.userId == uiState.id) {
-                        // Instancia exclusiva de esta entrada de navegación.
-                        // Conserva independientes los filtros del dashboard.
-                        val selectorViewModel: DashboardViewModel = viewModel(
-                            factory = dashboardFactory
+
+                    is SeleccionIngresoChecklistRoute -> {
+                        val selectorViewModel: DashboardViewModel =
+                            viewModel(factory = dashboardFactory)
+
+                        SeleccionIngresoChecklistScreen(
+                            viewModel = selectorViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onSeleccionarIngreso = { abrirChecklist(it) }
                         )
+                    }
+
+                    is SeleccionIngresoDiagnosticoRoute -> {
+                        val selectorViewModel: DashboardViewModel =
+                            viewModel(factory = dashboardFactory)
 
                         SeleccionIngresoDiagnosticoScreen(
                             viewModel = selectorViewModel,
-                            onVolver = {
-                                if (backStack.lastOrNull() == key) {
-                                    backStack.removeAt(backStack.lastIndex)
-                                }
-                            },
-                            onSeleccionarIngreso = { ingresoId ->
-                                // Coloca el detalle debajo del diagnóstico.
-                                // Al terminar, el usuario vuelve al expediente.
-                                abrirDetalle(ingresoId)
-                                abrirDiagnostico(ingresoId)
+                            onVolver = { volverUnaPantalla() },
+                            onSeleccionarIngreso = { abrirDiagnostico(it) }
+                        )
+                    }
+
+                    is SeleccionIngresoEvidenciasRoute -> {
+                        val selectorViewModel: DashboardViewModel =
+                            viewModel(factory = dashboardFactory)
+
+                        SeleccionIngresoEvidenciasScreen(
+                            viewModel = selectorViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onSeleccionarIngreso = {
+                                abrirEvidencias(it)
                             }
                         )
                     }
-                }
-                is CamaraRoute -> NavEntry(key) {
-                    val camaraFactory = remember(baseDeDatos) {
-                        CamaraViewModelFactory(dao = baseDeDatos.evidenciaDao())
-                    }
-                    val camaraViewModel: CamaraViewModel = viewModel(factory = camaraFactory)
 
-                    PantallaCamara(
-                        onNavigateToGallery = {
-                            if (backStack.lastOrNull() != GaleriaRoute) {
-                                backStack.add(GaleriaRoute)
-                            }
-                        },
-                        onPhotoTaken = { file ->
-                            camaraViewModel.guardarEvidencia(file.absolutePath)
-                        },
-                        onVolver = {
-                            if (backStack.lastOrNull() == key) {
-                                backStack.removeAt(backStack.lastIndex)
-                            }
+                    is EvidenciasIngresoRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val factory = remember(
+                            key.ingresoId,
+                            evidenciaRepository
+                        ) {
+                            CamaraIngresoViewModelFactory(
+                                ingresoId = key.ingresoId,
+                                repository = evidenciaRepository
+                            )
                         }
-                    )
-                }
 
-                is GaleriaRoute -> NavEntry(key) {
-                    val camaraFactory = remember(baseDeDatos) {
-                        CamaraViewModelFactory(dao = baseDeDatos.evidenciaDao())
+                        val camaraViewModel: CamaraIngresoViewModel =
+                            viewModel(factory = factory)
+
+                        EvidenciasIngresoScreen(
+                            viewModel = camaraViewModel,
+                            tecnicoId = actor,
+                            onVolver = { volverUnaPantalla() }
+                        )
                     }
-                    val camaraViewModel: CamaraViewModel = viewModel(factory = camaraFactory)
 
-                    val listaEvidencias by camaraViewModel.listaEvidencias.collectAsState()
-
-                    PantallaGaleria(
-                        listaEvidencias = listaEvidencias,
-                        onNavigateToCamera = {
-                            if (backStack.lastOrNull() == GaleriaRoute) {
-                                backStack.removeAt(backStack.lastIndex)
-                            }
-                        }
-                    )
+                    else -> error("Ruta no reconocida: $key")
                 }
-                else -> error("Ruta no reconocida: $key")
             }
         }
     )
+    }
 }

@@ -29,6 +29,15 @@ object AutoClimasGradients {
             lightBackground
         }
 
+    // Cabecera de las pantallas internas.
+    val header: Brush
+        @Composable
+        get() = if (LocalAutoClimasDark.current) {
+            Brush.linearGradient(listOf(AutoClimasGradientDarkStart, AutoClimasGradientDarkMiddle))
+        } else {
+            Brush.linearGradient(listOf(AutoClimasHeaderBlue, AutoClimasBlue))
+        }
+
     // Gradiente de marca para botones principales
     val primaryButton: Brush = Brush.horizontalGradient(
         colors = listOf(

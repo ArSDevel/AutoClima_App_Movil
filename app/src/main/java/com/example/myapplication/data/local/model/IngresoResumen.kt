@@ -1,6 +1,7 @@
 package com.example.myapplication.data.local.model
 
-//bResultado de la consulta que combina ingreso, vehículo y cliente.No es una tabla de Room.
+// Resultado de la consulta que combina ingreso, vehículo y cliente.
+// No es una tabla de Room.
 data class IngresoResumen(
     val ingresoId: Long,
     val placa: String,
@@ -13,5 +14,6 @@ data class IngresoResumen(
     val fechaEntrada: Long,
     val estado: String = EstadoIngreso.NO_DISPONIBLE.name,
     val motivoIngreso: String? = null,
-    val condicionInicial: String? = null
+    val condicionInicial: String? = null,
+    val fotoPath: String? = null
 )

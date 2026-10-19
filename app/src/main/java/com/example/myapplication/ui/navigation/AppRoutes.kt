@@ -21,7 +21,7 @@ data class RegistroRoute(
     val ingresoId: Long? = null
 ) : NavKey
 
-// Permite seleccionar el ingreso antes de abrir su checklist.
+// Selección del ingreso cuyo checklist se desea abrir.
 @Serializable
 data class SeleccionIngresoChecklistRoute(
     val userId: String
@@ -30,6 +30,12 @@ data class SeleccionIngresoChecklistRoute(
 // Selección del ingreso cuyo diagnóstico se desea abrir.
 @Serializable
 data class SeleccionIngresoDiagnosticoRoute(
+    val userId: String
+) : NavKey
+
+// Selección del ingreso cuyas fotografías se desean consultar.
+@Serializable
+data class SeleccionIngresoEvidenciasRoute(
     val userId: String
 ) : NavKey
 
@@ -53,15 +59,15 @@ data class DetalleIngresoRoute(
     val userId: String,
     val ingresoId: Long
 ) : NavKey
-// Cámara de evidencias.
-@Serializable
-data object CamaraRoute : NavKey {
-    /* Nota: Si tu interfaz NavKey te marca un error pidiendo implementar
-       el método serializer(), cópialo de tu LoginRoute y cambia el
-       nombre a CamaraRoute */
-}
 
-// Galería de evidencias.
+// Galería y captura de evidencias de un ingreso.
 @Serializable
-data object GaleriaRoute : NavKey {
-}
+data class EvidenciasIngresoRoute(
+    val userId: String,
+    val ingresoId: Long
+) : NavKey
+
+// Bitácora general de operaciones del taller.
+@Serializable
+data class HistorialRoute(val userId: String) : NavKey
+

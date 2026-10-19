@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.data.local.model.FormularioIngreso
 import java.util.Calendar
@@ -81,39 +83,63 @@ internal fun CampoRegistroTexto(
     error: String? = null,
     obligatorio: Boolean = false,
     multilinea: Boolean = false,
-    tipo: KeyboardType = KeyboardType.Text
+    tipo: KeyboardType = KeyboardType.Text,
+    destacado: Boolean = false,
+    contenidoFinal: (@Composable () -> Unit)? = null,
+    ayuda: String? = null
 ) {
     val nombre = stringResource(etiqueta)
-
-    val textoEtiqueta = if (obligatorio) {
-        stringResource(R.string.registro_required_label, nombre)
-    } else {
-        nombre
-    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        Text(
-            text = textoEtiqueta,
-            style = MaterialTheme.typography.labelLarge
-        )
+        // Los campos opcionales se marcan con una palabra; los demás no necesitan marca.
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = nombre,
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp)
+            )
+            if (!obligatorio) {
+                Text(
+                    text = stringResource(R.string.registro_optional),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
 
         OutlinedTextField(
             value = valor,
             onValueChange = onCambio,
             enabled = habilitado,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().heightIn(min = if (multilinea) 120.dp else 64.dp),
             shape = MaterialTheme.shapes.small,
+            textStyle = if (destacado) {
+                MaterialTheme.typography.titleLarge.copy(letterSpacing = 1.sp)
+            } else {
+                MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
+            },
             singleLine = !multilinea,
             minLines = if (multilinea) 3 else 1,
             isError = error != null,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                errorContainerColor = MaterialTheme.colorScheme.surface,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+            ),
             keyboardOptions = KeyboardOptions(
                 keyboardType = tipo
             ),
             trailingIcon = {
-                if (valor.isNotEmpty() && habilitado) {
+                if (contenidoFinal != null) {
+                    contenidoFinal()
+                } else if (valor.isNotEmpty() && habilitado) {
                     IconButton(
                         onClick = { onCambio("") }
                     ) {
@@ -129,6 +155,13 @@ internal fun CampoRegistroTexto(
             }
         )
 
+        if (ayuda != null && error == null) {
+            Text(
+                text = ayuda,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         if (error != null) {
             Text(
                 text = error,
@@ -153,18 +186,22 @@ internal fun FechaRegistro(
         verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Text(
-            text = stringResource(
-                R.string.registro_required_label,
-                stringResource(R.string.dashboard_entry_date)
-            ),
-            style = MaterialTheme.typography.labelLarge
+            text = stringResource(R.string.dashboard_entry_date),
+            style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp)
         )
 
         OutlinedButton(
             enabled = habilitado,
+            shape = MaterialTheme.shapes.small,
+            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 48.dp),
+                .heightIn(min = 64.dp),
             onClick = {
                 val calendario = Calendar.getInstance()
 
@@ -194,15 +231,18 @@ internal fun FechaRegistro(
         ) {
             Icon(
                 imageVector = Icons.Default.DateRange,
-                contentDescription = null
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(12.dp))
 
             Text(
                 text = valor.ifBlank {
                     stringResource(R.string.registro_select_date)
-                }
+                },
+                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                modifier = Modifier.weight(1f)
             )
         }
 

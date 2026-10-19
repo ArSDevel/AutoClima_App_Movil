@@ -75,6 +75,22 @@ class DetalleIngresoViewModel(
         }
     }
 
+    // Avanza de revisión a reparación; el repositorio exige el checklist guardado.
+    fun iniciarReparacion(motivo: String, tecnicoId: Long) {
+        ejecutarOperacion(accion = IngresoAccion.INICIAR_REPARACION) {
+            repository.cambiarEstado(ingresoId = ingresoId, destino = EstadoIngreso.EN_REPARACION,
+                motivo = motivo, tecnicoId = tecnicoId)
+        }
+    }
+
+    // Termina la reparación; el repositorio exige el diagnóstico guardado.
+    fun enviarAFirma(motivo: String, tecnicoId: Long) {
+        ejecutarOperacion(accion = IngresoAccion.ENVIAR_A_FIRMA) {
+            repository.cambiarEstado(ingresoId = ingresoId, destino = EstadoIngreso.LISTO_PARA_FIRMA,
+                motivo = motivo, tecnicoId = tecnicoId)
+        }
+    }
+
     fun devolverAReparacion(motivo: String, tecnicoId: Long) {
         ejecutarOperacion(accion = IngresoAccion.DEVOLVER_A_REPARACION) {
             repository.cambiarEstado(ingresoId = ingresoId, destino = EstadoIngreso.EN_REPARACION,

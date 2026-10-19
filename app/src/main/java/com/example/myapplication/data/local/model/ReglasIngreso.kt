@@ -43,6 +43,16 @@ object ReglasIngreso {
         return estado == EstadoIngreso.REGISTRADO
     }
 
+    // Avanza de la revisión a la reparación. Requiere el checklist guardado.
+    fun iniciarReparacion(estado: EstadoIngreso): Boolean {
+        return estado == EstadoIngreso.EN_REVISION
+    }
+
+    // Termina la reparación y pasa a firma. Requiere el diagnóstico guardado.
+    fun enviarAFirma(estado: EstadoIngreso): Boolean {
+        return estado == EstadoIngreso.EN_REPARACION
+    }
+
     fun devolverAReparacion(estado: EstadoIngreso): Boolean {
         return estado == EstadoIngreso.LISTO_PARA_FIRMA
     }
@@ -58,17 +68,15 @@ object ReglasIngreso {
         )
     }
 
-    // Transiciones disponibles en esta etapa del proyecto.
-    // Los avances que requieren checklist, diagnóstico,
-    // firma o validación de entrega se incorporarán cuando
-    // sus módulos puedan comprobar esos requisitos.
+    // Cambios de estado que se confirman con un motivo.
+    // Firma y entrega se incorporarán cuando sus módulos estén desarrollados.
     fun puedeCambiarEstado(origen: EstadoIngreso, destino: EstadoIngreso): Boolean {
         return when (destino) {
             EstadoIngreso.CANCELADO -> cancelar(origen)
             EstadoIngreso.EN_REVISION -> iniciarRevision(origen) || regularizarEstado(origen)
             EstadoIngreso.REGISTRADO -> regularizarEstado(origen)
-            EstadoIngreso.EN_REPARACION -> devolverAReparacion(origen)
-            EstadoIngreso.LISTO_PARA_FIRMA,
+            EstadoIngreso.EN_REPARACION -> devolverAReparacion(origen) || iniciarReparacion(origen)
+            EstadoIngreso.LISTO_PARA_FIRMA -> enviarAFirma(origen)
             EstadoIngreso.LISTO_PARA_ENTREGA,
             EstadoIngreso.ENTREGADO,
             EstadoIngreso.NO_DISPONIBLE -> false

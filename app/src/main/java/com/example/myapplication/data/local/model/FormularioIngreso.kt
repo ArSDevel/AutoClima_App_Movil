@@ -25,6 +25,7 @@ data class FormularioIngreso(
         val errores = mutableMapOf<String, String>()
         if (!soloContacto) {
             if (placa.isBlank()) { errores["placa"] = "Escribe la placa." }
+            else if (!placaValida(placa)) { errores["placa"] = MENSAJE_PLACA }
             if (modelo.isBlank()) { errores["modelo"] = "Escribe el modelo." }
             if (nombre.isBlank()) { errores["nombre"] = "Escribe el nombre del cliente." }
             if (interpretarFecha(fecha) == null) { errores["fecha"] = "Escribe una fecha válida con formato dd/MM/aaaa." }
@@ -48,6 +49,25 @@ data class FormularioIngreso(
     }
 
     companion object {
+        const val MENSAJE_PLACA = "Revisa la placa. Ejemplos: ABC-123-D, A12-BCD, 123-ABC."
+        private val patronPlaca = Regex("^[A-Z0-9]+(-[A-Z0-9]+){0,2}$")
+
+        // Comprueba el patrón de una placa: letras y números, con guiones opcionales
+        // (por ejemplo ABC-123-D, A12-BCD, 123-ABC o ABC-12-34).
+        // Debe tener entre 5 y 7 caracteres, con al menos una letra y un número.
+        fun placaValida(valor: String): Boolean {
+            val texto = valor.trim().uppercase(Locale.ROOT)
+            if (!patronPlaca.matches(texto)) { return false }
+            val compacta = texto.filter { it != '-' }
+            return compacta.length in 5..7 &&
+                    compacta.any { it in 'A'..'Z' } && compacta.any { it in '0'..'9' }
+        }
+
+        // Pasa a mayúsculas y quita lo que una placa no admite mientras se escribe.
+        fun normalizarPlaca(valor: String): String {
+            return valor.uppercase(Locale.ROOT).filter { it in 'A'..'Z' || it in '0'..'9' || it == '-' }.take(9)
+        }
+
         private const val PATRON_FECHA = "dd/MM/yyyy"
         private val patronFecha = Regex("[0-9]{2}/[0-9]{2}/[0-9]{4}")
         // Validación básica de formato, no comprueba que el correo exista.

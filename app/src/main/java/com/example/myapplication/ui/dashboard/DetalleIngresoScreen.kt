@@ -38,6 +38,46 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Checklist
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Draw
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Tag
+import androidx.compose.material.icons.filled.Undo
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import com.example.myapplication.ui.components.BarraAccionInferior
+import com.example.myapplication.ui.components.BotonCabecera
+import com.example.myapplication.ui.components.EncabezadoAutoClimas
+import com.example.myapplication.ui.components.PildoraEstado
+import com.example.myapplication.ui.components.colorEstado
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -72,7 +112,8 @@ fun DetalleIngresoScreen(
     onVolver: () -> Unit,
     onEditar: (Long) -> Unit,
     onAbrirChecklist: (Long) -> Unit,
-    onAbrirDiagnostico: (Long) -> Unit
+    onAbrirDiagnostico: (Long) -> Unit,
+    onAbrirEvidencias: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DetalleIngresoContent(
@@ -84,9 +125,12 @@ fun DetalleIngresoScreen(
         onConsumirExito = viewModel::consumirOperacionExitosa,
         onAbrirDiagnostico = onAbrirDiagnostico,
         onAbrirChecklist = onAbrirChecklist,
+        onAbrirEvidencias = onAbrirEvidencias,
         onConfirmar = { accion, motivo, destino ->
             when (accion) {
                 IngresoAccion.INICIAR_REVISION -> viewModel.iniciarRevision(tecnicoId)
+                IngresoAccion.INICIAR_REPARACION -> viewModel.iniciarReparacion(motivo, tecnicoId)
+                IngresoAccion.ENVIAR_A_FIRMA -> viewModel.enviarAFirma(motivo, tecnicoId)
                 IngresoAccion.DEVOLVER_A_REPARACION -> viewModel.devolverAReparacion(motivo, tecnicoId)
                 IngresoAccion.CANCELAR -> viewModel.cancelar(motivo, tecnicoId)
                 IngresoAccion.REGULARIZAR_ESTADO ->
@@ -112,17 +156,19 @@ private fun DetalleIngresoContent(
     onConsumirExito: () -> Unit,
     onConfirmar: (IngresoAccion, String, EstadoIngreso) -> Unit,
     onAbrirChecklist: (Long) -> Unit,
-    onAbrirDiagnostico: (Long) -> Unit
+    onAbrirDiagnostico: (Long) -> Unit,
+    onAbrirEvidencias: (Long) -> Unit = {}
 ) {
     val colors = MaterialTheme.colorScheme
     val ingreso = uiState.ingreso
+    var menuAbierto by rememberSaveable { mutableStateOf(false) }
 
     var accionPendiente by rememberSaveable { mutableStateOf<IngresoAccion?>(null) }
     var motivo by rememberSaveable { mutableStateOf("") }
     var destinoRegularizacion by rememberSaveable { mutableStateOf(EstadoIngreso.REGISTRADO) }
 
     val accionesHabilitadas = !uiState.cargando && !uiState.procesando && !uiState.operacionExitosa &&
-                !uiState.eliminado && uiState.errorCarga == null && ingreso != null
+            !uiState.eliminado && uiState.errorCarga == null && ingreso != null
 
     fun solicitarAccion(accion: IngresoAccion) {
         if (!accionesHabilitadas) return
@@ -154,265 +200,378 @@ private fun DetalleIngresoContent(
         }
     }
 
+    val estadoActual = ingreso?.let { EstadoIngreso.desdeValor(it.estado) }
+    val puedeEditar = estadoActual != null && ReglasIngreso.editar(estadoActual)
+    val puedeDevolver = estadoActual != null && ReglasIngreso.devolverAReparacion(estadoActual)
+    val puedeCancelar = estadoActual != null && ReglasIngreso.cancelar(estadoActual)
+    val puedeEliminar = estadoActual != null && ReglasIngreso.eliminar(
+        estado = estadoActual, tieneActividadPosterior = uiState.tieneActividadPosterior)
+    val puedeRegularizar = estadoActual != null && ReglasIngreso.regularizarEstado(estadoActual)
+    val puedeIniciarRevision = estadoActual != null && ReglasIngreso.iniciarRevision(estadoActual)
+    val tieneChecklist = uiState.historial.any { it.accion == "CHECKLIST" }
+    val tieneDiagnostico = uiState.historial.any { it.accion == "DIAGNOSTICO" }
+    // Una sola acción principal según el estado actual.
+    val accionPrincipal: IngresoAccion? = when {
+        estadoActual == null -> null
+        puedeIniciarRevision -> IngresoAccion.INICIAR_REVISION
+        ReglasIngreso.iniciarReparacion(estadoActual) -> IngresoAccion.INICIAR_REPARACION
+        ReglasIngreso.enviarAFirma(estadoActual) -> IngresoAccion.ENVIAR_A_FIRMA
+        // Firma y entrega las desarrollará otro equipo.
+        estadoActual == EstadoIngreso.LISTO_PARA_FIRMA -> IngresoAccion.FIRMAR
+        estadoActual == EstadoIngreso.LISTO_PARA_ENTREGA -> IngresoAccion.ENTREGAR
+        puedeRegularizar -> IngresoAccion.REGULARIZAR_ESTADO
+        else -> null
+    }
+    val requisitoFaltante: Int? = when {
+        accionPrincipal == IngresoAccion.INICIAR_REPARACION && !tieneChecklist -> R.string.detalle_missing_checklist
+        accionPrincipal == IngresoAccion.ENVIAR_A_FIRMA && !tieneDiagnostico -> R.string.detalle_missing_diagnosis
+        accionPrincipal == IngresoAccion.FIRMAR || accionPrincipal == IngresoAccion.ENTREGAR -> R.string.in_development
+        else -> null
+    }
+    val hayMasOpciones = puedeEditar || puedeDevolver || puedeCancelar || puedeEliminar
+
     Scaffold(
+        containerColor = colors.background,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = stringResource(R.string.detalle_title),
-                        style = MaterialTheme.typography.titleLarge)
+            EncabezadoAutoClimas(
+                titulo = ingreso?.placa ?: stringResource(R.string.detalle_title),
+                subtitulo = ingreso?.let { datos ->
+                    listOfNotNull(datos.modelo.takeIf { it.isNotBlank() },
+                        datos.color?.takeIf { it.isNotBlank() }).joinToString(" · ")
                 },
-                navigationIcon = { IconButton(enabled = !uiState.procesando, onClick = onVolver) {
-                        Icon(imageVector = Icons.Default.ArrowBack,
-                            contentDescription = stringResource(R.string.detalle_back))
+                onVolver = onVolver,
+                habilitado = !uiState.procesando,
+                acciones = {
+                    if (ingreso != null && hayMasOpciones) {
+                        Box {
+                            BotonCabecera(
+                                icono = Icons.Default.MoreVert,
+                                descripcion = stringResource(R.string.detalle_more_options),
+                                habilitado = accionesHabilitadas,
+                                onClick = { menuAbierto = true }
+                            )
+                            DropdownMenu(expanded = menuAbierto, onDismissRequest = { menuAbierto = false }) {
+                                if (puedeEditar) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(if (estadoActual != null &&
+                                            ReglasIngreso.soloContacto(estadoActual)) {
+                                            R.string.detalle_edit_contact } else { R.string.dashboard_action_edit })) },
+                                        leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                                        onClick = { menuAbierto = false; onEditar(ingreso.ingresoId) }
+                                    )
+                                }
+                                if (puedeDevolver) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.dashboard_action_return_repair)) },
+                                        leadingIcon = { Icon(Icons.Default.Undo, contentDescription = null) },
+                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.DEVOLVER_A_REPARACION) }
+                                    )
+                                }
+                                if (puedeCancelar) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.dashboard_action_cancel), color = colors.error) },
+                                        leadingIcon = { Icon(Icons.Default.Cancel, contentDescription = null, tint = colors.error) },
+                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.CANCELAR) }
+                                    )
+                                }
+                                if (puedeEliminar) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.dashboard_action_delete), color = colors.error) },
+                                        leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = colors.error) },
+                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.ELIMINAR) }
+                                    )
+                                }
+                            }
+                        }
                     }
-                },
-                actions = { Image(painter = painterResource(R.drawable.logo_autoclimas),
-                        contentDescription = stringResource(R.string.dashboard_logo_description),
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.padding(end = 12.dp).width(72.dp).height(56.dp))
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.tertiary,
-                    titleContentColor = colors.onTertiary,
-                    navigationIconContentColor = colors.onTertiary
-                )
+                }
             )
+        },
+        bottomBar = {
+            if (ingreso != null && accionPrincipal != null) {
+                BarraAccionInferior {
+                    Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        if (requisitoFaltante != null) {
+                            Text(
+                                text = stringResource(requisitoFaltante),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colors.onSurfaceVariant
+                            )
+                        }
+                        Button(
+                            onClick = {
+                                solicitarAccion(accionPrincipal)
+                            },
+                            enabled = accionesHabilitadas && requisitoFaltante == null,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Text(
+                                text = stringResource(when (accionPrincipal) {
+                                    IngresoAccion.INICIAR_REVISION -> R.string.dashboard_action_start_review
+                                    IngresoAccion.INICIAR_REPARACION -> R.string.dashboard_action_start_repair
+                                    IngresoAccion.ENVIAR_A_FIRMA -> R.string.dashboard_action_to_signature
+                                    IngresoAccion.FIRMAR -> R.string.dashboard_action_sign
+                                    IngresoAccion.ENTREGAR -> R.string.dashboard_action_deliver
+                                    else -> R.string.dashboard_action_regularize
+                                }),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    }
+                }
+            }
         }
     ) { padding ->
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-            .background(AutoClimasGradients.loginBackground)
-            .padding(padding),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        when {
-            uiState.cargando || uiState.eliminado -> {
-                item { PanelDetalle(titulo = stringResource(R.string.detalle_loading)) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            when {
+                uiState.cargando || uiState.eliminado -> {
+                    item { PanelDetalle(titulo = stringResource(R.string.detalle_loading)) {
                         LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) } }
-            }
+                }
 
-            uiState.errorCarga != null -> {
-                item { PanelDetalle(titulo = stringResource(R.string.detalle_load_error)) {
+                uiState.errorCarga != null -> {
+                    item { PanelDetalle(titulo = stringResource(R.string.detalle_load_error)) {
                         Text(uiState.errorCarga)
                         Button(onClick = onReintentar) { Text(stringResource(R.string.dashboard_retry)) } } }
-            }
+                }
 
-            ingreso == null -> {
-                item {
-                    if (uiState.procesando) { PanelDetalle(titulo = stringResource(R.string.detalle_processing)) {
+                ingreso == null -> {
+                    item {
+                        if (uiState.procesando) { PanelDetalle(titulo = stringResource(R.string.detalle_processing)) {
                             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                         }
-                    } else { PanelDetalle(titulo = stringResource(R.string.navigation_ingreso_not_found)) {
+                        } else { PanelDetalle(titulo = stringResource(R.string.navigation_ingreso_not_found)) {
                             TextButton(onClick = onVolver) {
                                 Text(stringResource(R.string.registro_back_dashboard))
+                            }
+                        }
+                        }
+                    }
+                }
+                else -> {
+                    val estado = EstadoIngreso.desdeValor(ingreso.estado)
+                    if (uiState.procesando) {
+                        item {
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        }
+                    }
+                    if (accionPendiente == null && uiState.errorOperacion != null) {
+                        item { Text(text = uiState.errorOperacion, color = colors.error) }
+                    }
+                    item { PasosIngreso(estado = estado) }
+                    item {
+                        // Permite capturar durante revisión y reparación.
+                        // En otras etapas permite consultar un checklist ya guardado.
+                        val permiteEditarChecklist = ChecklistRepository.puedeEditar(estado)
+                        val tieneChecklistGuardado = uiState.historial.any { it.accion == "CHECKLIST" }
+                        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                HerramientaIngreso(
+                                    titulo = stringResource(R.string.dashboard_action_checklist),
+                                    icono = Icons.Default.Checklist,
+                                    color = colors.primary,
+                                    habilitada = accionesHabilitadas && (permiteEditarChecklist || tieneChecklistGuardado),
+                                    onClick = { onAbrirChecklist(ingreso.ingresoId) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                HerramientaIngreso(
+                                    titulo = stringResource(R.string.dashboard_action_evidence),
+                                    icono = Icons.Default.CameraAlt,
+                                    color = MaterialTheme.estadoIngresoColors.listoParaEntrega,
+                                    habilitada = accionesHabilitadas,
+                                    onClick = { onAbrirEvidencias(ingreso.ingresoId) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                HerramientaIngreso(
+                                    titulo = stringResource(R.string.dashboard_action_diagnosis),
+                                    icono = Icons.Default.Description,
+                                    color = MaterialTheme.estadoIngresoColors.enReparacion,
+                                    habilitada = accionesHabilitadas,
+                                    onClick = { onAbrirDiagnostico(ingreso.ingresoId) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                // La firma se consulta desde que el ingreso queda listo para firma.
+                                HerramientaIngreso(
+                                    titulo = stringResource(R.string.dashboard_action_sign),
+                                    icono = Icons.Default.Draw,
+                                    color = MaterialTheme.estadoIngresoColors.listoParaFirma,
+                                    habilitada = false,
+                                    nota = stringResource(R.string.in_development),
+                                    onClick = {},
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.large,
+                            color = colors.surface,
+                            shadowElevation = 1.dp
+                        ) {
+                            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                                FilaDato(Icons.Default.Person, ingreso.nombreCliente, conDivisor = false)
+                                FilaDato(Icons.Default.Phone, ingreso.telefonoCliente)
+                                FilaDato(Icons.Default.Email, ingreso.emailCliente)
+                                FilaDato(Icons.Default.DateRange, fechaDetalle(ingreso.fechaEntrada))
+                                FilaDato(Icons.Default.Description, ingreso.motivoIngreso)
+                                FilaDato(Icons.Default.Info, ingreso.condicionInicial)
+                                FilaDato(Icons.Default.Tag, ingreso.numeroSerie)
+                            }
+                        }
+                    }
+                    if (ReglasIngreso.estaCerrado(estado)) {
+                        item {
+                            Text(text = stringResource(R.string.detalle_closed),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = colors.onSurfaceVariant)
+                        }
+                    }
+                    item {
+                        PanelDetalle(titulo = stringResource(R.string.detalle_history)) {
+                            if (uiState.historial.isEmpty()) {
+                                Text(stringResource(R.string.detalle_history_empty))
+                            }
+                            uiState.historial.forEachIndexed { indice, evento ->
+                                EventoDetalle(evento = evento, ultimo = indice == uiState.historial.lastIndex)
                             }
                         }
                     }
                 }
             }
-            else -> {
-                val estado = EstadoIngreso.desdeValor(ingreso.estado)
-                item { PanelDetalle(titulo = ingreso.placa) {
-                        Text(text = ingreso.modelo, style = MaterialTheme.typography.titleMedium)
-                        EstadoDetalle(estado)
-                        Text(text = stringResource(R.string.registro_saved_identifier,
-                            ingreso.ingresoId),
-                            style = MaterialTheme.typography.labelMedium)
+        }
+    }
+
+    val accion = accionPendiente
+    if (accion != null && ingreso != null && !uiState.eliminado) {
+        val requiereMotivo = accion != IngresoAccion.ELIMINAR && accion != IngresoAccion.INICIAR_REVISION
+        if (accion == IngresoAccion.ELIMINAR) {
+            // Eliminar es un cuadro con aviso, no una hoja.
+            AlertDialog(
+                onDismissRequest = { cerrarConfirmacion() },
+                icon = {
+                    Box(
+                        modifier = Modifier.size(56.dp).clip(CircleShape)
+                            .background(colors.errorContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Delete, contentDescription = null,
+                            tint = colors.error, modifier = Modifier.size(28.dp))
+                    }
+                },
+                title = { Text(stringResource(R.string.detalle_delete_title, ingreso.placa)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(text = stringResource(R.string.detalle_delete_warning))
+                        uiState.errorOperacion?.let { Text(text = it, color = colors.error) }
+                        if (uiState.procesando) { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        enabled = accionesHabilitadas,
+                        onClick = { onConfirmar(accion, "", destinoRegularizacion) },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colors.error, contentColor = colors.onError)
+                    ) { Text(stringResource(R.string.dashboard_action_delete)) }
+                },
+                dismissButton = {
+                    TextButton(enabled = !uiState.procesando, onClick = { cerrarConfirmacion() }) {
+                        Text(stringResource(R.string.detalle_back))
                     }
                 }
-                item { PanelDetalle(titulo = stringResource(R.string.detalle_vehicle)) {
-                        DatoDetalle(etiqueta = R.string.dashboard_color, valor = ingreso.color)
-                        DatoDetalle(etiqueta = R.string.dashboard_serial_number, valor = ingreso.numeroSerie)
-                    }
-                }
-                item { PanelDetalle(titulo = stringResource(R.string.detalle_customer)) {
-                        DatoDetalle(etiqueta = R.string.dashboard_customer, valor = ingreso.nombreCliente)
-                        DatoDetalle(etiqueta = R.string.dashboard_phone, valor = ingreso.telefonoCliente)
-                        DatoDetalle(etiqueta = R.string.dashboard_email, valor = ingreso.emailCliente)
-                    }
-                }
-
-                item { PanelDetalle(titulo = stringResource(R.string.detalle_reception)) {
-                        DatoDetalle(etiqueta = R.string.dashboard_entry_date, valor = fechaDetalle(ingreso.fechaEntrada))
-                        DatoDetalle(etiqueta = R.string.registro_reason, valor = ingreso.motivoIngreso)
-                        DatoDetalle(etiqueta = R.string.registro_initial_condition, valor = ingreso.condicionInicial)
-                    }
-                }
-                item { PanelDetalle(titulo = stringResource(R.string.detalle_actions)) {
-                        if (uiState.procesando) {
-                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                            Text(stringResource(R.string.detalle_processing))
-                        }
-                        if (accionPendiente == null && uiState.errorOperacion != null) {
-                            Text(text = uiState.errorOperacion, color = colors.error)
-                        }
-                        if (ReglasIngreso.editar(estado)) {
-                            Button(enabled = accionesHabilitadas, onClick = { onEditar(ingreso.ingresoId) }
-                            ) { Text(stringResource(if (ReglasIngreso.soloContacto(estado)) { R.string.detalle_edit_contact
-                            } else { R.string.dashboard_action_edit })) }
-                        }
-                        if (ReglasIngreso.iniciarRevision(estado)) {
-                            BotonDetalle(texto = R.string.dashboard_action_start_review,
-                                habilitado = accionesHabilitadas,
-                                onClick = { solicitarAccion(IngresoAccion.INICIAR_REVISION) }
-                            )
-                        }
-                        if (ReglasIngreso.devolverAReparacion(estado)) {
-                            BotonDetalle(
-                                texto = R.string.dashboard_action_return_repair,
-                                habilitado = accionesHabilitadas,
-                                onClick = { solicitarAccion(IngresoAccion.DEVOLVER_A_REPARACION)
-                                }
-                            )
-                        }
-                        if (ReglasIngreso.regularizarEstado(estado)) {
-                            Text(stringResource(R.string.detalle_unknown_help))
-                            BotonDetalle(texto = R.string.dashboard_action_regularize,
-                                habilitado = accionesHabilitadas,
-                                onClick = { solicitarAccion(IngresoAccion.REGULARIZAR_ESTADO) }
-                            )
-                        }
-                        if (ReglasIngreso.cancelar(estado)) {
-                            BotonDetalle(texto = R.string.dashboard_action_cancel,
-                                habilitado = accionesHabilitadas,
-                                destructiva = true,
-                                onClick = { solicitarAccion(IngresoAccion.CANCELAR) }
-                            )
-                        }
-                        if (ReglasIngreso.eliminar(estado = estado,
-                                tieneActividadPosterior = uiState.tieneActividadPosterior) ){
-                            BotonDetalle(texto = R.string.dashboard_action_delete,
-                                habilitado = accionesHabilitadas,
-                                destructiva = true,
-                                onClick = { solicitarAccion(IngresoAccion.ELIMINAR) }
-                            )
-                        }
-
-                        if (ReglasIngreso.estaCerrado(estado)) {
-                            Text(stringResource(R.string.detalle_closed))
-                        }
-                        // Permite capturar durante revisión y reparación.
-                        // En otras etapas permite consultar un checklist ya guardado.
-                        val permiteEditarChecklist = ChecklistRepository.puedeEditar(estado)
-
-                        val tieneChecklistGuardado = uiState.historial.any {
-                            it.accion == "CHECKLIST"
-                        }
-
-                        if (permiteEditarChecklist || tieneChecklistGuardado) {
-                            BotonDetalle(
-                                texto = if (permiteEditarChecklist) {
-                                    R.string.dashboard_action_checklist
-                                } else {
-                                    R.string.checklist_view
-                                },
-                                habilitado = accionesHabilitadas,
-                                onClick = {
-                                    onAbrirChecklist(ingreso.ingresoId)
-                                }
-                            )
-                        }
-
-                    // El reporte puede abrirse en cualquier etapa.
-// La pantalla y el repositorio controlan si permite guardar.
-                    BotonDetalle(
-                        texto = if (DiagnosticoRepository.puedeEditar(estado)) {
-                            R.string.dashboard_action_diagnosis
-                        } else {
-                            R.string.diagnostico_view
-                        },
-                        habilitado = accionesHabilitadas,
-                        onClick = {
-                            onAbrirDiagnostico(ingreso.ingresoId)
-                        }
-                    )
-                        ModulosPendientesDetalle(estado)
-                    }
-                }
-
-                item {
-                    PanelDetalle(titulo = stringResource(R.string.detalle_history)) {
-                        Text(text = stringResource(R.string.detalle_history_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = colors.onSurfaceVariant
+            )
+        } else {
+            ModalBottomSheet(
+                onDismissRequest = { cerrarConfirmacion() },
+                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+                containerColor = colors.surface
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(tituloConfirmacion(accion)),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier.weight(1f, fill = false)
                         )
-                        if (uiState.historial.isEmpty()) {
-                            Text(stringResource(R.string.detalle_history_empty))
+                        PildoraEstado(estado = EstadoIngreso.desdeValor(ingreso.estado))
+                    }
+                    if (accion == IngresoAccion.REGULARIZAR_ESTADO) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            listOf(EstadoIngreso.REGISTRADO, EstadoIngreso.EN_REVISION).forEach { destino ->
+                                FilterChip(selected = destinoRegularizacion == destino,
+                                    enabled = !uiState.procesando,
+                                    onClick = { destinoRegularizacion = destino
+                                        onLimpiarError() },
+                                    label = { Text(stringResource(etiquetaEstadoDetalle(destino)))}
+                                )
+                            }
+                        }
+                    }
+                    if (requiereMotivo) {
+                        OutlinedTextField(
+                            value = motivo,
+                            onValueChange = {
+                                motivo = it
+                                onLimpiarError()
+                            },
+                            label = { Text(stringResource(R.string.detalle_reason)) },
+                            enabled = !uiState.procesando,
+                            minLines = 3,
+                            shape = MaterialTheme.shapes.small,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    Text(
+                        text = stringResource(
+                            if (accion == IngresoAccion.CANCELAR) R.string.detalle_cancel_warning
+                            else R.string.detalle_change_warning
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant
+                    )
+                    uiState.errorOperacion?.let { Text(text = it, color = colors.error) }
+                    if (uiState.procesando) { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedButton(
+                            enabled = !uiState.procesando,
+                            onClick = { cerrarConfirmacion() },
+                            modifier = Modifier.heightIn(min = 56.dp),
+                            shape = RoundedCornerShape(16.dp)
+                        ) { Text(stringResource(R.string.detalle_back)) }
+                        Button(
+                            enabled = accionesHabilitadas && (!requiereMotivo || motivo.isNotBlank()),
+                            onClick = { onConfirmar(accion, motivo.trim(), destinoRegularizacion) },
+                            modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = if (accion == IngresoAccion.CANCELAR) ButtonDefaults.buttonColors(
+                                containerColor = colors.error, contentColor = colors.onError
+                            ) else ButtonDefaults.buttonColors()
+                        ) {
+                            Text(text = stringResource(R.string.detalle_confirm),
+                                style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 }
-                items(items = uiState.historial, key = { "evento-${it.eventoId}" }) { evento -> EventoDetalle(evento) }
             }
         }
     }
-}
-
-val accion = accionPendiente
-if (accion != null && ingreso != null && !uiState.eliminado) {
-    val esEliminar = accion == IngresoAccion.ELIMINAR
-    val requiereMotivo = accion != IngresoAccion.ELIMINAR && accion != IngresoAccion.INICIAR_REVISION
-    AlertDialog(onDismissRequest = { cerrarConfirmacion() },
-        title = { Text(stringResource(tituloConfirmacion(accion))) },
-        text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(text = stringResource(R.string.detalle_confirmation_target,
-                    ingreso.ingresoId, ingreso.placa))
-                Text(text = stringResource(
-                        when (accion) {
-                            IngresoAccion.ELIMINAR -> R.string.detalle_delete_warning
-                            IngresoAccion.CANCELAR -> R.string.detalle_cancel_warning
-                            else -> R.string.detalle_change_warning
-                        }
-                    )
-                )
-                if (accion == IngresoAccion.REGULARIZAR_ESTADO) {
-                    Text(stringResource(R.string.detalle_select_state))
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(EstadoIngreso.REGISTRADO, EstadoIngreso.EN_REVISION).forEach { destino ->
-                            FilterChip(selected = destinoRegularizacion == destino,
-                                enabled = !uiState.procesando,
-                                onClick = { destinoRegularizacion = destino
-                                    onLimpiarError() },
-                                label = { Text(stringResource(etiquetaEstadoDetalle(destino)))}
-                            )
-                        }
-                    }
-                }
-                if (requiereMotivo) {
-                    OutlinedTextField(
-                        value = motivo,
-                        onValueChange = {
-                            motivo = it
-                            onLimpiarError()
-                        },
-                        label = { Text(stringResource(R.string.detalle_reason)) },
-                        enabled = !uiState.procesando,
-                        minLines = 2,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                uiState.errorOperacion?.let {
-                    Text(text = it, color = colors.error)
-                }
-                if (uiState.procesando) { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                enabled = accionesHabilitadas && (!requiereMotivo || motivo.isNotBlank()),
-                onClick = {
-                    onConfirmar(accion, motivo.trim(), destinoRegularizacion)
-                }
-            ) {
-                Text(stringResource(R.string.detalle_confirm))
-            } },
-        dismissButton = {
-            TextButton(enabled = !uiState.procesando, onClick = { cerrarConfirmacion() }) {
-                Text(stringResource(R.string.detalle_back)) }
-        }
-    )
-}
 }
 
 @Composable
@@ -424,63 +583,9 @@ private fun PanelDetalle(
         color = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface) {
         Column(modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(text = titulo, style = MaterialTheme.typography.titleLarge)
+            Text(text = titulo, style = MaterialTheme.typography.titleMedium)
             contenido()
         }
-    }
-}
-
-@Composable
-private fun DatoDetalle(
-    @StringRes etiqueta: Int,
-    valor: String?
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(text = stringResource(etiqueta),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = valor?.takeIf { it.isNotBlank() } ?:
-        stringResource(R.string.dashboard_not_registered),
-            style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-@Composable
-private fun BotonDetalle(
-    @StringRes texto: Int,
-    habilitado: Boolean,
-    onClick: () -> Unit,
-    destructiva: Boolean = false
-) {
-    TextButton(
-        modifier = Modifier,
-        enabled = habilitado,
-        onClick = onClick,
-        colors = ButtonDefaults.textButtonColors(
-            contentColor = if (destructiva) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.primary
-            })) { Text(stringResource(texto)) }
-}
-
-@Composable
-private fun EstadoDetalle(estado: EstadoIngreso) {
-    val colores = MaterialTheme.estadoIngresoColors
-    val color = when (estado) {
-        EstadoIngreso.REGISTRADO -> colores.registrado
-        EstadoIngreso.EN_REVISION -> colores.enRevision
-        EstadoIngreso.EN_REPARACION -> colores.enReparacion
-        EstadoIngreso.LISTO_PARA_FIRMA -> colores.listoParaFirma
-        EstadoIngreso.LISTO_PARA_ENTREGA -> colores.listoParaEntrega
-        EstadoIngreso.ENTREGADO -> colores.entregado
-        EstadoIngreso.CANCELADO -> colores.cancelado
-        EstadoIngreso.NO_DISPONIBLE -> colores.noDisponible }
-    Surface(color = color.copy(alpha = 0.12f), contentColor = color, shape = MaterialTheme.shapes.small) {
-        Text(text = stringResource(etiquetaEstadoDetalle(estado)),
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            style = MaterialTheme.typography.labelLarge
-        )
     }
 }
 
@@ -502,6 +607,8 @@ private fun etiquetaEstadoDetalle(estado: EstadoIngreso): Int {
 private fun tituloConfirmacion(accion: IngresoAccion): Int {
     return when (accion) {
         IngresoAccion.INICIAR_REVISION -> R.string.dashboard_action_start_review
+        IngresoAccion.INICIAR_REPARACION -> R.string.dashboard_action_start_repair
+        IngresoAccion.ENVIAR_A_FIRMA -> R.string.dashboard_action_to_signature
         IngresoAccion.DEVOLVER_A_REPARACION -> R.string.dashboard_action_return_repair
         IngresoAccion.CANCELAR -> R.string.dashboard_action_cancel
         IngresoAccion.ELIMINAR -> R.string.dashboard_action_delete
@@ -519,71 +626,169 @@ private fun fechaDetalle(milisegundos: Long): String {
 }
 
 @Composable
-private fun EventoDetalle(evento: EventoIngreso) {
+private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
+    val colors = MaterialTheme.colorScheme
     val titulo = stringResource(
         when (evento.accion) {
             "CREADO" -> R.string.detalle_event_created
             "EDITADO" -> R.string.detalle_event_edited
             "ESTADO" -> R.string.detalle_event_state
             "CHECKLIST" -> R.string.detalle_event_checklist
+            "EVIDENCIA" -> R.string.fotos_event_added
+            "FOTO_PRINCIPAL" -> R.string.fotos_event_main
+            "EVIDENCIA_ELIMINADA" -> R.string.fotos_event_deleted
             "DIAGNOSTICO" -> R.string.detalle_event_diagnosis
             else -> R.string.detalle_event_other
         }
     )
-    PanelDetalle(titulo = titulo) {
-        Text(text = fechaDetalle(evento.fecha),
-            style = MaterialTheme.typography.labelMedium)
-        Text(text = stringResource(R.string.detalle_event_author, evento.tecnicoId),
-            style = MaterialTheme.typography.bodySmall)
-
-        if (evento.accion == "ESTADO") {
-            Text(text = stringResource(
-                    R.string.detalle_event_transition, stringResource(etiquetaEstadoDetalle(
-                            EstadoIngreso.desdeValor(evento.estadoAnterior))),
-                    stringResource(etiquetaEstadoDetalle(EstadoIngreso.desdeValor(evento.estadoNuevo)))
-            ))
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(modifier = Modifier.padding(top = 6.dp).size(12.dp).clip(CircleShape).background(colors.primary))
+            if (!ultimo) {
+                Box(modifier = Modifier.padding(top = 4.dp).width(2.dp).height(40.dp)
+                    .background(colors.outlineVariant))
+            }
         }
-        if (evento.motivo.isNotBlank()) { Text(evento.motivo) }
+        Column(modifier = Modifier.weight(1f).padding(bottom = if (ultimo) 0.dp else 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(text = titulo, style = MaterialTheme.typography.titleSmall)
+            Text(text = fechaDetalle(evento.fecha) + " · " +
+                    stringResource(R.string.detalle_event_author, evento.tecnicoId),
+                style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+            if (evento.accion == "ESTADO") {
+                Text(text = stringResource(
+                    R.string.detalle_event_transition, stringResource(etiquetaEstadoDetalle(
+                        EstadoIngreso.desdeValor(evento.estadoAnterior))),
+                    stringResource(etiquetaEstadoDetalle(EstadoIngreso.desdeValor(evento.estadoNuevo)))
+                ), style = MaterialTheme.typography.bodyMedium)
+            }
+            if (evento.motivo.isNotBlank()) {
+                Text(text = evento.motivo, style = MaterialTheme.typography.bodyMedium)
+            }
+        }
     }
 }
 
+// Paso actual del ingreso dentro del proceso del taller.
 @Composable
-private fun ModulosPendientesDetalle(estado: EstadoIngreso) {
-    val recursos = when (estado) {
-        EstadoIngreso.EN_REVISION -> listOf(
-            R.string.dashboard_action_evidence,
-            R.string.dashboard_action_diagnosis
-        )
-        EstadoIngreso.EN_REPARACION -> listOf(
-            R.string.dashboard_action_evidence,
-            R.string.dashboard_action_diagnosis
-        )
-        EstadoIngreso.LISTO_PARA_FIRMA -> listOf(
-            R.string.dashboard_action_pdf,
-            R.string.dashboard_action_sign
-        )
-        EstadoIngreso.LISTO_PARA_ENTREGA -> listOf(
-            R.string.dashboard_action_pdf,
-            R.string.dashboard_action_deliver
-        )
-        EstadoIngreso.EN_REVISION -> listOf(
-            R.string.dashboard_action_evidence
-        )
-        EstadoIngreso.EN_REPARACION -> listOf(
-            R.string.dashboard_action_evidence
-        )
-        else -> emptyList()
+private fun PasosIngreso(estado: EstadoIngreso) {
+    val colors = MaterialTheme.colorScheme
+    // CANCELADO y NO_DISPONIBLE no forman parte del avance normal.
+    if (estado == EstadoIngreso.CANCELADO || estado == EstadoIngreso.NO_DISPONIBLE) {
+        PildoraEstado(estado = estado)
+        return
     }
-    if (recursos.isNotEmpty()) {
-        HorizontalDivider()
-        Text(text = stringResource(R.string.detalle_pending_title),
-            style = MaterialTheme.typography.titleSmall)
-        recursos.forEach { recurso ->
-            Text(text = stringResource(R.string.detalle_pending_action, stringResource(recurso)),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant) }
-        Text(text = stringResource(R.string.detalle_pending_description),
-            style = MaterialTheme.typography.bodySmall)
+    val actual = when (estado) {
+        EstadoIngreso.REGISTRADO -> 0
+        EstadoIngreso.EN_REVISION -> 1
+        EstadoIngreso.EN_REPARACION -> 2
+        EstadoIngreso.LISTO_PARA_FIRMA -> 3
+        EstadoIngreso.LISTO_PARA_ENTREGA -> 4
+        else -> 5
+    }
+    val pasos = listOf(
+        R.string.detalle_step_registered,
+        R.string.detalle_step_review,
+        R.string.detalle_step_repair,
+        R.string.detalle_step_signature,
+        R.string.detalle_step_delivery
+    )
+    val colorActual = colorEstado(estado)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = colors.surface,
+        shadowElevation = 1.dp
+    ) {
+        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 14.dp)) {
+            pasos.forEachIndexed { indice, texto ->
+                val hecho = indice < actual
+                val enCurso = indice == actual
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Box(
+                        modifier = Modifier.size(26.dp).clip(CircleShape)
+                            .background(when { hecho -> colors.primary; enCurso -> colors.surface
+                                else -> colors.surfaceVariant })
+                            .then(if (enCurso) Modifier.border(3.dp, colorActual, CircleShape) else Modifier),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (hecho) {
+                            Icon(imageVector = Icons.Default.Check, contentDescription = null,
+                                modifier = Modifier.size(16.dp), tint = colors.onPrimary)
+                        }
+                    }
+                    Text(
+                        text = stringResource(texto),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = if (enCurso) FontWeight.Bold else FontWeight.Normal,
+                        color = when { enCurso -> colorActual; hecho -> colors.primary
+                            else -> colors.onSurfaceVariant },
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Acceso a un módulo del ingreso.
+@Composable
+private fun HerramientaIngreso(
+    titulo: String,
+    icono: ImageVector,
+    color: Color,
+    habilitada: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    nota: String? = null
+) {
+    Surface(
+        onClick = onClick,
+        enabled = habilitada,
+        modifier = modifier.alpha(if (habilitada) 1f else 0.5f),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 1.dp
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier.size(44.dp).clip(MaterialTheme.shapes.small)
+                    .background(color.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(imageVector = icono, contentDescription = null, tint = color)
+            }
+            Column {
+                Text(text = titulo, style = MaterialTheme.typography.titleMedium)
+                if (nota != null) {
+                    Text(text = nota, style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+    }
+}
+
+// Dato con icono. No se muestra si no tiene valor.
+@Composable
+private fun FilaDato(icono: ImageVector, valor: String?, conDivisor: Boolean = true) {
+    if (valor.isNullOrBlank()) return
+    if (conDivisor) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+    Row(
+        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(imageVector = icono, contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(text = valor, style = MaterialTheme.typography.bodyLarge)
     }
 }
 

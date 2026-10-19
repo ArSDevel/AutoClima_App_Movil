@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 
 // Agrupa las preguntas de un sistema del vehículo.
@@ -39,72 +40,27 @@ fun SeccionChecklist(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Encabezado visual de la sección.
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.medium,
-            color = colors.primaryContainer,
-            contentColor = colors.onPrimaryContainer
+        // Título breve de la sección; la descripción y el contador ya no se muestran.
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Icon(
-                        imageVector = icono,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(top = 2.dp)
-                            .size(28.dp)
-                    )
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = titulo,
-                            style = typography.titleMedium,
-                            modifier = Modifier.semantics {
-                                heading()
-                            }
-                        )
-
-                        Text(
-                            text = descripcion,
-                            style = typography.bodyMedium
-                        )
-                    }
-                }
-
-                // El contador ocupa una línea independiente
-                // para permitir textos grandes y pantallas estrechas.
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = colors.surface,
-                    contentColor = colors.onSurface
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.checklist_section_progress,
-                            preguntasRespondidas,
-                            totalPreguntas
-                        ),
-                        style = typography.labelMedium,
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 8.dp
-                        )
-                    )
-                }
-            }
+            Icon(
+                imageVector = icono,
+                contentDescription = null,
+                tint = colors.primary,
+                modifier = Modifier.size(22.dp)
+            )
+            Text(
+                text = titulo.uppercase(),
+                style = typography.labelLarge.copy(letterSpacing = 0.8.sp),
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                color = colors.tertiary,
+                modifier = Modifier.semantics { heading() }
+            )
         }
 
         // Aquí se colocan las preguntas de la sección.

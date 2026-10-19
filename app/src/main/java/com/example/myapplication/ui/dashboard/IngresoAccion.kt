@@ -8,6 +8,8 @@ enum class IngresoAccion {
     VER_PDF,
     // Trabajo técnico
     INICIAR_REVISION,
+    INICIAR_REPARACION,
+    ENVIAR_A_FIRMA,
     CHECKLIST,
     EVIDENCIAS,
     DIAGNOSTICO,

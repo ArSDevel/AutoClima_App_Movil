@@ -7,23 +7,32 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
+import com.example.myapplication.ui.theme.estadoIngresoColors
 
 // Pregunta reutilizable del checklist.
 // null representa una pregunta que todavía no se responde.
+// La pregunta y las dos respuestas comparten una sola fila.
 @Composable
 fun PreguntaChecklist(
     numero: Int,
@@ -43,76 +52,51 @@ fun PreguntaChecklist(
         color = colors.surface,
         border = BorderStroke(
             width = 1.dp,
-            color = if (pendiente) {
-                colors.error
-            } else {
-                colors.outlineVariant
-            }
+            color = if (pendiente) colors.error else colors.outlineVariant
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            // Número y pregunta. El texto puede ocupar varias líneas.
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Top
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = colors.primaryContainer,
-                    contentColor = colors.onPrimaryContainer
-                ) {
-                    Text(
-                        text = numero.toString().padStart(2, '0'),
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(
-                            horizontal = 10.dp,
-                            vertical = 8.dp
-                        )
-                    )
-                }
-
                 Text(
-                    text = pregunta,
+                    text = "$numero. $pregunta",
                     style = MaterialTheme.typography.titleSmall,
                     color = colors.onSurface,
                     modifier = Modifier
                         .weight(1f)
                         .semantics { heading() }
                 )
+                // Las dos opciones forman un grupo de selección única.
+                Row(
+                    modifier = Modifier.selectableGroup(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    OpcionRespuestaChecklist(
+                        descripcion = stringResource(R.string.checklist_answer_yes),
+                        icono = Icons.Default.Check,
+                        colorSeleccion = MaterialTheme.estadoIngresoColors.listoParaFirma,
+                        seleccionada = respuesta == true,
+                        habilitada = habilitada,
+                        onClick = { onRespuestaChange(true) }
+                    )
+                    OpcionRespuestaChecklist(
+                        descripcion = stringResource(R.string.checklist_answer_no),
+                        icono = Icons.Default.Close,
+                        colorSeleccion = colors.error,
+                        seleccionada = respuesta == false,
+                        habilitada = habilitada,
+                        onClick = { onRespuestaChange(false) }
+                    )
+                }
             }
-
-            // Las dos opciones forman un grupo de selección única.
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OpcionRespuestaChecklist(
-                    texto = stringResource(R.string.checklist_answer_yes),
-                    seleccionada = respuesta == true,
-                    habilitada = habilitada,
-                    onClick = { onRespuestaChange(true) },
-                    modifier = Modifier.weight(1f)
-                )
-
-                OpcionRespuestaChecklist(
-                    texto = stringResource(R.string.checklist_answer_no),
-                    seleccionada = respuesta == false,
-                    habilitada = habilitada,
-                    onClick = { onRespuestaChange(false) },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
             if (pendiente) {
                 Text(
-                    text = stringResource(
-                        R.string.checklist_answer_required
-                    ),
+                    text = stringResource(R.string.checklist_answer_required),
                     style = MaterialTheme.typography.bodySmall,
                     color = colors.error
                 )
@@ -126,35 +110,19 @@ fun PreguntaChecklist(
 // y si permite interacción.
 @Composable
 private fun OpcionRespuestaChecklist(
-    texto: String,
+    descripcion: String,
+    icono: ImageVector,
+    colorSeleccion: Color,
     seleccionada: Boolean,
     habilitada: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
 
     Surface(
-        modifier = modifier,
         shape = MaterialTheme.shapes.small,
-        color = if (seleccionada) {
-            colors.primaryContainer
-        } else {
-            colors.surface
-        },
-        contentColor = if (seleccionada) {
-            colors.onPrimaryContainer
-        } else {
-            colors.onSurfaceVariant
-        },
-        border = BorderStroke(
-            width = if (seleccionada) 2.dp else 1.dp,
-            color = if (seleccionada) {
-                colors.primary
-            } else {
-                colors.outlineVariant
-            }
-        )
+        color = if (seleccionada) colorSeleccion else colors.surfaceVariant,
+        contentColor = if (seleccionada) colors.surface else colors.onSurfaceVariant
     ) {
         Row(
             modifier = Modifier
@@ -165,13 +133,14 @@ private fun OpcionRespuestaChecklist(
                     onClick = onClick
                 )
                 .heightIn(min = 48.dp)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = texto,
-                style = MaterialTheme.typography.labelLarge
+            Icon(
+                imageVector = icono,
+                contentDescription = descripcion,
+                modifier = Modifier.size(24.dp)
             )
         }
     }

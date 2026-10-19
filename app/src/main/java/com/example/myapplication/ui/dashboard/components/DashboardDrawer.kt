@@ -3,6 +3,17 @@ package com.example.myapplication.ui.dashboard.components
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.CheckBox
+import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Draw
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -77,145 +88,87 @@ fun DashboardDrawer(
     val typography = MaterialTheme.typography
 
     ModalDrawerSheet(modifier = modifier.width(300.dp),
-        drawerContainerColor = colors.background,
+        drawerContainerColor = colors.surface,
         windowInsets = WindowInsets(0, 0, 0, 0)
     ) {
-        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight()
-                .background(AutoClimasGradients.loginBackground)
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical + WindowInsetsSides.Start))
-                .verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Encabezado con la identidad visual de AutoClimas.
-            Surface(
-                modifier = Modifier.fillMaxWidth(), shape = shapes.large, color = colors.surface,
-                contentColor = colors.onSurface
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
+            // Encabezado: logo sobre un cuadro blanco, nombre del técnico y su rol.
+            Row(
+                modifier = Modifier.fillMaxWidth().background(AutoClimasGradients.header)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Start))
+                    .padding(horizontal = 20.dp, vertical = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                Box(
+                    modifier = Modifier.size(64.dp).clip(RoundedCornerShape(18.dp)).background(Color.White),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(modifier = Modifier.size(72.dp).clip(CircleShape)
-                            .border(width = 2.dp, color = colors.primary, shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(painter = painterResource(R.drawable.logo_autoclimas),
-                            contentDescription = stringResource(R.string.dashboard_logo_description),
-                            contentScale = ContentScale.Fit, modifier = Modifier.size(54.dp))
-                    }
-                    Text(text = stringResource(R.string.dashboard_title),
-                        style = typography.headlineSmall)
-                    Box(modifier = Modifier.width(36.dp).height(4.dp).clip(shapes.extraSmall)
-                            .background(colors.secondary))
-                    Text(text = stringResource(R.string.dashboard_drawer_description),
-                        style = typography.bodyMedium, color = colors.onSurfaceVariant)
+                    com.example.myapplication.ui.components.LogoAutoClimas(
+                        sobreFondoOscuro = false,
+                        descripcion = stringResource(R.string.dashboard_logo_description),
+                        modifier = Modifier.size(54.dp)
+                    )
+                }
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        text = com.example.myapplication.ui.components.nombreCortoTecnico(
+                            com.example.myapplication.ui.components.LocalNombreTecnico.current
+                        ) ?: stringResource(R.string.dashboard_title),
+                        style = typography.titleLarge, color = Color.White, maxLines = 1)
+                    Text(text = stringResource(R.string.drawer_role),
+                        style = typography.bodyMedium, color = Color(0xFFDBEAFE))
                 }
             }
 
-            // Accesos disponibles.
-            Text(text = stringResource(R.string.dashboard_drawer_main), style = typography.labelLarge,
-                color = AutoClimasWhite, modifier = Modifier.padding(horizontal = 8.dp))
-            Surface(
-                modifier = Modifier.fillMaxWidth(), shape = shapes.large,
-                color = colors.surface, contentColor = colors.onSurface
+            Column(
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Column(modifier = Modifier.padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+                listOf(
+                    DashboardMenuOption.DASHBOARD,
+                    DashboardMenuOption.REGISTRO,
+                    DashboardMenuOption.CHECKLIST,
+                    DashboardMenuOption.EVIDENCIAS,
+                    DashboardMenuOption.DIAGNOSTICO,
+                    DashboardMenuOption.FIRMA,
+                    DashboardMenuOption.HISTORIAL
+                ).forEach { opcion ->
                     OpcionPrincipalDrawer(
-                        opcion = DashboardMenuOption.DASHBOARD,
-                        seleccionada = opcionSeleccionada == DashboardMenuOption.DASHBOARD,
-                        onClick = { onOpcionSeleccionada(DashboardMenuOption.DASHBOARD)
-                        }
-                    )
-                    OpcionPrincipalDrawer(
-                        opcion = DashboardMenuOption.REGISTRO,
-                        seleccionada = opcionSeleccionada == DashboardMenuOption.REGISTRO,
-                        onClick = { onOpcionSeleccionada(DashboardMenuOption.REGISTRO)
-                        }
-                    )
-                    OpcionPrincipalDrawer(
-                        opcion = DashboardMenuOption.CHECKLIST,
-                        seleccionada = opcionSeleccionada == DashboardMenuOption.CHECKLIST,
-                        onClick = {
-                            onOpcionSeleccionada(DashboardMenuOption.CHECKLIST)
-                        }
-                    )
-                    OpcionPrincipalDrawer(
-                        opcion = DashboardMenuOption.DIAGNOSTICO,
-                        seleccionada = opcionSeleccionada == DashboardMenuOption.DIAGNOSTICO,
-                        onClick = {
-                            onOpcionSeleccionada(DashboardMenuOption.DIAGNOSTICO)
-                        }
-                    )
-                    OpcionPrincipalDrawer(
-                        opcion = DashboardMenuOption.EVIDENCIAS,
-                        seleccionada = opcionSeleccionada == DashboardMenuOption.EVIDENCIAS,
-                        onClick = {
-                            onOpcionSeleccionada(DashboardMenuOption.EVIDENCIAS)
-                        }
+                        opcion = opcion,
+                        seleccionada = opcionSeleccionada == opcion,
+                        onClick = { onOpcionSeleccionada(opcion) }
                     )
                 }
             }
 
-            // Módulos previstos para implementaciones posteriores.
-            Text(
-                text = stringResource(R.string.dashboard_drawer_coming_soon),
-                style = typography.labelLarge, color = AutoClimasWhite,
-                modifier = Modifier.padding(horizontal = 8.dp))
-            Surface(modifier = Modifier.fillMaxWidth(),
-                shape = shapes.large,
-                color = colors.surface,
-                contentColor = colors.onSurface
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(text = stringResource(R.string.dashboard_drawer_pending_description),
-                        style = typography.bodySmall,
-                        color = colors.onSurfaceVariant)
-
-                    HorizontalDivider()
-                    DashboardMenuOption.entries
-                        .filter { opcion ->
-                            opcion != DashboardMenuOption.DASHBOARD &&
-                                    opcion != DashboardMenuOption.REGISTRO &&
-                                    opcion != DashboardMenuOption.CHECKLIST &&
-                                    opcion != DashboardMenuOption.DIAGNOSTICO
-                                    opcion != DashboardMenuOption.EVIDENCIAS
-                        }
-                        .forEach { opcion ->
-                            OpcionPendienteDrawer(opcion) }
-                }
-            }
-
+            HorizontalDivider(color = colors.outlineVariant)
             // Acción independiente de las secciones.
-            Surface(modifier = Modifier.fillMaxWidth(), shape = shapes.medium,
-                color = colors.surface
+            TextButton(
+                onClick = onLogout,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)
+                    .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)),
+                shape = shapes.small,
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+                colors = ButtonDefaults.textButtonColors(contentColor = colors.error)
             ) {
-                TextButton(
-                    onClick = onLogout, modifier = Modifier.fillMaxWidth(),
-                    shape = shapes.medium,
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
-                    colors = ButtonDefaults.textButtonColors(contentColor = colors.error)
+                Row(modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = null,
-                            modifier = Modifier.size(22.dp))
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(text = stringResource(R.string.dashboard_logout), style = typography.labelLarge
-                        )
-                    }
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp,
+                        contentDescription = null,
+                        modifier = Modifier.size(22.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(text = stringResource(R.string.dashboard_logout), style = typography.labelLarge)
                 }
             }
         }
     }
 }
 
-// Acceso disponible con indicador visual de selección.
+// Acceso del menú: icono y nombre. El seleccionado lleva fondo azul claro.
+// Firma sigue en desarrollo, por eso se muestra atenuada y sin acción.
 @Composable
 private fun OpcionPrincipalDrawer(
     opcion: DashboardMenuOption,
@@ -223,23 +176,36 @@ private fun OpcionPrincipalDrawer(
     onClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    NavigationDrawerItem(
-        label = { Text(text = stringResource(etiquetaDrawer(opcion)),
-                style = MaterialTheme.typography.labelLarge) },
-        icon = { Icon(imageVector = iconoDrawer(opcion), contentDescription = null,
-                modifier = Modifier.size(22.dp)) },
-        selected = seleccionada,
-        onClick = onClick,
-        shape = MaterialTheme.shapes.small,
-        colors = NavigationDrawerItemDefaults.colors(
-            selectedContainerColor = colors.primaryContainer,
-            selectedTextColor = colors.onPrimaryContainer,
-            selectedIconColor = colors.onPrimaryContainer,
-            unselectedContainerColor = Color.Transparent,
-            unselectedTextColor = colors.onSurface,
-            unselectedIconColor = colors.onSurfaceVariant
+    val disponible = opcion != DashboardMenuOption.FIRMA
+    val color = if (seleccionada) colors.primary else colors.onSurface
+    Row(
+        modifier = Modifier.fillMaxWidth().height(56.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(if (seleccionada) colors.primaryContainer else Color.Transparent)
+            .clickable(enabled = disponible, role = androidx.compose.ui.semantics.Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = iconoDrawer(opcion), contentDescription = null,
+            tint = if (seleccionada) colors.primary else colors.onSurfaceVariant,
+            modifier = Modifier.size(24.dp).alpha(if (disponible) 1f else 0.5f)
         )
-    )
+        Text(
+            text = stringResource(etiquetaDrawer(opcion)),
+            style = MaterialTheme.typography.titleSmall.copy(fontSize = 16.sp),
+            color = color.copy(alpha = if (disponible) 1f else 0.5f),
+            modifier = Modifier.weight(1f)
+        )
+        if (!disponible) {
+            Text(
+                text = stringResource(R.string.in_development),
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant
+            )
+        }
+    }
 }
 
 // Elemento informativo sin acción de navegación.
@@ -277,13 +243,13 @@ private fun iconoDrawer(
     opcion: DashboardMenuOption
 ): ImageVector {
     return when (opcion) {
-        DashboardMenuOption.DASHBOARD -> Icons.Default.Dashboard
-        DashboardMenuOption.REGISTRO -> Icons.Default.PersonAdd
-        DashboardMenuOption.CHECKLIST -> Icons.Default.Checklist
-        DashboardMenuOption.EVIDENCIAS -> Icons.Default.PhotoCamera
-        DashboardMenuOption.DIAGNOSTICO -> Icons.Default.Build
-        DashboardMenuOption.FIRMA -> Icons.Default.Draw
-        DashboardMenuOption.HISTORIAL -> Icons.Default.History
+        DashboardMenuOption.DASHBOARD -> Icons.Outlined.Home
+        DashboardMenuOption.REGISTRO -> Icons.Outlined.Add
+        DashboardMenuOption.CHECKLIST -> Icons.Outlined.CheckBox
+        DashboardMenuOption.EVIDENCIAS -> Icons.Outlined.PhotoCamera
+        DashboardMenuOption.DIAGNOSTICO -> Icons.Outlined.Description
+        DashboardMenuOption.FIRMA -> Icons.Outlined.Draw
+        DashboardMenuOption.HISTORIAL -> Icons.Outlined.Schedule
     }
 }
 

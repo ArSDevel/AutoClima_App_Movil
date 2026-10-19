@@ -9,6 +9,12 @@ import com.example.myapplication.data.local.entity.Vehiculo
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.FormularioIngreso
 import java.util.Locale
+import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.example.myapplication.data.local.entity.Evidencia
+import com.example.myapplication.data.local.model.ReglasIngreso
+import com.example.myapplication.data.local.repository.DashboardRepository
 
 class RegistroRepository(
     private val baseDeDatos: AppDatabase
@@ -17,6 +23,8 @@ class RegistroRepository(
     private val vehiculoDao = baseDeDatos.vehiculoDao()
     private val ingresoDao = baseDeDatos.ingresoDao()
     private val tecnicoDao = baseDeDatos.tecnicoDao()
+    private val evidenciaDao = baseDeDatos.evidenciaDao()
+    private val dashboardRepository = DashboardRepository(baseDeDatos)
 
     // Registra una visita y su evento inicial.
     // Las fichas existentes solo se reutilizan si sus datos
@@ -32,8 +40,13 @@ class RegistroRepository(
         fechaEntrada: Long,
         tecnicoId: Long,
         motivoIngreso: String? = null,
-        condicionInicial: String? = null
-    ): Long {
+        condicionInicial: String? = null,
+        fotoPath: String? = null,
+        fotosPaths: List<String> = emptyList()
+    ): Long = withContext(Dispatchers.IO) {
+        val rutasNuevas = (fotosPaths + listOfNotNull(fotoPath))
+            .map { requireNotNull(validarFoto(it)) }.distinct()
+        val fotoValidada = fotoPath?.let { requireNotNull(validarFoto(it)) } ?: rutasNuevas.firstOrNull()
         val placaLimpia = placa.trim().uppercase(Locale.ROOT)
         val nombreLimpio = nombreCliente.trim()
         val modeloLimpio = modelo.trim()
@@ -59,7 +72,7 @@ class RegistroRepository(
             errores.values.firstOrNull() ?: "Revisa los datos del ingreso."
         }
 
-        return baseDeDatos.withTransaction {
+        baseDeDatos.withTransaction {
             require(tecnicoId > 0) { "Inicia sesión nuevamente para continuar." }
 
             requireNotNull(tecnicoDao.obtener(tecnicoId)) { "El técnico ya no existe. Inicia sesión nuevamente." }
@@ -108,7 +121,9 @@ class RegistroRepository(
             val ingresoId = ingresoDao.insertar(
                 Ingreso(vehiculoId = vehiculoId, tecnicoId = tecnicoId,
                     fecha = fechaEntrada, motivoIngreso = motivoLimpio,
-                    condicionInicial = condicionLimpia, estado = EstadoIngreso.REGISTRADO.name
+                    condicionInicial = condicionLimpia,
+                    estado = EstadoIngreso.REGISTRADO.name,
+                    fotoPath = fotoValidada
                 )
             )
 
@@ -118,7 +133,107 @@ class RegistroRepository(
                     estadoNuevo = EstadoIngreso.REGISTRADO.name, motivo = "Ingreso registrado."
                 )
             )
+            if (rutasNuevas.isNotEmpty()) {
+                val ingresoGuardado = requireNotNull(ingresoDao.obtener(ingresoId))
+                rutasNuevas.forEach { ruta ->
+                    registrarFotoPrincipal(ingresoGuardado, ruta, tecnicoId)
+                }
+            }
             ingresoId
         }
+    }
+
+
+    // Consulta las fotografías del expediente sin modificar el formulario.
+    fun observarFotos(ingresoId: Long): kotlinx.coroutines.flow.Flow<List<Evidencia>> =
+        evidenciaDao.observarPorIngreso(ingresoId)
+
+    suspend fun obtenerFotos(ingresoId: Long): List<Evidencia> =
+        evidenciaDao.obtenerPorIngreso(ingresoId)
+
+    suspend fun editarIngreso(
+        ingresoId: Long,
+        formulario: FormularioIngreso,
+        tecnicoId: Long,
+        nuevaFotoPath: String? = null,
+        nuevasFotosPaths: List<String> = emptyList()
+    ): Unit = withContext(Dispatchers.IO) {
+        val nuevas = nuevasFotosPaths.map { requireNotNull(validarFoto(it)) }.distinct()
+        val seleccionada = nuevaFotoPath?.let { requireNotNull(validarFoto(it)) }
+        baseDeDatos.withTransaction {
+            dashboardRepository.editar(ingresoId, formulario, tecnicoId)
+            val ingreso = requireNotNull(ingresoDao.obtener(ingresoId)) { "El ingreso ya no existe." }
+            if (nuevas.isNotEmpty() || (seleccionada != null && seleccionada != ingreso.fotoPath)) {
+                require(ReglasIngreso.edicionCompleta(EstadoIngreso.desdeValor(ingreso.estado))) {
+                    "En esta etapa no puedes modificar las fotografías."
+                }
+            }
+            nuevas.forEach { registrarFotoPrincipal(ingreso, it, tecnicoId) }
+            val principal = seleccionada ?: ingreso.fotoPath ?: nuevas.firstOrNull()
+            if (principal != ingreso.fotoPath && principal != null) {
+                val evidencia = evidenciaDao.buscarPorRuta(principal)
+                require(evidencia?.ingresoId == ingresoId) { "La fotografía seleccionada ya no está disponible en este ingreso." }
+                check(ingresoDao.actualizar(ingreso.copy(fotoPath = principal)) == 1)
+                ingresoDao.insertarEvento(
+                    EventoIngreso(
+                        ingresoId = ingresoId, fecha = System.currentTimeMillis(), tecnicoId = tecnicoId,
+                        accion = "FOTO_PRINCIPAL", estadoAnterior = ingreso.estado, estadoNuevo = ingreso.estado,
+                        motivo = "Se actualizó la fotografía principal desde Registro."
+                    )
+                )
+            }
+        }
+    }
+
+    // Se ejecuta en Dispatchers.IO para no consultar el disco en el hilo de UI.
+    private fun validarFoto(ruta: String?): String? {
+        if (ruta == null) return null
+        require(ruta.isNotBlank()) { "La ubicación de la fotografía no es válida." }
+        val archivo = File(ruta).canonicalFile
+        require(archivo.isFile && archivo.canRead() && archivo.length() > 0) {
+            "No se encontró la fotografía. Tómala nuevamente antes de guardar."
+        }
+        return archivo.absolutePath
+    }
+
+    // Conserva la foto principal también en la galería del expediente.
+    // Las fotografías anteriores no se borran al cambiar la portada.
+    // Se llama únicamente dentro de la transacción del registro o la edición.
+    private suspend fun registrarFotoPrincipal(
+        ingreso: Ingreso,
+        ruta: String,
+        tecnicoId: Long
+    ) {
+        val existente = evidenciaDao.buscarPorRuta(ruta)
+        val fecha = System.currentTimeMillis()
+
+        if (existente == null) {
+            evidenciaDao.insertarEvidencia(
+                Evidencia(
+                    rutaImagen = ruta,
+                    ingresoId = ingreso.ingresoId,
+                    tecnicoId = tecnicoId,
+                    fecha = fecha,
+                    descripcion = "Fotografía del vehículo adjuntada desde Registro."
+                )
+            )
+        } else {
+            require(existente.ingresoId == ingreso.ingresoId) {
+                "La fotografía ya está registrada y no pertenece a este ingreso."
+            }
+            return
+        }
+
+        ingresoDao.insertarEvento(
+            EventoIngreso(
+                ingresoId = ingreso.ingresoId,
+                fecha = fecha,
+                tecnicoId = tecnicoId,
+                accion = "EVIDENCIA",
+                estadoAnterior = ingreso.estado,
+                estadoNuevo = ingreso.estado,
+                motivo = "Se agregó una fotografía del vehículo desde Registro."
+            )
+        )
     }
 }

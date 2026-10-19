@@ -16,6 +16,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.data.local.model.FormularioDiagnostico
 import java.math.BigDecimal
@@ -40,100 +52,100 @@ fun CotizacionDiagnostico(
 ) {
     val colors = MaterialTheme.colorScheme
     val totalCentavos = formulario.totalEnCentavos()
-    SeccionDiagnostico(
-        titulo = stringResource(R.string.diagnostico_quote_title),
-        descripcion = stringResource(R.string.diagnostico_quote_description),
-        icono = Icons.Default.List,
-        modifier = modifier
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = colors.surface,
+        shadowElevation = 1.dp
     ) {
-        // Explica el bloqueo junto a la cotización,
-        if (soloLectura && !mensajeBloqueo.isNullOrBlank()) {
-            Surface(
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium,
-                color = colors.secondaryContainer,
-                contentColor = colors.onSecondaryContainer
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = mensajeBloqueo,
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium
+                    text = stringResource(R.string.diagnostico_quote_title).uppercase(),
+                    style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
+                    fontWeight = FontWeight.Bold,
+                    color = colors.tertiary
                 )
+                if (!soloLectura) {
+                    IconButton(onClick = onAgregarConcepto, enabled = habilitado) {
+                        Icon(Icons.Default.Add, contentDescription = stringResource(R.string.diagnostico_quote_add),
+                            tint = colors.primary)
+                    }
+                }
             }
-        }
-        if (formulario.conceptos.isEmpty()) {
-            Text(text = stringResource(R.string.diagnostico_quote_pending),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant
-            )
-        } else {
+            if (formulario.conceptos.isEmpty()) {
+                Text(text = stringResource(R.string.diagnostico_quote_pending),
+                    style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+            }
             formulario.conceptos.forEachIndexed { indice, concepto ->
-                ConceptoCotizacionItem(
-                    numero = indice + 1,
-                    concepto = concepto,
-                    onDescripcionChange = { valor ->
-                        onDescripcionChange(indice, valor) },
-                    onImporteChange = { valor ->
-                        onImporteChange(indice, valor) },
-                    onEliminar = {
-                        onEliminarConcepto(indice) },
-                    habilitado = habilitado,
-                    soloLectura = soloLectura,
-                    errorDescripcion = erroresCampos[
-                        "conceptos.$indice.descripcion"],
-                    errorImporte = erroresCampos[
-                        "conceptos.$indice.importe"]
-                )
+                if (indice > 0) HorizontalDivider(color = colors.outlineVariant)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    OutlinedTextField(
+                        value = concepto.descripcion,
+                        onValueChange = { onDescripcionChange(indice, it) },
+                        modifier = Modifier.weight(1f),
+                        enabled = habilitado,
+                        readOnly = soloLectura,
+                        placeholder = { Text(stringResource(R.string.diagnostico_concept_description)) },
+                        isError = erroresCampos["conceptos.$indice.descripcion"] != null,
+                        supportingText = erroresCampos["conceptos.$indice.descripcion"]?.let { { Text(it) } },
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = androidx.compose.ui.text.input.KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Next),
+                        maxLines = 2,
+                        shape = MaterialTheme.shapes.small
+                    )
+                    OutlinedTextField(
+                        value = concepto.importe,
+                        onValueChange = { onImporteChange(indice, it) },
+                        modifier = Modifier.width(124.dp),
+                        enabled = habilitado,
+                        readOnly = soloLectura,
+                        prefix = { Text(stringResource(R.string.diagnostico_currency_symbol)) },
+                        placeholder = { Text("0.00") },
+                        isError = erroresCampos["conceptos.$indice.importe"] != null,
+                        supportingText = erroresCampos["conceptos.$indice.importe"]?.let { { Text("!") } },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
+                        singleLine = true,
+                        shape = MaterialTheme.shapes.small
+                    )
+                    if (!soloLectura) {
+                        IconButton(onClick = { onEliminarConcepto(indice) }, enabled = habilitado) {
+                            Icon(Icons.Default.Close,
+                                contentDescription = stringResource(R.string.diagnostico_concept_remove, indice + 1),
+                                tint = colors.onSurfaceVariant)
+                        }
+                    }
+                }
+                erroresCampos["conceptos.$indice.importe"]?.let {
+                    Text(text = it, style = MaterialTheme.typography.bodySmall, color = colors.error)
+                }
             }
-        }
-        // En modo de consulta no se ofrecen cambios a la cotización.
-        if (!soloLectura) {
-            OutlinedButton(
-                onClick = onAgregarConcepto,
-                enabled = habilitado,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(imageVector = Icons.Default.Add,
-                    contentDescription = null)
-                Text(text = stringResource(R.string.diagnostico_quote_add),
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+            erroresCampos["conceptos.total"]?.let { mensaje ->
+                Text(text = mensaje, style = MaterialTheme.typography.bodySmall, color = colors.error)
             }
-        }
-
-        // Presenta errores generales, como un total fuera de rango.
-        erroresCampos["conceptos.total"]?.let { mensaje ->
-            Text(text = mensaje, style = MaterialTheme.typography.bodySmall,
-                color = colors.error)
-        }
-
-        // No muestra cero como si fuera una cotización terminada
-        // cuando todavía no se han agregado conceptos.
-        if (formulario.tieneCotizacion) {
-            Surface(modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium,
-                color = colors.primaryContainer,
-                contentColor = colors.onPrimaryContainer
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+            if (formulario.tieneCotizacion) {
+                HorizontalDivider(color = colors.outline, thickness = 2.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(text = stringResource(R.string.diagnostico_quote_total),
-                        style = MaterialTheme.typography.titleSmall)
-                    if (totalCentavos != null) {
-                        Text(text = stringResource(
-                                R.string.diagnostico_quote_total_amount,
-                                formatearImporte(totalCentavos)),
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                    } else {
-                        Text(text = stringResource(
-                                R.string.diagnostico_quote_invalid_total),
-                            style = MaterialTheme.typography.bodyLarge) }
-                    Text(text = stringResource(
-                            R.string.diagnostico_quote_total_help),
-                        style = MaterialTheme.typography.bodySmall)
+                        style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = if (totalCentavos != null) formatearImporte(totalCentavos)
+                        else stringResource(R.string.diagnostico_quote_invalid_total),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.ExtraBold
+                    )
                 }
             }
         }

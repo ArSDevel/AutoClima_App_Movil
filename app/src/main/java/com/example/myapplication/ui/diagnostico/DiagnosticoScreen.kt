@@ -1,6 +1,28 @@
 package com.example.myapplication.ui.diagnostico
 
+import com.example.myapplication.ui.components.EncabezadoAutoClimas
+import com.example.myapplication.ui.diagnostico.components.descripcionHallazgo
+import com.example.myapplication.ui.theme.estadoIngresoColors
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Lock
+import com.example.myapplication.ui.components.DialogoAviso
+import com.example.myapplication.ui.components.TipoAviso
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.example.myapplication.ui.components.BarraAccionInferior
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.activity.compose.BackHandler
+import com.example.myapplication.ui.camara.CamaraIngresoViewModel
+import com.example.myapplication.ui.camara.components.GaleriaIngresoConectada
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +33,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import com.example.myapplication.data.local.model.EstadoIngreso
@@ -63,10 +86,14 @@ import com.example.myapplication.ui.theme.AutoClimasGradients
 @Composable
 fun DiagnosticoScreen(
     viewModel: DiagnosticoViewModel,
+    evidenciasViewModel: CamaraIngresoViewModel,
     tecnicoId: Long,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    onAbrirChecklist: () -> Unit = {},
+    onAbrirEvidencias: () -> Unit = {}
 ) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
+    val estadoFotos by evidenciasViewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
 
     var confirmarSalida by rememberSaveable {
@@ -76,7 +103,7 @@ fun DiagnosticoScreen(
     // Comparte la validación de salida entre la flecha superior
     // y el botón o gesto de regreso del dispositivo.
     val solicitarSalida: () -> Unit = {
-        if (!estado.guardando) {
+        if (!estado.guardando && !estadoFotos.guardando) {
             if (estado.tieneCambiosSinGuardar) {
                 confirmarSalida = true
             } else {
@@ -91,54 +118,64 @@ fun DiagnosticoScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.diagnostico_title),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = solicitarSalida,
-                        enabled = !estado.guardando
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(
-                                R.string.diagnostico_back
-                            )
-                        )
-                    }
-                },
-                actions = {
-                    Image(
-                        painter = painterResource(
-                            R.drawable.logo_autoclimas
-                        ),
-                        contentDescription = stringResource(
-                            R.string.dashboard_logo_description
-                        ),
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .width(72.dp)
-                            .height(56.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.tertiary,
-                    titleContentColor = colors.onTertiary,
-                    navigationIconContentColor = colors.onTertiary
-                )
+            EncabezadoAutoClimas(
+                titulo = stringResource(R.string.diagnostico_title),
+                onVolver = solicitarSalida,
+                habilitado = !estado.guardando && !estadoFotos.guardando,
+                subtitulo = estado.ingreso?.let { listOf(it.placa, it.nombreCliente).filter { t -> t.isNotBlank() }.joinToString(" · ") }
             )
+        },
+        bottomBar = {
+            if (estado.reporteDisponible) {
+                BarraAccionInferior {
+                    // El envío por WhatsApp lo desarrollará otro equipo.
+                    OutlinedButton(
+                        onClick = {},
+                        enabled = false,
+                        modifier = Modifier.width(64.dp).height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        contentPadding = PaddingValues(0.dp)
+                    ) {
+                        Icon(Icons.AutoMirrored.Filled.Send,
+                            contentDescription = stringResource(R.string.whatsapp_pending))
+                    }
+                    if (estado.permiteEdicion) {
+                        Button(
+                            onClick = { viewModel.guardar(tecnicoId) },
+                            enabled = estado.puedeGuardar && !estadoFotos.guardando,
+                            modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            if (estado.guardando) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = colors.onPrimary
+                                )
+                                Spacer(Modifier.width(12.dp))
+                            }
+                            Text(
+                                text = stringResource(
+                                    when {
+                                        estado.guardando -> R.string.diagnostico_saving
+                                        estado.diagnosticoId != null -> R.string.diagnostico_save_changes
+                                        else -> R.string.diagnostico_save
+                                    }
+                                ),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                    }
+                }
+            }
         }
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AutoClimasGradients.loginBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
+                .consumeWindowInsets(padding)
                 .imePadding(),
             contentAlignment = Alignment.TopCenter
         ) {
@@ -221,218 +258,88 @@ fun DiagnosticoScreen(
                             contentPadding = PaddingValues(16.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
-                            item(key = "presentacion") {
-                                EncabezadoReporteDiagnostico(estado)
-                            }
-
                             if (!estado.permiteEdicion) {
                                 item(key = "aviso_edicion") {
                                     Surface(
                                         modifier = Modifier.fillMaxWidth(),
-                                        shape = MaterialTheme.shapes.medium,
-                                        color = colors.secondaryContainer,
-                                        contentColor = colors.onSecondaryContainer
+                                        shape = MaterialTheme.shapes.small,
+                                        color = colors.primaryContainer,
+                                        contentColor = colors.onPrimaryContainer
                                     ) {
-                                        Text(
-                                            text = stringResource(
-                                                if (!estado.tieneChecklist) {
-                                                    R.string.diagnostico_requires_checklist
-                                                } else {
-                                                    R.string.diagnostico_read_only
-                                                }
-                                            ),
-                                            modifier = Modifier.padding(16.dp),
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
+                                        Row(
+                                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(Icons.Default.Lock, contentDescription = null,
+                                                modifier = Modifier.size(20.dp))
+                                            Text(
+                                                text = stringResource(
+                                                    if (!estado.tieneChecklist) R.string.diagnostico_requires_checklist
+                                                    else R.string.diagnostico_read_only),
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
                                     }
                                 }
                             }
 
-                            item(key = "datos") {
-                                DatosIngresoDiagnostico(
-                                    ingreso = ingreso
-                                )
-                            }
-
                             item(key = "hallazgos") {
-                                HallazgosDiagnostico(
-                                    tieneChecklist = estado.tieneChecklist,
-                                    hallazgos = estado.hallazgos,
-                                    comentariosChecklist =
-                                        estado.comentariosChecklist
+                                CajaHallazgos(
+                                    estado = estado,
+                                    fotos = estadoFotos.evidencias.map { it.rutaImagen },
+                                    onAbrirChecklist = onAbrirChecklist,
+                                    onAbrirEvidencias = onAbrirEvidencias
                                 )
                             }
 
                             item(key = "observaciones") {
-                                SeccionDiagnostico(
-                                    titulo = stringResource(
-                                        R.string.diagnostico_notes_title
-                                    ),
-                                    descripcion = stringResource(
-                                        R.string.diagnostico_notes_description
-                                    ),
-                                    icono = Icons.Default.Edit
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = MaterialTheme.shapes.large,
+                                    color = colors.surface,
+                                    shadowElevation = 1.dp
                                 ) {
-                                    OutlinedTextField(
-                                        value = estado.observaciones,
-                                        onValueChange =
-                                            viewModel::onObservacionesChange,
-                                        modifier = Modifier.fillMaxWidth(),
-                                        enabled = !estado.guardando,
-                                        readOnly = !estado.puedeModificar,
-                                        label = {
-                                            Text(
-                                                stringResource(
-                                                    R.string.diagnostico_notes_label
-                                                )
-                                            )
-                                        },
-                                        placeholder = {
-                                            Text(
-                                                stringResource(
-                                                    R.string.diagnostico_notes_hint
-                                                )
-                                            )
-                                        },
-                                        minLines = 4,
-                                        shape = MaterialTheme.shapes.medium
-                                    )
-                                }
-                            }
-
-                            item(key = "evidencias") {
-                                SeccionDiagnostico(
-                                    titulo = stringResource(
-                                        R.string.diagnostico_evidence_title
-                                    ),
-                                    icono = Icons.Default.PhotoCamera
-                                ) {
-                                    Text(
-                                        text = stringResource(
-                                            R.string.diagnostico_evidence_pending
-                                        ),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = colors.onSurfaceVariant
-                                    )
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.diagnostico_notes_title).uppercase(),
+                                            style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
+                                            fontWeight = FontWeight.Bold,
+                                            color = colors.tertiary
+                                        )
+                                        OutlinedTextField(
+                                            value = estado.observaciones,
+                                            onValueChange = viewModel::onObservacionesChange,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            enabled = !estado.guardando && !estadoFotos.guardando,
+                                            readOnly = !estado.puedeModificar,
+                                            minLines = 3,
+                                            shape = MaterialTheme.shapes.small
+                                        )
+                                    }
                                 }
                             }
 
                             item(key = "cotizacion") {
                                 CotizacionDiagnostico(
                                     formulario = estado.formulario,
-                                    onAgregarConcepto =
-                                        viewModel::agregarConcepto,
-                                    onDescripcionChange =
-                                        viewModel::onDescripcionConceptoChange,
-                                    onImporteChange =
-                                        viewModel::onImporteConceptoChange,
-                                    onEliminarConcepto =
-                                        viewModel::eliminarConcepto,
-                                    habilitado = !estado.guardando &&
-                                            !estado.guardadoExitoso,
+                                    onAgregarConcepto = viewModel::agregarConcepto,
+                                    onDescripcionChange = viewModel::onDescripcionConceptoChange,
+                                    onImporteChange = viewModel::onImporteConceptoChange,
+                                    onEliminarConcepto = viewModel::eliminarConcepto,
+                                    habilitado = !estado.guardando && !estado.guardadoExitoso,
                                     soloLectura = !estado.permiteEdicion,
-                                    erroresCampos = estado.erroresCampos,
-                                    mensajeBloqueo = when {
-                                        estado.permiteEdicion -> null
-
-                                        estado.estadoActual == EstadoIngreso.REGISTRADO ->
-                                            stringResource(R.string.diagnostico_quote_blocked_registered)
-
-                                        estado.estadoActual == EstadoIngreso.ENTREGADO ||
-                                                estado.estadoActual == EstadoIngreso.CANCELADO ->
-                                            stringResource(R.string.diagnostico_quote_blocked_closed)
-
-                                        estado.estadoActual == EstadoIngreso.EN_REVISION ||
-                                                estado.estadoActual == EstadoIngreso.EN_REPARACION ->
-                                            stringResource(R.string.diagnostico_quote_blocked_checklist)
-
-                                        else ->
-                                            stringResource(R.string.diagnostico_quote_blocked_stage)
-                                    }
+                                    erroresCampos = estado.erroresCampos
                                 )
                             }
 
-                            item(key = "acciones") {
-                                Surface(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    shape = MaterialTheme.shapes.large,
-                                    color = colors.surface
-                                ) {
-                                    Column(
-                                        modifier = Modifier.padding(20.dp),
-                                        verticalArrangement =
-                                            Arrangement.spacedBy(12.dp)
-                                    ) {
-                                        estado.errorGuardado?.let { mensaje ->
-                                            Text(
-                                                text = mensaje,
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = colors.error
-                                            )
-                                        }
-
-                                        if (estado.permiteEdicion) {
-                                            Button(
-                                                onClick = {
-                                                    viewModel.guardar(tecnicoId)
-                                                },
-                                                enabled = estado.puedeGuardar,
-                                                modifier = Modifier.fillMaxWidth(),
-                                                contentPadding =
-                                                    PaddingValues(16.dp)
-                                            ) {
-                                                if (estado.guardando) {
-                                                    CircularProgressIndicator(
-                                                        modifier =
-                                                            Modifier.size(20.dp),
-                                                        strokeWidth = 2.dp,
-                                                        color = colors.primary
-                                                    )
-
-                                                    Spacer(
-                                                        Modifier.width(12.dp)
-                                                    )
-                                                }
-
-                                                Text(
-                                                    stringResource(
-                                                        when {
-                                                            estado.guardando ->
-                                                                R.string.diagnostico_saving
-
-                                                            estado.diagnosticoId != null ->
-                                                                R.string.diagnostico_save_changes
-
-                                                            else ->
-                                                                R.string.diagnostico_save
-                                                        }
-                                                    )
-                                                )
-                                            }
-                                        }
-
-                                        // El envío todavía no está implementado.
-                                        OutlinedButton(
-                                            onClick = {},
-                                            enabled = false,
-                                            modifier = Modifier.fillMaxWidth(),
-                                            contentPadding = PaddingValues(16.dp)
-                                        ) {
-                                            Text(
-                                                stringResource(
-                                                    R.string.diagnostico_send
-                                                )
-                                            )
-                                        }
-
-                                        Text(
-                                            text = stringResource(
-                                                R.string.diagnostico_send_pending
-                                            ),
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = colors.onSurfaceVariant
-                                        )
-                                    }
+                            estado.errorGuardado?.let { mensaje ->
+                                item(key = "error_guardado") {
+                                    Text(text = mensaje, style = MaterialTheme.typography.bodyMedium,
+                                        color = colors.error)
                                 }
                             }
                         }
@@ -444,56 +351,31 @@ fun DiagnosticoScreen(
 
     // Advierte antes de descartar notas o cambios en la cotización.
     if (confirmarSalida) {
-        AlertDialog(
-            onDismissRequest = { confirmarSalida = false },
-            title = {
-                Text(stringResource(R.string.diagnostico_leave_title)
-                )
-            },
-            text = {
-                Text(stringResource(R.string.diagnostico_leave_message)
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                        confirmarSalida = false
-                        onVolver() }
-                ) { Text(stringResource(R.string.diagnostico_discard)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmarSalida = false }) {
-                    Text(stringResource(R.string.diagnostico_keep_editing)) }
-            }
+        DialogoAviso(
+            tipo = TipoAviso.ADVERTENCIA,
+            titulo = stringResource(R.string.diagnostico_leave_title),
+            mensaje = stringResource(R.string.diagnostico_leave_message),
+            textoSecundario = stringResource(R.string.diagnostico_discard),
+            onSecundario = { confirmarSalida = false
+                onVolver() },
+            textoPrincipal = stringResource(R.string.diagnostico_keep_editing),
+            onPrincipal = { confirmarSalida = false },
+            onDismiss = { confirmarSalida = false }
         )
     }
 
     // Se muestra cuando finaliza el guardado.
     if (estado.guardadoExitoso && !estado.guardando) {
-        AlertDialog(
-            onDismissRequest = viewModel::consumirGuardadoExitoso,
-            icon = {
-                Icon(imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = colors.primary) },
-            title = {
-                Text(stringResource(R.string.diagnostico_saved_title)) },
-            text = {
-                Text(stringResource(R.string.diagnostico_saved_message)) },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.consumirGuardadoExitoso()
-                        onVolver() }
-                ) {
-                    Text(stringResource(R.string.diagnostico_back))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = viewModel::consumirGuardadoExitoso
-                ) {
-                    Text(stringResource(R.string.diagnostico_stay))
-                }
-            }
+        DialogoAviso(
+            tipo = TipoAviso.EXITO,
+            titulo = stringResource(R.string.diagnostico_saved_title),
+            mensaje = stringResource(R.string.diagnostico_saved_message),
+            textoSecundario = stringResource(R.string.diagnostico_stay),
+            onSecundario = viewModel::consumirGuardadoExitoso,
+            textoPrincipal = stringResource(R.string.diagnostico_back),
+            onPrincipal = { viewModel.consumirGuardadoExitoso()
+                onVolver() },
+            onDismiss = viewModel::consumirGuardadoExitoso
         )
     }
 }
@@ -524,7 +406,7 @@ private fun EncabezadoReporteDiagnostico(
                         color = colors.secondary,
                         shape = MaterialTheme.shapes.extraSmall))
             Text(text = stringResource(
-                    R.string.diagnostico_report_description),
+                R.string.diagnostico_report_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurfaceVariant
             )
@@ -532,7 +414,7 @@ private fun EncabezadoReporteDiagnostico(
             Text(
                 text = stringResource(
                     when {estado.tieneCambiosSinGuardar ->
-                            R.string.diagnostico_unsaved_changes
+                        R.string.diagnostico_unsaved_changes
                         estado.diagnosticoId != null ->
                             R.string.diagnostico_saved_record
                         else ->
@@ -542,5 +424,87 @@ private fun EncabezadoReporteDiagnostico(
                 color = colors.primary
             )
         }
+    }
+}
+
+// Hallazgos del checklist en una caja compacta, con las fotos del ingreso en miniatura.
+@Composable
+private fun CajaHallazgos(
+    estado: DiagnosticoUiState,
+    fotos: List<String>,
+    onAbrirChecklist: () -> Unit,
+    onAbrirEvidencias: () -> Unit
+) {
+    val colors = MaterialTheme.colorScheme
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = colors.surface,
+        shadowElevation = 1.dp
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.diagnostico_findings_title).uppercase(),
+                    style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
+                    fontWeight = FontWeight.Bold,
+                    color = colors.tertiary
+                )
+                TextButton(onClick = onAbrirChecklist) {
+                    Text(stringResource(R.string.dashboard_action_checklist), fontWeight = FontWeight.Bold)
+                }
+            }
+            when {
+                !estado.tieneChecklist -> FilaHallazgo(
+                    icono = Icons.Default.Warning, color = colors.error,
+                    texto = stringResource(R.string.diagnostico_checklist_pending))
+                estado.hallazgos.isEmpty() -> FilaHallazgo(
+                    icono = Icons.Default.Check, color = MaterialTheme.estadoIngresoColors.listoParaFirma,
+                    texto = stringResource(R.string.diagnostico_findings_ok))
+                else -> estado.hallazgos.forEach { hallazgo ->
+                    FilaHallazgo(
+                        icono = Icons.Default.Warning, color = colors.error,
+                        texto = stringResource(descripcionHallazgo(hallazgo)))
+                }
+            }
+            if (estado.comentariosChecklist.isNotBlank()) {
+                Text(text = estado.comentariosChecklist, style = MaterialTheme.typography.bodyMedium,
+                    color = colors.onSurfaceVariant)
+            }
+            if (fotos.isNotEmpty()) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    fotos.take(3).forEach { ruta ->
+                        coil.compose.AsyncImage(
+                            model = java.io.File(ruta),
+                            contentDescription = null,
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
+                                .clickable(onClick = onAbrirEvidencias)
+                        )
+                    }
+                    if (fotos.size > 3) {
+                        Box(
+                            modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
+                                .background(colors.surfaceVariant).clickable(onClick = onAbrirEvidencias),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("+${fotos.size - 3}", style = MaterialTheme.typography.titleSmall)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilaHallazgo(icono: androidx.compose.ui.graphics.vector.ImageVector, color: androidx.compose.ui.graphics.Color, texto: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+        Icon(icono, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
+        Text(text = texto, style = MaterialTheme.typography.titleSmall)
     }
 }

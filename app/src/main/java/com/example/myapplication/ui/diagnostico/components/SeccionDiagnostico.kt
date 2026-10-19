@@ -40,50 +40,28 @@ fun SeccionDiagnostico(
         color = colors.surface,
         contentColor = colors.onSurface,
         tonalElevation = 0.dp,
-        shadowElevation = 1.dp,
-        border = BorderStroke(
-            width = 1.dp,
-            color = colors.outlineVariant
-        )
+        shadowElevation = 1.dp
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Encabezado de la sección.
+            // Título breve con su icono; la descripción larga ya no se muestra.
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.Top
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = colors.primaryContainer,
-                    contentColor = colors.onPrimaryContainer
-                ) {
-                    Icon(imageVector = icono,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .size(24.dp))
-                }
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Text(text = titulo,
-                        style = typography.titleMedium,
-                        modifier = Modifier.semantics {
-                            heading()
-                        })
-                    if (!descripcion.isNullOrBlank()) {
-                        Text(text = descripcion,
-                            style = typography.bodyMedium,
-                            color = colors.onSurfaceVariant)
-                    }
-                }
+                Icon(imageVector = icono,
+                    contentDescription = null,
+                    tint = colors.primary,
+                    modifier = Modifier.size(22.dp))
+                Text(text = titulo,
+                    style = typography.titleMedium,
+                    modifier = Modifier.semantics {
+                        heading()
+                    })
             }
-            HorizontalDivider(color = colors.outlineVariant)
             // Datos o campos correspondientes a esta sección.
             contenido()
         }

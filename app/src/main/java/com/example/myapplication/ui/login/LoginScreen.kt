@@ -25,6 +25,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -124,12 +126,12 @@ fun LoginContent(
     val buttonGradient = AutoClimasGradients.primaryButton
     // Colores compartidos por ambos campos.
     val coloresCampos = OutlinedTextFieldDefaults.colors(
-        focusedContainerColor = colors.background,
-        unfocusedContainerColor = colors.background,
-        errorContainerColor = colors.background,
-        disabledContainerColor = colors.background,
+        focusedContainerColor = colors.surface,
+        unfocusedContainerColor = colors.surface,
+        errorContainerColor = colors.surface,
+        disabledContainerColor = colors.surfaceVariant,
         focusedBorderColor = colors.primary,
-        unfocusedBorderColor = colors.outline,
+        unfocusedBorderColor = colors.outlineVariant,
         errorBorderColor = colors.error,
         disabledBorderColor = colors.outlineVariant,
         focusedTextColor = colors.onBackground,
@@ -167,7 +169,7 @@ fun LoginContent(
             // Tarjeta central redondeada.
             Card(shape = shapes.extraLarge,
                 colors = CardDefaults.cardColors(
-                    containerColor = colors.surfaceVariant,
+                    containerColor = colors.surface,
                     contentColor = colors.onSurface
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
@@ -179,29 +181,11 @@ fun LoginContent(
                         .padding(horizontal = 24.dp, vertical = 32.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Logo AutoClimas.
-                    Box(modifier = Modifier.size(104.dp).clip(CircleShape)
-                            .border(width = 2.dp, color = colors.primary, shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(painter = painterResource(R.drawable.logo_autoclimas),
-                            contentDescription = stringResource(R.string.login_logo_description),
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(72.dp))
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    // Título del formulario.
-                    Text(text = stringResource(R.string.login_title),
-                        style = typography.headlineMedium, color = colors.onSurface,
-                        textAlign = TextAlign.Center)
-                    // Línea decorativa.
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(modifier = Modifier.width(48.dp).height(4.dp)
-                        .clip(shapes.extraSmall).background(colors.secondary))
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = stringResource(R.string.login_description),
-                        style = typography.bodyMedium, color = colors.onSurfaceVariant,
-                        textAlign = TextAlign.Center)
+                    // Logo con fondo transparente; en modo oscuro usa la versión de texto claro.
+                    com.example.myapplication.ui.components.LogoAutoClimas(
+                        descripcion = stringResource(R.string.login_logo_description),
+                        modifier = Modifier.width(240.dp).height(164.dp)
+                    )
                     Spacer(modifier = Modifier.height(28.dp))
                     // Campo de entrada: ID de usuario.
                     Column(modifier = Modifier.fillMaxWidth()
@@ -213,13 +197,14 @@ fun LoginContent(
                             enabled = formularioHabilitado, textStyle = typography.bodyLarge,
                             placeholder = { Text(text = stringResource(R.string.login_username_placeholder),
                                     style = typography.bodyLarge) },
+                            leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
                             singleLine = true, isError = uiState.idError != null,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
                             keyboardActions = KeyboardActions(
                                 onNext = { if (formularioHabilitado) { focusManager.moveFocus(FocusDirection.Next) } }),
                             shape = shapes.small,
                             colors = coloresCampos,
-                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = etiquetaUsuario }
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).semantics { contentDescription = etiquetaUsuario }
                         )
                         uiState.idError?.let { mensaje ->
                             Spacer(modifier = Modifier.height(4.dp))
@@ -238,6 +223,7 @@ fun LoginContent(
                             enabled = formularioHabilitado, textStyle = typography.bodyLarge,
                             placeholder = { Text(text = stringResource(R.string.login_password_placeholder),
                                     style = typography.bodyLarge) },
+                            leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = null) },
                             singleLine = true, isError = uiState.passwordError != null,
                             visualTransformation = if (passwordVisible) {
                                 VisualTransformation.None } else { PasswordVisualTransformation() },
@@ -256,7 +242,7 @@ fun LoginContent(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(onDone = { enviarFormulario() }),
                             shape = shapes.small, colors = coloresCampos,
-                            modifier = Modifier.fillMaxWidth().semantics { contentDescription = etiquetaPassword }
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).semantics { contentDescription = etiquetaPassword }
                         )
                         uiState.passwordError?.let { mensaje ->
                             Spacer(modifier = Modifier.height(4.dp))
@@ -277,7 +263,7 @@ fun LoginContent(
                             disabledContentColor = colors.onSurfaceVariant
                         ),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).clip(shapes.small)
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp).clip(shapes.small)
                             .then(if (formularioHabilitado) {
                                 Modifier.background(brush = buttonGradient)
                                 } else { Modifier }

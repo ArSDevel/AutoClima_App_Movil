@@ -7,6 +7,7 @@ import androidx.room.Update
 import com.example.myapplication.data.local.entity.EventoIngreso
 import com.example.myapplication.data.local.entity.Ingreso
 import com.example.myapplication.data.local.model.IngresoResumen
+import com.example.myapplication.data.local.model.EventoHistorial
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -36,7 +37,7 @@ interface IngresoDao {
             i.ingresoId AS ingresoId,v.placa AS placa,v.modelo AS modelo,v.color AS color,
             v.numeroSerie AS numeroSerie,c.nombre AS nombreCliente,c.telefono AS telefonoCliente,c.email AS emailCliente,
             i.fecha AS fechaEntrada,i.estado AS estado,i.motivoIngreso AS motivoIngreso,
-            i.condicionInicial AS condicionInicial
+            i.condicionInicial AS condicionInicial, i.fotoPath AS fotoPath
         FROM ingreso AS i
         INNER JOIN vehiculo AS v ON i.vehiculoId = v.vehiculoId
         INNER JOIN cliente AS c ON v.clienteId = c.clienteId
@@ -97,10 +98,44 @@ interface IngresoDao {
             i.ingresoId AS ingresoId,v.placa AS placa, v.modelo AS modelo,
             v.color AS color, v.numeroSerie AS numeroSerie, c.nombre AS nombreCliente,
             c.telefono AS telefonoCliente, c.email AS emailCliente, i.fecha AS fechaEntrada,
-            i.estado AS estado, i.motivoIngreso AS motivoIngreso, i.condicionInicial AS condicionInicial
+            i.estado AS estado, i.motivoIngreso AS motivoIngreso, i.condicionInicial AS condicionInicial, i.fotoPath AS fotoPath
         FROM ingreso AS i
         INNER JOIN vehiculo AS v ON i.vehiculoId = v.vehiculoId
         INNER JOIN cliente AS c ON v.clienteId = c.clienteId
         WHERE i.ingresoId = :id""")
     fun observarIngresoPorId(id: Long): Flow<IngresoResumen?>
+
+    // Bitácora general: cada fila representa una acción, no un ingreso.
+    // LEFT JOIN conserva eventos cuyo técnico ya no está en el catálogo.
+    @Query("""
+        SELECT e.eventoId, e.ingresoId, e.fecha, e.tecnicoId,
+            t.nombre AS nombreTecnico, v.placa, v.modelo,
+            c.nombre AS nombreCliente, e.accion, e.estadoAnterior,
+            e.estadoNuevo, e.motivo
+        FROM evento_ingreso AS e
+        INNER JOIN ingreso AS i ON i.ingresoId = e.ingresoId
+        INNER JOIN vehiculo AS v ON v.vehiculoId = i.vehiculoId
+        INNER JOIN cliente AS c ON c.clienteId = v.clienteId
+        LEFT JOIN tecnico AS t ON t.tecnicoId = e.tecnicoId
+        WHERE (:busqueda = ''
+            OR INSTR(LOWER(v.placa), LOWER(:busqueda)) > 0
+            OR INSTR(LOWER(v.modelo), LOWER(:busqueda)) > 0
+            OR INSTR(LOWER(c.nombre), LOWER(:busqueda)) > 0
+            OR INSTR(LOWER(COALESCE(t.nombre, '')), LOWER(:busqueda)) > 0
+            OR INSTR(LOWER(e.motivo), LOWER(:busqueda)) > 0
+            OR CAST(e.ingresoId AS TEXT) = :busqueda)
+        AND (:accion IS NULL OR e.accion = :accion
+            OR (:accion = 'FOTOS' AND e.accion IN ('EVIDENCIA', 'FOTO_PRINCIPAL', 'EVIDENCIA_ELIMINADA')))
+        AND (:desde IS NULL OR e.fecha >= :desde)
+        AND (:hasta IS NULL OR e.fecha < :hasta)
+        ORDER BY e.fecha DESC, e.eventoId DESC
+        LIMIT :limite
+    """)
+    fun observarHistorial(
+        busqueda: String,
+        accion: String?,
+        desde: Long?,
+        hasta: Long?,
+        limite: Int
+    ): Flow<List<EventoHistorial>>
 }

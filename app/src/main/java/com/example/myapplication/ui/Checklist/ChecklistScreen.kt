@@ -1,5 +1,13 @@
 package com.example.myapplication.ui.checklist
 
+import com.example.myapplication.ui.components.EncabezadoAutoClimas
+import com.example.myapplication.ui.components.DialogoAviso
+import com.example.myapplication.ui.components.TipoAviso
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.PhotoCamera
+import com.example.myapplication.ui.components.BarraAccionInferior
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -61,7 +69,9 @@ import com.example.myapplication.ui.checklist.components.SeccionChecklist
 fun ChecklistScreen(
     viewModel: ChecklistViewModel,
     tecnicoId: Long,
-    onVolver: () -> Unit
+    onVolver: () -> Unit,
+    evidenciasViewModel: com.example.myapplication.ui.camara.CamaraIngresoViewModel? = null,
+    onAgregarFoto: () -> Unit = {}
 ) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
@@ -85,52 +95,80 @@ fun ChecklistScreen(
         solicitarSalida()
     }
 
+    val respondidas = listOf(
+        estado.faltaGasRefrigerante, estado.fugaVisibleMangueras, estado.fugasDetectadasLuzUV,
+        estado.compresorEmbragaAlEncender, estado.compresorDanadoOAmarrado, estado.bandaCompresorDesgastada,
+        estado.funcionanAbanicosRadiador, estado.filtroCabinaSucioUObstruido, estado.condensadorObstruido
+    ).count { it != null }
+
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.checklist_title),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = solicitarSalida,
-                        enabled = !estado.guardando
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(
-                                R.string.checklist_back
-                            )
+            EncabezadoAutoClimas(
+                titulo = stringResource(R.string.checklist_title),
+                subtitulo = estado.ingreso?.placa,
+                onVolver = solicitarSalida,
+                habilitado = !estado.guardando,
+                // Barra de avance dentro de la cabecera, como en el diseño.
+                contenidoInferior = if (estado.formularioDisponible) {
+                    {
+                        LinearProgressIndicator(
+                            progress = { respondidas / 9f },
+                            modifier = Modifier.fillMaxWidth().height(8.dp),
+                            color = if (respondidas == 0) androidx.compose.ui.graphics.Color.Transparent
+                            else androidx.compose.ui.graphics.Color.White,
+                            trackColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.25f),
+                            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
                         )
                     }
-                },
-                actions = {
-                    Image(
-                        painter = painterResource(R.drawable.logo_autoclimas),
-                        contentDescription = stringResource(
-                            R.string.dashboard_logo_description
-                        ),
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .width(72.dp)
-                            .height(56.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colors.tertiary,
-                    titleContentColor = colors.onTertiary,
-                    navigationIconContentColor = colors.onTertiary
-                )
+                } else null,
+                acciones = {
+                    if (estado.formularioDisponible) {
+                        Text(
+                            text = "$respondidas/9",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = androidx.compose.ui.graphics.Color.White
+                        )
+                    }
+                }
             )
+        },
+        bottomBar = {
+            // Guardar es la acción principal del checklist.
+            if (estado.formularioDisponible && estado.permiteEdicion) {
+                BarraAccionInferior {
+                    Button(
+                        onClick = { viewModel.guardar(tecnicoId) },
+                        enabled = estado.puedeGuardar,
+                        modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        if (estado.guardando) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Spacer(Modifier.width(12.dp))
+                        }
+                        Text(
+                            text = stringResource(
+                                when {
+                                    estado.guardando -> R.string.checklist_saving
+                                    estado.checklistId != null -> R.string.checklist_save_changes
+                                    else -> R.string.checklist_save
+                                }
+                            ),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                }
+            }
         }
     ) { padding ->
         Box(
             modifier = Modifier.fillMaxSize()
-                .background(AutoClimasGradients.loginBackground)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding),
             contentAlignment = Alignment.TopCenter
         ) {
@@ -174,18 +212,14 @@ fun ChecklistScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-                        item(key = "encabezado") {
-                            EncabezadoChecklist(estado)
-                        }
-
                         if (!estado.permiteEdicion) {
                             item(key = "consulta") {
                                 Surface(
                                     shape = MaterialTheme.shapes.medium,
                                     color = MaterialTheme.colorScheme
-                                        .secondaryContainer,
+                                        .primaryContainer,
                                     contentColor = MaterialTheme.colorScheme
-                                        .onSecondaryContainer
+                                        .onPrimaryContainer
                                 ) {
                                     Text(
                                         text = stringResource(
@@ -369,6 +403,49 @@ fun ChecklistScreen(
                             }
                         }
 
+                        item(key = "evidencias") {
+                            if (evidenciasViewModel != null) {
+                                val estadoFotos by evidenciasViewModel.uiState.collectAsStateWithLifecycle()
+                                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.PhotoCamera, contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary)
+                                        Text(
+                                            text = stringResource(R.string.registro_evidence_title).uppercase(),
+                                            style = MaterialTheme.typography.labelLarge,
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.tertiary
+                                        )
+                                    }
+                                    if (estadoFotos.permiteAgregar && estadoFotos.rutaPendiente == null) {
+                                        androidx.compose.material3.OutlinedButton(
+                                            onClick = onAgregarFoto,
+                                            enabled = estadoFotos.puedeCapturar && !estado.guardando,
+                                            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+                                            shape = RoundedCornerShape(14.dp),
+                                            border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                            colors = ButtonDefaults.outlinedButtonColors(
+                                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                                contentColor = MaterialTheme.colorScheme.primary
+                                            )
+                                        ) {
+                                            Icon(Icons.Default.PhotoCamera, contentDescription = null)
+                                            Text("  " + stringResource(R.string.fotos_add),
+                                                style = MaterialTheme.typography.titleMedium)
+                                        }
+                                    }
+                                    com.example.myapplication.ui.camara.components.GaleriaIngresoConectada(
+                                        viewModel = evidenciasViewModel,
+                                        tecnicoId = tecnicoId,
+                                        habilitada = !estado.guardando
+                                    )
+                                }
+                            }
+                        }
+
                         item(key = "comentarios") {
                             OutlinedTextField(
                                 value = estado.comentarios,
@@ -379,13 +456,6 @@ fun ChecklistScreen(
                                     Text(
                                         stringResource(
                                             R.string.checklist_comments
-                                        )
-                                    )
-                                },
-                                supportingText = {
-                                    Text(
-                                        stringResource(
-                                            R.string.checklist_comments_help
                                         )
                                     )
                                 },
@@ -404,43 +474,6 @@ fun ChecklistScreen(
                             }
                         }
 
-                        if (estado.permiteEdicion) {
-                            item(key = "guardar") {
-                                Button(
-                                    onClick = {
-                                        viewModel.guardar(tecnicoId)
-                                    },
-                                    enabled = estado.puedeGuardar,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentPadding = PaddingValues(16.dp)
-                                ) {
-                                    if (estado.guardando) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier.size(20.dp),
-                                            strokeWidth = 2.dp,
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-
-                                        Spacer(Modifier.width(12.dp))
-                                    }
-
-                                    Text(
-                                        stringResource(
-                                            when {
-                                                estado.guardando ->
-                                                    R.string.checklist_saving
-
-                                                estado.checklistId != null ->
-                                                    R.string.checklist_save_changes
-
-                                                else ->
-                                                    R.string.checklist_save
-                                            }
-                                        )
-                                    )
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -449,66 +482,31 @@ fun ChecklistScreen(
 
     // Confirma la salida únicamente cuando hay cambios pendientes.
     if (confirmarSalida) {
-        AlertDialog(
-            onDismissRequest = { confirmarSalida = false },
-            title = {
-                Text(stringResource(R.string.checklist_leave_title))
-            },
-            text = {
-                Text(stringResource(R.string.checklist_leave_message))
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        confirmarSalida = false
-                        onVolver()
-                    }
-                ) {
-                    Text(stringResource(R.string.checklist_discard))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmarSalida = false }) {
-                    Text(stringResource(R.string.checklist_keep_editing))
-                }
-            }
+        DialogoAviso(
+            tipo = TipoAviso.ADVERTENCIA,
+            titulo = stringResource(R.string.checklist_leave_title),
+            mensaje = stringResource(R.string.checklist_leave_message),
+            textoSecundario = stringResource(R.string.checklist_discard),
+            onSecundario = { confirmarSalida = false
+                onVolver() },
+            textoPrincipal = stringResource(R.string.checklist_keep_editing),
+            onPrincipal = { confirmarSalida = false },
+            onDismiss = { confirmarSalida = false }
         )
     }
 
     // Espera a que termine toda la operación antes de mostrar el éxito.
     if (estado.guardadoExitoso && !estado.guardando) {
-        AlertDialog(
-            onDismissRequest = viewModel::consumirGuardadoExitoso,
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            },
-            title = {
-                Text(stringResource(R.string.checklist_saved_title))
-            },
-            text = {
-                Text(stringResource(R.string.checklist_saved_message))
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.consumirGuardadoExitoso()
-                        onVolver()
-                    }
-                ) {
-                    Text(stringResource(R.string.checklist_back_to_detail))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = viewModel::consumirGuardadoExitoso
-                ) {
-                    Text(stringResource(R.string.checklist_stay))
-                }
-            }
+        DialogoAviso(
+            tipo = TipoAviso.EXITO,
+            titulo = stringResource(R.string.checklist_saved_title),
+            mensaje = stringResource(R.string.checklist_saved_message),
+            textoSecundario = stringResource(R.string.checklist_stay),
+            onSecundario = viewModel::consumirGuardadoExitoso,
+            textoPrincipal = stringResource(R.string.checklist_back_to_detail),
+            onPrincipal = { viewModel.consumirGuardadoExitoso()
+                onVolver() },
+            onDismiss = viewModel::consumirGuardadoExitoso
         )
     }
 }

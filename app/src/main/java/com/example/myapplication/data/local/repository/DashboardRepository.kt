@@ -19,6 +19,8 @@ class DashboardRepository(
     private val tecnicoDao = baseDeDatos.tecnicoDao()
     private val clienteDao = baseDeDatos.clienteDao()
     private val vehiculoDao = baseDeDatos.vehiculoDao()
+    private val checklistDao = baseDeDatos.checklistDao()
+    private val diagnosticoDao = baseDeDatos.diagnosticoDao()
 
     // Observa el listado con búsqueda, estado, fechas y ordenamiento.
     fun observarIngresos(
@@ -177,6 +179,17 @@ class DashboardRepository(
             val motivoLimpio = motivo.trim()
 
             ReglasIngreso.validarTransicion(origen = estadoActual, destino = destino, motivo = motivoLimpio)
+            // Los avances comprueban que el módulo anterior esté completo.
+            if (destino == EstadoIngreso.EN_REPARACION && ReglasIngreso.iniciarReparacion(estadoActual)) {
+                requireNotNull(checklistDao.obtenerPorIngreso(ingresoId)) {
+                    "Guarda primero el checklist para iniciar la reparación."
+                }
+            }
+            if (destino == EstadoIngreso.LISTO_PARA_FIRMA) {
+                requireNotNull(diagnosticoDao.obtenerPorIngreso(ingresoId)) {
+                    "Guarda primero el diagnóstico para pasar a firma."
+                }
+            }
             val filasActualizadas = ingresoDao.actualizar(ingreso.copy(estado = destino.name))
             check(filasActualizadas == 1) { "No fue posible actualizar el ingreso." }
 

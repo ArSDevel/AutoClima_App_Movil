@@ -5,6 +5,9 @@ import com.example.myapplication.data.local.model.FormularioIngreso
 
 // Información que utiliza la pantalla de registro y edición.
 data class RegistroUiState(
+    // Paso visible del formulario (0 cliente, 1 vehículo, 2 recepción).
+    // Vive aquí para conservarse al abrir la cámara.
+    val paso: Int = 0,
     // Datos del vehículo
     val placa: String = "",
     val modelo: String = "",
@@ -18,9 +21,13 @@ data class RegistroUiState(
     val fechaEntrada: String = FormularioIngreso.fechaActual(),
     val motivoIngreso: String = "",
     val condicionInicial: String = "",
+    // Foto mostrada y referencia persistida antes de editar.
+    val fotoPath: String? = null,
+    val fotoPathOriginal: String? = null,
+    // Solo las capturas pendientes se pueden quitar del borrador.
+    val fotosNuevas: List<String> = emptyList(),
+    val fotosGuardadas: List<String> = emptyList(),
     // Carga inicial del expediente para edición
-    val fotoPath: String? = null, // 👈 1. Campo para la ruta de la foto actual
-    val fotoPathOriginal: String? = null, // 👈 2. Campo para comparar si la foto cambió
     val cargandoIngreso: Boolean = false,
     val errorCarga: String? = null,
     // Estado de la operación de guardado
@@ -61,6 +68,6 @@ data class RegistroUiState(
             motivo = motivoIngreso,
             condicion = condicionInicial,
 
-        )
+            )
     }
 }

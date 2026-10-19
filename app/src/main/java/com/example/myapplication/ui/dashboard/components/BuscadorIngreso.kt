@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.dashboard.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -17,6 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,19 +31,21 @@ import androidx.compose.foundation.background
 fun BuscadorIngreso(
     textoBusqueda: String,
     onBusquedaChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    textoGuia: String? = null
 ) {
     val colors = MaterialTheme.colorScheme
 
     OutlinedTextField(
         value = textoBusqueda,
         onValueChange = onBusquedaChange,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().heightIn(min = 56.dp)
+            .shadow(elevation = 6.dp, shape = MaterialTheme.shapes.medium),
         singleLine = true,
-        shape = MaterialTheme.shapes.small,
+        shape = MaterialTheme.shapes.medium,
         textStyle = MaterialTheme.typography.bodyLarge,
         placeholder = {
-            Text(text = stringResource(R.string.dashboard_search_placeholder),
+            Text(text = textoGuia ?: stringResource(R.string.dashboard_search_placeholder),
                 style = MaterialTheme.typography.bodyLarge) },
         leadingIcon = {
             Icon(
@@ -64,7 +69,7 @@ fun BuscadorIngreso(
             focusedContainerColor = colors.surface,
             unfocusedContainerColor = colors.surface,
             focusedBorderColor = colors.primary,
-            unfocusedBorderColor = colors.outline,
+            unfocusedBorderColor = Color.Transparent,
             focusedTextColor = colors.onSurface,
             unfocusedTextColor = colors.onSurface,
             focusedLabelColor = colors.primary,

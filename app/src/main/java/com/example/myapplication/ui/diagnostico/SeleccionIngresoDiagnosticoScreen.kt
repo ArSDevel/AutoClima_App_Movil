@@ -1,5 +1,7 @@
 package com.example.myapplication.ui.diagnostico
 
+import com.example.myapplication.ui.components.EncabezadoAutoClimas
+import com.example.myapplication.ui.components.TarjetaSeleccionIngreso
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,43 +56,9 @@ fun SeleccionIngresoDiagnosticoScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        stringResource(
-                            R.string.diagnostico_selector_title
-                        )
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onVolver) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(
-                                R.string.diagnostico_back
-                            )
-                        )
-                    }
-                },
-                actions = {
-                    Image(
-                        painter = painterResource(R.drawable.logo_autoclimas),
-                        contentDescription = stringResource(
-                            R.string.dashboard_logo_description
-                        ),
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier
-                            .padding(end = 12.dp)
-                            .width(72.dp)
-                            .height(56.dp)
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.tertiary,
-                    titleContentColor = MaterialTheme.colorScheme.onTertiary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onTertiary
-                )
-
+            EncabezadoAutoClimas(
+                titulo = stringResource(R.string.diagnostico_selector_title),
+                onVolver = onVolver
             )
         }
     ) { padding ->
@@ -109,33 +77,11 @@ fun SeleccionIngresoDiagnosticoScreen(
                         top = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = stringResource(
-                        R.string.diagnostico_selector_description
-                    ),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
 
-                OutlinedTextField(
-                    value = estado.textoBusqueda,
-                    onValueChange = viewModel::cambiarBusqueda,
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    label = {
-                        Text(
-                            stringResource(
-                                R.string.diagnostico_selector_search
-                            )
-                        )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null
-                        )
-                    },
-                    shape = MaterialTheme.shapes.medium
+
+                com.example.myapplication.ui.dashboard.components.BuscadorIngreso(
+                    textoBusqueda = estado.textoBusqueda,
+                    onBusquedaChange = viewModel::cambiarBusqueda
                 )
 
                 when {
@@ -198,76 +144,14 @@ fun SeleccionIngresoDiagnosticoScreen(
                                 items = estado.ingresos,
                                 key = { it.ingresoId }
                             ) { ingreso ->
-                                IngresoParaDiagnostico(
+                                TarjetaSeleccionIngreso(
                                     ingreso = ingreso,
-                                    onSeleccionar = {
-                                        onSeleccionarIngreso(ingreso.ingresoId)
-                                    }
+                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }
                                 )
                             }
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-// Muestra los datos necesarios para identificar el ingreso.
-// El número distingue diferentes visitas del mismo vehículo.
-@Composable
-private fun IngresoParaDiagnostico(
-    ingreso: IngresoResumen,
-    onSeleccionar: () -> Unit
-) {
-    val colors = MaterialTheme.colorScheme
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        color = colors.surface,
-        contentColor = colors.onSurface,
-        shadowElevation = 2.dp
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = ingreso.placa,
-                style = MaterialTheme.typography.titleLarge,
-                color = colors.primary
-            )
-
-            Text(
-                text = ingreso.modelo,
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Text(
-                text = ingreso.nombreCliente,
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant
-            )
-
-            Text(
-                text = stringResource(
-                    R.string.diagnostico_data_ingreso,
-                    ingreso.ingresoId
-                ),
-                style = MaterialTheme.typography.labelLarge,
-                color = colors.onSurfaceVariant
-            )
-
-            Button(
-                onClick = onSeleccionar,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    stringResource(
-                        R.string.diagnostico_selector_open
-                    )
-                )
             }
         }
     }
