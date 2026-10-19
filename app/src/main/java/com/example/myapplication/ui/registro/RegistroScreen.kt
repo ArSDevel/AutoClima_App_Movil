@@ -136,9 +136,7 @@ fun RegistroScreen(
                 CampoRegistro.EMAIL -> viewModel.onEmailClienteChange(valor)
                 CampoRegistro.FECHA -> viewModel.onFechaEntradaChange(valor)
                 CampoRegistro.MOTIVO -> viewModel.onMotivoIngresoChange(valor)
-                CampoRegistro.CONDICION -> viewModel.onCondicionInicialChange(valor)
-            }
-        },
+                CampoRegistro.CONDICION -> viewModel.onCondicionInicialChange(valor) } },
         onGuardar = { viewModel.guardar(tecnicoId) },
         onNuevaCaptura = viewModel::resetRegistroExitoso,
         onReintentarCarga = viewModel::reintentarCarga,
@@ -151,15 +149,13 @@ fun RegistroScreen(
         onMenuSeleccionado = onMenuSeleccionado,
         onVerIngreso = onVerIngreso,
         onVolver = onVolver,
-        modifier = modifier
-    )
-}
+        modifier = modifier) }
 
 // Solo se utilizan para organizar los callbacks de esta pantalla.
 private enum class CampoRegistro {
-    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION
-}
+    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION }
 
+// A dónde se quiere ir al salir del formulario.
 private enum class SalidaRegistro {
     // Volver a la pantalla anterior (flecha, ×, atrás del sistema).
     VOLVER,
@@ -168,9 +164,9 @@ private enum class SalidaRegistro {
     DIAGNOSTICO,
     EVIDENCIAS,
     HISTORIAL,
-    CERRAR_SESION
-}
+    CERRAR_SESION }
 
+// Contenido del registro: tres pasos al crear y una sola pantalla al editar.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RegistroContent(
@@ -207,16 +203,15 @@ private fun RegistroContent(
 
     // Una nueva captura vuelve a empezar desde el primer paso.
     LaunchedEffect(uiState.registroExitoso) {
-        if (uiState.registroExitoso) onPasoChange(0)
-    }
+        if (uiState.registroExitoso) onPasoChange(0) }
 
     val mostrandoFormulario = !uiState.cargandoIngreso && uiState.errorCarga == null && !uiState.registroExitoso
     val puedeAvanzar = when (paso) {
         0 -> uiState.nombreCliente.isNotBlank() && uiState.telefonoCliente.isNotBlank()
         1 -> FormularioIngreso.placaValida(uiState.placa) && uiState.modelo.isNotBlank()
-        else -> true
-    }
+        else -> true }
 
+    // Realiza la salida elegida.
     fun ejecutarSalida(destino: SalidaRegistro) {
         when (destino) {
             SalidaRegistro.VOLVER -> onVolver()
@@ -231,16 +226,15 @@ private fun RegistroContent(
             SalidaRegistro.HISTORIAL -> {
                 onMenuSeleccionado(DashboardMenuOption.HISTORIAL) }
             SalidaRegistro.CERRAR_SESION -> {
-                onLogout() } }
-    }
+                onLogout() } } }
 
+    // Sale directo o pide confirmar si hay cambios sin guardar.
     fun solicitarSalida(destino: SalidaRegistro) {
         // Durante el guardado esperamos a que termine la operación.
         // Durante una consulta inicial sí se permite salir.
         if (uiState.cargando) return
         if (uiState.tieneCambiosSinGuardar) { salidaPendiente = destino
-        } else { ejecutarSalida(destino) }
-    }
+        } else { ejecutarSalida(destino) } }
 
     ModalNavigationDrawer(
         modifier = modifier.fillMaxSize(),
@@ -264,21 +258,15 @@ private fun RegistroContent(
                                     solicitarSalida(SalidaRegistro.EVIDENCIAS) }
                                 DashboardMenuOption.HISTORIAL -> {
                                     solicitarSalida(SalidaRegistro.HISTORIAL) }
-                                else -> snackbar.showSnackbar(mensajePendiente) } } }
-                },
+                                else -> snackbar.showSnackbar(mensajePendiente) } } } },
                 onLogout = {
                     scope.launch { drawerState.close()
-                        solicitarSalida(SalidaRegistro.CERRAR_SESION)
-                    }
-                }
-            )
-        }
+                        solicitarSalida(SalidaRegistro.CERRAR_SESION) } }) }
     ) {
         // También protege la salida mediante el botón Atrás de Android.
         BackHandler {
             if (drawerState.isOpen) { scope.launch { drawerState.close() } }
-            else { solicitarSalida(SalidaRegistro.VOLVER) }
-        }
+            else { solicitarSalida(SalidaRegistro.VOLVER) } }
         Scaffold(
             containerColor = colors.background,
             snackbarHost = { SnackbarHost(snackbar) },
@@ -292,10 +280,7 @@ private fun RegistroContent(
                         habilitado = !uiState.cargando,
                         acciones = {
                             if (uiState.estadoIngreso != EstadoIngreso.NO_DISPONIBLE || uiState.formularioDisponible) {
-                                PildoraEstado(estado = uiState.estadoIngreso, sobreCabecera = true)
-                            }
-                        }
-                    )
+                                PildoraEstado(estado = uiState.estadoIngreso, sobreCabecera = true) } })
                 } else {
                 Column {
                     EncabezadoAutoClimas(
@@ -304,8 +289,7 @@ private fun RegistroContent(
                         habilitado = !uiState.cargando,
                         iconoVolver = Icons.Default.Close,
                         descripcionVolver = stringResource(R.string.evidence_close),
-                        espacioInferior = 36.dp
-                    )
+                        espacioInferior = 36.dp)
                     // La tarjeta de pasos se superpone a la parte inferior de la cabecera.
                     if (mostrandoFormulario) {
                         Box(
@@ -315,14 +299,8 @@ private fun RegistroContent(
                                     val colocable = medible.measure(restricciones)
                                     val solape = 36.dp.roundToPx()
                                     layout(colocable.width, colocable.height - solape) {
-                                        colocable.place(0, -solape)
-                                    }
-                                }
-                        ) { PasosRegistro(paso = paso) }
-                    }
-                }
-                }
-            },
+                                        colocable.place(0, -solape) } }
+                        ) { PasosRegistro(paso = paso) } } } } },
             bottomBar = {
                 if (mostrandoFormulario && editable && uiState.esEdicion) {
                     BarraAccionInferior {
@@ -336,15 +314,11 @@ private fun RegistroContent(
                                 CircularProgressIndicator(modifier = Modifier.size(20.dp),
                                     color = colors.onPrimary, strokeWidth = 2.dp)
                             } else {
-                                Icon(Icons.Default.Check, contentDescription = null)
-                            }
+                                Icon(Icons.Default.Check, contentDescription = null) }
                             Text(
                                 text = "  " + stringResource(
                                     if (uiState.cargando) R.string.registro_saving else R.string.registro_save),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
+                                style = MaterialTheme.typography.titleMedium) } }
                 } else if (mostrandoFormulario && editable) {
                     BarraAccionInferior {
                         if (paso > 0) {
@@ -353,12 +327,10 @@ private fun RegistroContent(
                                 enabled = !uiState.cargando,
                                 modifier = Modifier.heightIn(min = 56.dp),
                                 shape = RoundedCornerShape(16.dp)
-                            ) { Text(stringResource(R.string.registro_back), style = MaterialTheme.typography.titleMedium) }
-                        }
+                            ) { Text(stringResource(R.string.registro_back), style = MaterialTheme.typography.titleMedium) } }
                         Button(
                             onClick = {
-                                if (paso < 2) { if (onValidarPaso(paso)) onPasoChange(paso + 1) } else { onGuardar() }
-                            },
+                                if (paso < 2) { if (onValidarPaso(paso)) onPasoChange(paso + 1) } else { onGuardar() } },
                             enabled = camposHabilitados || (paso < 2 && !uiState.cargando),
                             modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                             shape = RoundedCornerShape(16.dp)
@@ -368,29 +340,20 @@ private fun RegistroContent(
                                     modifier = Modifier.size(20.dp),
                                     color = colors.onPrimary,
                                     strokeWidth = 2.dp)
-                                Spacer(Modifier.width(8.dp))
-                            }
+                                Spacer(Modifier.width(8.dp)) }
                             Text(
                                 text = stringResource(
                                     when {
                                         paso < 2 -> R.string.registro_next
                                         uiState.cargando -> R.string.registro_saving
                                         uiState.esEdicion -> R.string.registro_save_changes
-                                        else -> R.string.registro_save_new
-                                    }),
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                                        else -> R.string.registro_save_new }),
+                                style = MaterialTheme.typography.titleMedium)
                             if (paso < 2 && !uiState.cargando) {
                                 Icon(
                                     imageVector = Icons.Default.ChevronRight,
                                     contentDescription = null,
-                                    modifier = Modifier.padding(start = 4.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+                                    modifier = Modifier.padding(start = 4.dp)) } } } } }
         ) { padding ->
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
@@ -406,25 +369,19 @@ private fun RegistroContent(
                         // se está preparando una edición.
                         uiState.cargandoIngreso -> {
                             CargaInicialRegistro(
-                                onVolver = { solicitarSalida(SalidaRegistro.VOLVER)}
-                            )
-                        }
+                                onVolver = { solicitarSalida(SalidaRegistro.VOLVER)}) }
                         // El reintento vuelve a consultar desde
                         // el ViewModel, sin consultas en la pantalla.
                         uiState.errorCarga != null -> {
                             ErrorCargaRegistro(mensaje = uiState.errorCarga,
                                 onReintentar = onReintentarCarga,
-                                onVolver = { solicitarSalida(SalidaRegistro.VOLVER) }
-                            )
-                        }
+                                onVolver = { solicitarSalida(SalidaRegistro.VOLVER) }) }
 
                         uiState.registroExitoso -> {
                             ResultadoRegistro(uiState = uiState,
                                 onNuevaCaptura = onNuevaCaptura,
                                 onVolver = { solicitarSalida(SalidaRegistro.VOLVER) },
-                                onVerIngreso = onVerIngreso
-                            )
-                        }
+                                onVerIngreso = onVerIngreso) }
                         uiState.esEdicion -> {
                             ContenidoEdicion(
                                 uiState = uiState,
@@ -435,29 +392,23 @@ private fun RegistroContent(
                                 onCampoChange = onCampoChange,
                                 onTomarFotoClick = onTomarFotoClick,
                                 onSeleccionarFoto = onSeleccionarFoto,
-                                onQuitarFoto = onQuitarFoto
-                            )
-                        }
+                                onQuitarFoto = onQuitarFoto) }
                         else -> {
                             // Avisos breves en una franja de color suave.
                             if (uiState.esEdicion && paso < 2) {
-                                AvisoRegistro(texto = stringResource(R.string.registro_shared_warning))
-                            }
+                                AvisoRegistro(texto = stringResource(R.string.registro_shared_warning)) }
                             if (soloContacto) {
-                                AvisoRegistro(texto = stringResource(R.string.registro_contact_only))
-                            }
+                                AvisoRegistro(texto = stringResource(R.string.registro_contact_only)) }
                             if (!editable) {
                                 Text(text = stringResource(R.string.registro_read_only),
-                                    color = colors.error)
-                            }
+                                    color = colors.error) }
                             when (paso) {
                                 0 -> {
                                     CampoRegistroTexto(etiqueta = R.string.registro_name,
                                         obligatorio = true, valor = uiState.nombreCliente,
                                         error = uiState.erroresCampos["nombre"],
                                         habilitado = datosCompletosHabilitados,
-                                        onCambio = { onCampoChange(CampoRegistro.NOMBRE, it) }
-                                    )
+                                        onCambio = { onCampoChange(CampoRegistro.NOMBRE, it) })
                                     CampoRegistroTexto(
                                         etiqueta = R.string.dashboard_phone,
                                         obligatorio = true, valor = uiState.telefonoCliente,
@@ -469,8 +420,7 @@ private fun RegistroContent(
                                         valor = uiState.emailCliente, error = uiState.erroresCampos["email"],
                                         habilitado = camposHabilitados,
                                         tipo = KeyboardType.Email,
-                                        onCambio = { onCampoChange(CampoRegistro.EMAIL, it) })
-                                }
+                                        onCambio = { onCampoChange(CampoRegistro.EMAIL, it) }) }
                                 1 -> {
                                     CampoRegistroTexto(etiqueta = R.string.dashboard_plate,
                                         obligatorio = true, valor = uiState.placa,
@@ -497,10 +447,7 @@ private fun RegistroContent(
                                                     Icon(Icons.Default.PhotoCamera, contentDescription = null,
                                                         modifier = Modifier.size(20.dp))
                                                     Text(stringResource(R.string.registro_scan),
-                                                        style = MaterialTheme.typography.labelLarge)
-                                                }
-                                            }
-                                        },
+                                                        style = MaterialTheme.typography.labelLarge) } } },
                                         ayuda = stringResource(R.string.registro_scan_pending),
                                         onCambio = { onCampoChange(CampoRegistro.PLACA, it) })
                                     CampoRegistroTexto(
@@ -513,8 +460,7 @@ private fun RegistroContent(
                                     SugerenciasModelo(
                                         texto = uiState.modelo,
                                         visible = datosCompletosHabilitados,
-                                        onSeleccionar = { onCampoChange(CampoRegistro.MODELO, it) }
-                                    )
+                                        onSeleccionar = { onCampoChange(CampoRegistro.MODELO, it) })
                                     CampoRegistroTexto(etiqueta = R.string.dashboard_color,
                                         valor = uiState.color,
                                         habilitado = datosCompletosHabilitados,
@@ -522,8 +468,7 @@ private fun RegistroContent(
                                     CampoRegistroTexto(
                                         etiqueta = R.string.dashboard_serial_number,
                                         valor = uiState.numeroSerie, habilitado = datosCompletosHabilitados,
-                                        onCambio = { onCampoChange(CampoRegistro.SERIE, it) })
-                                }
+                                        onCambio = { onCampoChange(CampoRegistro.SERIE, it) }) }
                                 else -> {
                                     FechaRegistro(valor = uiState.fechaEntrada,
                                         error = uiState.erroresCampos["fecha"],
@@ -542,8 +487,7 @@ private fun RegistroContent(
                                         onCambio = { onCampoChange(CampoRegistro.CONDICION, it) })
                                     Text(
                                         text = stringResource(R.string.registro_evidence_title),
-                                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp)
-                                    )
+                                        style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp))
                                     OutlinedButton(
                                         onClick = onTomarFotoClick,
                                         enabled = datosCompletosHabilitados,
@@ -552,13 +496,11 @@ private fun RegistroContent(
                                         border = androidx.compose.foundation.BorderStroke(2.dp, colors.primary),
                                         colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
                                             containerColor = colors.primaryContainer,
-                                            contentColor = colors.primary
-                                        )
+                                            contentColor = colors.primary)
                                     ) {
                                         Icon(Icons.Default.PhotoCamera, contentDescription = null)
                                         Spacer(Modifier.width(8.dp))
-                                        Text(stringResource(R.string.fotos_add))
-                                    }
+                                        Text(stringResource(R.string.fotos_add)) }
                                     GaleriaFotografias(
                                         rutas = (uiState.fotosGuardadas + uiState.fotosNuevas).distinct(),
                                         principal = uiState.fotoPath,
@@ -567,20 +509,10 @@ private fun RegistroContent(
                                         onEliminar = if (datosCompletosHabilitados) onQuitarFoto else null,
                                         permiteEliminar = { it in uiState.fotosNuevas && datosCompletosHabilitados },
                                         mostrarVacio = false,
-                                        aviso = stringResource(R.string.fotos_registration_hint)
-                                    )
+                                        aviso = stringResource(R.string.fotos_registration_hint))
                                     uiState.mensajeError?.let { mensaje ->
                                         Text(text = mensaje, color = colors.error,
-                                            style = MaterialTheme.typography.bodyMedium)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+                                            style = MaterialTheme.typography.bodyMedium) } } } } } } } } }
 
     salidaPendiente?.let { destino ->
         DialogoAviso(
@@ -593,10 +525,7 @@ private fun RegistroContent(
             textoPrincipal = stringResource(R.string.registro_keep_editing),
             onPrincipal = { salidaPendiente = null },
             onDismiss = { salidaPendiente = null },
-            habilitado = !uiState.cargando
-        )
-    }
-}
+            habilitado = !uiState.cargando) } }
 
 // Editar un ingreso en una sola pantalla. Lo que el estado no permite cambiar se ve bloqueado.
 @Composable
@@ -618,8 +547,7 @@ private fun ContenidoEdicion(
         } else if (soloContacto) {
             AvisoRegistro(texto = stringResource(R.string.registro_contact_only), icono = Icons.Default.Lock)
         } else {
-            AvisoRegistro(texto = stringResource(R.string.registro_shared_warning))
-        }
+            AvisoRegistro(texto = stringResource(R.string.registro_shared_warning)) }
 
         // Cliente
         if (soloContacto || !editable) {
@@ -628,8 +556,7 @@ private fun ContenidoEdicion(
             CampoRegistroTexto(etiqueta = R.string.registro_name, obligatorio = true,
                 valor = uiState.nombreCliente, error = uiState.erroresCampos["nombre"],
                 habilitado = datosCompletosHabilitados,
-                onCambio = { onCampoChange(CampoRegistro.NOMBRE, it) })
-        }
+                onCambio = { onCampoChange(CampoRegistro.NOMBRE, it) }) }
         CampoRegistroTexto(etiqueta = R.string.dashboard_phone, obligatorio = true,
             valor = uiState.telefonoCliente, error = uiState.erroresCampos["telefono"],
             habilitado = camposHabilitados, tipo = KeyboardType.Phone,
@@ -643,8 +570,7 @@ private fun ContenidoEdicion(
         if (soloContacto || !editable) {
             CampoBloqueado(
                 stringResource(R.string.registro_vehicle_label),
-                listOf(uiState.placa, uiState.modelo).filter { it.isNotBlank() }.joinToString(" · ")
-            )
+                listOf(uiState.placa, uiState.modelo).filter { it.isNotBlank() }.joinToString(" · "))
             CampoBloqueado(stringResource(R.string.registro_reason), uiState.motivoIngreso)
         } else {
             CampoRegistroTexto(etiqueta = R.string.dashboard_plate, obligatorio = true,
@@ -659,8 +585,7 @@ private fun ContenidoEdicion(
             SugerenciasModelo(
                 texto = uiState.modelo,
                 visible = datosCompletosHabilitados,
-                onSeleccionar = { onCampoChange(CampoRegistro.MODELO, it) }
-            )
+                onSeleccionar = { onCampoChange(CampoRegistro.MODELO, it) })
             CampoRegistroTexto(etiqueta = R.string.dashboard_color,
                 valor = uiState.color, habilitado = datosCompletosHabilitados,
                 onCambio = { onCampoChange(CampoRegistro.COLOR, it) })
@@ -688,8 +613,7 @@ private fun ContenidoEdicion(
             ) {
                 Icon(Icons.Default.PhotoCamera, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.fotos_add))
-            }
+                Text(stringResource(R.string.fotos_add)) }
             GaleriaFotografias(
                 rutas = (uiState.fotosGuardadas + uiState.fotosNuevas).distinct(),
                 principal = uiState.fotoPath,
@@ -698,15 +622,11 @@ private fun ContenidoEdicion(
                 onEliminar = if (datosCompletosHabilitados) onQuitarFoto else null,
                 permiteEliminar = { it in uiState.fotosNuevas && datosCompletosHabilitados },
                 mostrarVacio = false,
-                aviso = stringResource(R.string.fotos_registration_hint)
-            )
-        }
+                aviso = stringResource(R.string.fotos_registration_hint)) }
         uiState.mensajeError?.let { mensaje ->
-            Text(text = mensaje, color = colors.error, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
+            Text(text = mensaje, color = colors.error, style = MaterialTheme.typography.bodyMedium) } } }
 
+// Franja azul con un aviso corto.
 @Composable
 private fun AvisoRegistro(texto: String, icono: androidx.compose.ui.graphics.vector.ImageVector = Icons.Default.Info) {
     Surface(
@@ -721,10 +641,7 @@ private fun AvisoRegistro(texto: String, icono: androidx.compose.ui.graphics.vec
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(icono, contentDescription = null, modifier = Modifier.size(20.dp))
-            Text(text = texto, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
+            Text(text = texto, style = MaterialTheme.typography.bodyMedium) } } }
 
 // Modelos del catálogo que coinciden con lo escrito, en una sola fila deslizable
 // para que se vean aunque el teclado ocupe la pantalla.
@@ -747,12 +664,7 @@ private fun SugerenciasModelo(
                 label = { Text(sugerencia, style = MaterialTheme.typography.labelLarge) },
                 shape = RoundedCornerShape(20.dp),
                 colors = androidx.compose.material3.SuggestionChipDefaults.suggestionChipColors(
-                    containerColor = MaterialTheme.colorScheme.surface
-                )
-            )
-        }
-    }
-}
+                    containerColor = MaterialTheme.colorScheme.surface)) } } }
 
 // Tarjeta con los tres pasos del registro.
 @Composable
@@ -761,8 +673,7 @@ private fun PasosRegistro(paso: Int) {
     val pasos = listOf(
         R.string.registro_step_customer,
         R.string.registro_step_vehicle,
-        R.string.registro_step_reception
-    )
+        R.string.registro_step_reception)
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
@@ -792,34 +703,25 @@ private fun PasosRegistro(paso: Int) {
                         } else {
                             Text(text = (indice + 1).toString(),
                                 style = MaterialTheme.typography.titleMedium,
-                                color = if (actual) colors.primary else colors.onSurfaceVariant)
-                        }
-                    }
+                                color = if (actual) colors.primary else colors.onSurfaceVariant) } }
                     Text(
                         text = stringResource(texto),
                         style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp),
                         fontWeight = if (actual) FontWeight.Bold else FontWeight.Normal,
                         color = if (actual || hecho) colors.primary else colors.onSurfaceVariant,
-                        maxLines = 1
-                    )
-                }
-            }
-        }
-    }
-}
+                        maxLines = 1) } } } } }
 
+// Vista previa del registro en modo claro.
 @Preview(
     name = "Registro · teléfono",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Preview(
     name = "Registro · ancho",
     showBackground = true,
     widthDp = 800,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun RegistroClaroPreview() {
     MyApplicationTheme(darkTheme = false) {
@@ -828,25 +730,21 @@ private fun RegistroClaroPreview() {
                 placa = "ABC-123",
                 nombreCliente = "Cliente de ejemplo",
                 modelo = "Honda Civic",
-                telefonoCliente = "8100000000"
-            ),
+                telefonoCliente = "8100000000"),
             onCampoChange = { _, _ -> },
             onGuardar = {},
             onNuevaCaptura = {},
             onReintentarCarga = {},
             onLogout = {},
             onMenuSeleccionado = {},
-            onTomarFotoClick = {}
-        )
-    }
-}
+            onTomarFotoClick = {}) } }
 
+// Vista previa del registro en modo oscuro.
 @Preview(
     name = "Registro · oscuro",
     showBackground = true,
     widthDp = 400,
-    heightDp = 2000
-)
+    heightDp = 2000)
 @Composable
 private fun RegistroOscuroPreview() {
     MyApplicationTheme(darkTheme = true) {
@@ -858,57 +756,46 @@ private fun RegistroOscuroPreview() {
             onReintentarCarga = {},
             onLogout = {},
             onMenuSeleccionado = {},
-            onTomarFotoClick = {}
-        )
-    }
-}
+            onTomarFotoClick = {}) } }
 
+// Vista previa mientras se carga un ingreso para editar.
 @Preview(
     name = "Edición · cargando",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun RegistroCargandoPreview() {
     MyApplicationTheme(darkTheme = false) {
         RegistroContent(
             uiState = RegistroUiState(
                 ingresoIdEnEdicion = 1L,
-                cargandoIngreso = true
-            ),
+                cargandoIngreso = true),
             onCampoChange = { _, _ -> },
             onGuardar = {},
             onNuevaCaptura = {},
             onReintentarCarga = {},
             onLogout = {},
             onMenuSeleccionado = {},
-            onTomarFotoClick = {}
-        )
-    }
-}
+            onTomarFotoClick = {}) } }
 
+// Vista previa con error al cargar el ingreso.
 @Preview(
     name = "Edición · error de carga",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun RegistroErrorCargaPreview() {
     MyApplicationTheme(darkTheme = true) {
         RegistroContent(
             uiState = RegistroUiState(
                 ingresoIdEnEdicion = 1L,
-                errorCarga = "No fue posible cargar el ingreso."
-            ),
+                errorCarga = "No fue posible cargar el ingreso."),
             onCampoChange = { _, _ -> },
             onGuardar = {},
             onNuevaCaptura = {},
             onReintentarCarga = {},
             onLogout = {},
             onMenuSeleccionado = {},
-            onTomarFotoClick = {}
-        )
-    }
-}
+            onTomarFotoClick = {}) } }

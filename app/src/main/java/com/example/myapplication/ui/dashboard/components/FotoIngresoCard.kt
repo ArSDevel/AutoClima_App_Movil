@@ -59,34 +59,22 @@ fun FotoIngresoCard(
                     contentScale = ContentScale.Crop,
                     onLoading = {
                         cargando = true
-                        errorImagen = false
-                    },
+                        errorImagen = false },
                     onSuccess = {
                         cargando = false
-                        errorImagen = false
-                    },
+                        errorImagen = false },
                     onError = {
                         cargando = false
-                        errorImagen = true
-                    }
-                )
+                        errorImagen = true })
                 if (cargando) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                }
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp)) }
                 if (errorImagen) {
                     Icon(
                         imageVector = Icons.Default.BrokenImage,
                         contentDescription = stringResource(R.string.evidence_image_unavailable),
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
+                        modifier = Modifier.size(28.dp)) }
             } else {
                 Icon(
                     imageVector = Icons.Default.DirectionsCar,
                     contentDescription = null,
-                    modifier = Modifier.size(36.dp)
-                )
-            }
-        }
-    }
-}
+                    modifier = Modifier.size(36.dp)) } } } }

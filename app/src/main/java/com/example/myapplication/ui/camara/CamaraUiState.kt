@@ -31,8 +31,7 @@ data class CamaraUiState(
     // null indica que todavía no existe un expediente disponible.
     val estadoActual: EstadoIngreso?
         get() = ingreso?.let {
-            EstadoIngreso.desdeValor(it.estado)
-        }
+            EstadoIngreso.desdeValor(it.estado) }
 
     // Las fotografías se agregan durante la recepción,
     // la revisión o la reparación del vehículo.
@@ -43,8 +42,7 @@ data class CamaraUiState(
             return !cargando &&
                     errorCarga == null &&
                     !ingresoNoEncontrado &&
-                    ReglasIngreso.edicionCompleta(estado)
-        }
+                    ReglasIngreso.edicionCompleta(estado) }
 
     // Evita sustituir una fotografía que todavía está pendiente
     // de guardarse o cuyo resultado no ha sido procesado.
@@ -58,5 +56,4 @@ data class CamaraUiState(
         get() = permiteAgregar &&
                 !guardando &&
                 !guardadoExitoso &&
-                rutaPendiente != null
-}
+                rutaPendiente != null }

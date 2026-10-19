@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
+// Estado y operaciones de las fotografías de un ingreso.
 class CamaraIngresoViewModel(
     private val ingresoId: Long,
     private val repository: EvidenciaRepository
@@ -25,8 +26,7 @@ class CamaraIngresoViewModel(
     private var observacion: Job? = null
 
     init {
-        observarIngreso()
-    }
+        observarIngreso() }
 
     // La carga termina cuando tenemos tanto el expediente
     // como su lista de fotografías.
@@ -37,19 +37,14 @@ class CamaraIngresoViewModel(
             _uiState.update {
                 it.copy(
                     cargando = false,
-                    errorCarga = "El identificador del ingreso no es válido."
-                )
-            }
-            return
-        }
+                    errorCarga = "El identificador del ingreso no es válido.") }
+            return }
 
         _uiState.update {
             it.copy(
                 cargando = true,
                 errorCarga = null,
-                ingresoNoEncontrado = false
-            )
-        }
+                ingresoNoEncontrado = false) }
 
         observacion = viewModelScope.launch {
             try {
@@ -65,27 +60,19 @@ class CamaraIngresoViewModel(
                             ingreso = ingreso,
                             evidencias = evidencias,
                             ingresoNoEncontrado = ingreso == null,
-                            errorCarga = null
-                        )
-                    }
-                }
+                            errorCarga = null) } }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (_: Exception) {
                 _uiState.update {
                     it.copy(
                         cargando = false,
-                        errorCarga = "No fue posible cargar las evidencias."
-                    )
-                }
-            }
-        }
-    }
+                        errorCarga = "No fue posible cargar las evidencias.") } } } }
 
+    // Vuelve a consultar el ingreso y sus fotografías.
     fun reintentarCarga() {
         if (_uiState.value.guardando) return
-        observarIngreso()
-    }
+        observarIngreso() }
 
     // Recibe la captura para que el usuario pueda revisarla.
     // Todavía no se inserta en Room.
@@ -100,11 +87,9 @@ class CamaraIngresoViewModel(
                 descripcion = "",
                 errorGuardado = null,
                 guardadoExitoso = false,
-                evidenciaGuardadaId = null
-            )
-        }
-    }
+                evidenciaGuardadaId = null) } }
 
+    // Actualiza la descripción de la foto que se va a guardar.
     fun cambiarDescripcion(valor: String) {
         val actual = _uiState.value
 
@@ -113,10 +98,7 @@ class CamaraIngresoViewModel(
         _uiState.update {
             it.copy(
                 descripcion = valor,
-                errorGuardado = null
-            )
-        }
-    }
+                errorGuardado = null) } }
 
     // Conserva la captura si falla el guardado,
     // de modo que pueda reintentarse.
@@ -130,30 +112,22 @@ class CamaraIngresoViewModel(
         if (tecnicoId <= 0) {
             _uiState.update {
                 it.copy(
-                    errorGuardado = "Inicia sesión nuevamente para continuar."
-                )
-            }
-            return
-        }
+                    errorGuardado = "Inicia sesión nuevamente para continuar.") }
+            return }
 
         if (actual.descripcion.trim().length > 300) {
             _uiState.update {
                 it.copy(
                     errorGuardado =
-                        "La descripción debe tener como máximo 300 caracteres."
-                )
-            }
-            return
-        }
+                        "La descripción debe tener como máximo 300 caracteres.") }
+            return }
 
         // Se activa antes de lanzar la operación para evitar duplicados.
         _uiState.update {
             it.copy(
                 guardando = true,
                 errorGuardado = null,
-                guardadoExitoso = false
-            )
-        }
+                guardadoExitoso = false) }
 
         viewModelScope.launch {
             try {
@@ -161,33 +135,24 @@ class CamaraIngresoViewModel(
                     ingresoId = ingresoId,
                     tecnicoId = tecnicoId,
                     archivo = File(ruta),
-                    descripcion = actual.descripcion
-                )
+                    descripcion = actual.descripcion)
 
                 _uiState.update {
                     it.copy(
                         rutaPendiente = null,
                         descripcion = "",
                         evidenciaGuardadaId = evidenciaId,
-                        guardadoExitoso = true
-                    )
-                }
+                        guardadoExitoso = true) }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (error: Exception) {
                 _uiState.update {
                     it.copy(
                         errorGuardado = error.message
-                            ?: "No fue posible guardar la evidencia."
-                    )
-                }
+                            ?: "No fue posible guardar la evidencia.") }
             } finally {
                 _uiState.update {
-                    it.copy(guardando = false)
-                }
-            }
-        }
-    }
+                    it.copy(guardando = false) } } } }
 
     // Solo descarta la captura pendiente.
     // No elimina fotografías que ya están registradas en Room.
@@ -200,64 +165,49 @@ class CamaraIngresoViewModel(
         _uiState.update {
             it.copy(
                 guardando = true,
-                errorGuardado = null
-            )
-        }
+                errorGuardado = null) }
 
         viewModelScope.launch {
             try {
                 val eliminada = withContext(Dispatchers.IO) {
                     val archivo = File(ruta)
-                    !archivo.exists() || archivo.delete()
-                }
+                    !archivo.exists() || archivo.delete() }
 
                 check(eliminada) {
-                    "No fue posible descartar la fotografía. Inténtalo nuevamente."
-                }
+                    "No fue posible descartar la fotografía. Inténtalo nuevamente." }
 
                 _uiState.update {
                     it.copy(
                         rutaPendiente = null,
                         descripcion = "",
-                        errorGuardado = null
-                    )
-                }
+                        errorGuardado = null) }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (error: Exception) {
                 _uiState.update {
                     it.copy(
                         errorGuardado = error.message
-                            ?: "No fue posible descartar la fotografía."
-                    )
-                }
+                            ?: "No fue posible descartar la fotografía.") }
             } finally {
                 _uiState.update {
-                    it.copy(guardando = false)
-                }
-            }
-        }
-    }
+                    it.copy(guardando = false) } } } }
 
     // Consume la notificación después de mostrar la confirmación.
     fun consumirGuardadoExitoso() {
         _uiState.update {
-            it.copy(guardadoExitoso = false)
-        }
-    }
+            it.copy(guardadoExitoso = false) } }
 
+    // Marca una fotografía como principal del ingreso.
     fun seleccionarPrincipal(evidenciaId: Int, tecnicoId: Long) {
         ejecutarCambio("Fotografía principal actualizada.") {
-            repository.seleccionarPrincipal(ingresoId, evidenciaId, tecnicoId)
-        }
-    }
+            repository.seleccionarPrincipal(ingresoId, evidenciaId, tecnicoId) } }
 
+    // Elimina una fotografía guardada.
     fun eliminarEvidencia(evidenciaId: Int, tecnicoId: Long) {
         ejecutarCambio("Fotografía eliminada.") {
-            repository.eliminar(ingresoId, evidenciaId, tecnicoId)
-        }
-    }
+            repository.eliminar(ingresoId, evidenciaId, tecnicoId) } }
 
+    // Ejecuta un cambio en la galería y muestra su resultado.
     private fun ejecutarCambio(mensaje: String, operacion: suspend () -> Unit) {
         val actual = _uiState.value
         if (!actual.permiteAgregar || actual.guardando || actual.rutaPendiente != null) return
@@ -271,12 +221,8 @@ class CamaraIngresoViewModel(
             } catch (error: Exception) {
                 _uiState.update { it.copy(errorGaleria = error.message ?: "No fue posible completar la operación.") }
             } finally {
-                _uiState.update { it.copy(guardando = false) }
-            }
-        }
-    }
+                _uiState.update { it.copy(guardando = false) } } } }
 
+    // Oculta el mensaje de resultado de la galería.
     fun limpiarMensajeGaleria() {
-        _uiState.update { it.copy(mensajeGaleria = null, errorGaleria = null) }
-    }
-}
+        _uiState.update { it.copy(mensajeGaleria = null, errorGaleria = null) } } }

@@ -59,11 +59,6 @@ fun SeccionDiagnostico(
                 Text(text = titulo,
                     style = typography.titleMedium,
                     modifier = Modifier.semantics {
-                        heading()
-                    })
-            }
+                        heading() }) }
             // Datos o campos correspondientes a esta sección.
-            contenido()
-        }
-    }
-}
+            contenido() } } }

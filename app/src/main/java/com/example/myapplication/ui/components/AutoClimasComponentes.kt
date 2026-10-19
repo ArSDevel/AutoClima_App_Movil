@@ -47,11 +47,9 @@ import com.example.myapplication.ui.theme.estadoIngresoColors
 
 private val TextoSecundarioCabecera = Color(0xFFDBEAFE)
 
-/**
- * Cabecera común de las pantallas internas.
- * Muestra el título, un subtítulo opcional y, según corresponda,
- * el botón de menú o el de volver.
- */
+// Cabecera común de las pantallas internas.
+// Muestra el título, un subtítulo opcional y, según corresponda,
+// el botón de menú o el de volver.
 @Composable
 fun EncabezadoAutoClimas(
     titulo: String,
@@ -82,16 +80,13 @@ fun EncabezadoAutoClimas(
                     icono = iconoVolver,
                     descripcion = descripcionVolver ?: stringResource(R.string.detalle_back),
                     habilitado = habilitado,
-                    onClick = onVolver
-                )
+                    onClick = onVolver)
             } else if (onMenu != null) {
                 BotonCabecera(
                     icono = Icons.Default.Menu,
                     descripcion = stringResource(R.string.dashboard_open_menu),
                     habilitado = habilitado,
-                    onClick = onMenu
-                )
-            }
+                    onClick = onMenu) }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(
                     text = titulo,
@@ -99,24 +94,16 @@ fun EncabezadoAutoClimas(
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    overflow = TextOverflow.Ellipsis)
                 if (subtitulo != null) {
                     Text(
                         text = subtitulo,
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextoSecundarioCabecera,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-            acciones()
-        }
-        contenidoInferior?.invoke()
-        }
-    }
-}
+                        overflow = TextOverflow.Ellipsis) } }
+            acciones() }
+        contenidoInferior?.invoke() } } }
 
 // Logo de AutoClimas. Es un PNG con fondo transparente; sobre fondos oscuros se usa
 // la versión con el texto claro para que se lea sin necesidad de una placa blanca.
@@ -128,13 +115,10 @@ fun LogoAutoClimas(
 ) {
     androidx.compose.foundation.Image(
         painter = androidx.compose.ui.res.painterResource(
-            if (sobreFondoOscuro) R.drawable.logo_autoclimas_claro else R.drawable.logo_autoclimas
-        ),
+            if (sobreFondoOscuro) R.drawable.logo_autoclimas_claro else R.drawable.logo_autoclimas),
         contentDescription = descripcion,
         contentScale = androidx.compose.ui.layout.ContentScale.Fit,
-        modifier = modifier
-    )
-}
+        modifier = modifier) }
 
 // Botón circular translúcido para usar sobre la cabecera.
 @Composable
@@ -154,10 +138,7 @@ fun BotonCabecera(
         contentColor = Color.White
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Icon(imageVector = icono, contentDescription = descripcion)
-        }
-    }
-}
+            Icon(imageVector = icono, contentDescription = descripcion) } } }
 
 // Barra inferior con la acción principal de la pantalla.
 @Composable
@@ -176,10 +157,7 @@ fun BarraAccionInferior(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            content = contenido
-        )
-    }
-}
+            content = contenido) } }
 
 // Etiqueta de estado con color y punto.
 @Composable
@@ -206,12 +184,9 @@ fun PildoraEstado(
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
+                overflow = TextOverflow.Ellipsis) } } }
 
+// Color asociado a cada estado del ingreso.
 @Composable
 fun colorEstado(estado: EstadoIngreso): Color {
     val colores = MaterialTheme.estadoIngresoColors
@@ -223,10 +198,9 @@ fun colorEstado(estado: EstadoIngreso): Color {
         EstadoIngreso.LISTO_PARA_ENTREGA -> colores.listoParaEntrega
         EstadoIngreso.ENTREGADO -> colores.entregado
         EstadoIngreso.CANCELADO -> colores.cancelado
-        EstadoIngreso.NO_DISPONIBLE -> colores.noDisponible
-    }
-}
+        EstadoIngreso.NO_DISPONIBLE -> colores.noDisponible } }
 
+// Texto corto de cada estado del ingreso.
 @StringRes
 fun etiquetaEstado(estado: EstadoIngreso): Int {
     return when (estado) {
@@ -237,9 +211,7 @@ fun etiquetaEstado(estado: EstadoIngreso): Int {
         EstadoIngreso.LISTO_PARA_ENTREGA -> R.string.dashboard_status_delivery
         EstadoIngreso.ENTREGADO -> R.string.dashboard_status_delivered
         EstadoIngreso.CANCELADO -> R.string.dashboard_status_cancelled
-        EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown
-    }
-}
+        EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown } }
 
 // Tarjeta compacta para elegir un ingreso: foto, placa, vehículo y cliente, y estado.
 @Composable
@@ -263,34 +235,27 @@ fun TarjetaSeleccionIngreso(
         ) {
             com.example.myapplication.ui.dashboard.components.FotoIngresoCard(
                 ruta = ingreso.fotoPath,
-                tamano = 72.dp
-            )
+                tamano = 72.dp)
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = ingreso.placa,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    overflow = TextOverflow.Ellipsis)
                 Text(
                     text = listOf(ingreso.modelo, ingreso.nombreCliente).filter { it.isNotBlank() }.joinToString(" · "),
                     style = MaterialTheme.typography.bodyMedium,
                     color = colors.onSurfaceVariant,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                PildoraEstado(estado = EstadoIngreso.desdeValor(ingreso.estado))
-            }
+                    overflow = TextOverflow.Ellipsis)
+                PildoraEstado(estado = EstadoIngreso.desdeValor(ingreso.estado)) }
             Icon(
                 imageVector = Icons.Default.ChevronRight,
                 contentDescription = null,
-                tint = colors.onSurfaceVariant
-            )
-        }
-    }
-}
+                tint = colors.onSurfaceVariant) } } }
 
+// Tipos de aviso: advertencia (ámbar) o éxito (verde).
 enum class TipoAviso { ADVERTENCIA, EXITO }
 
 // Aviso breve con icono, título, una línea de texto y dos botones del mismo tamaño.
@@ -313,8 +278,7 @@ fun DialogoAviso(
         TipoAviso.ADVERTENCIA -> Triple(
             estados.enReparacion.copy(alpha = 0.18f), estados.enReparacion, Icons.Default.Warning)
         TipoAviso.EXITO -> Triple(
-            estados.listoParaFirma.copy(alpha = 0.18f), estados.listoParaFirma, Icons.Default.Check)
-    }
+            estados.listoParaFirma.copy(alpha = 0.18f), estados.listoParaFirma, Icons.Default.Check) }
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
@@ -330,8 +294,7 @@ fun DialogoAviso(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(imageVector = icono, contentDescription = null, tint = colorIcono,
-                        modifier = Modifier.size(28.dp))
-                }
+                        modifier = Modifier.size(28.dp)) }
                 Text(text = titulo, style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold)
                 Text(text = mensaje, style = MaterialTheme.typography.bodyLarge,
@@ -354,12 +317,7 @@ fun DialogoAviso(
                         shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
                     ) { Text(textoPrincipal, style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp), maxLines = 1,
-                        softWrap = false, overflow = TextOverflow.Ellipsis) }
-                }
-            }
-        }
-    }
-}
+                        softWrap = false, overflow = TextOverflow.Ellipsis) } } } } } }
 
 // Dato que no se puede modificar: borde punteado, candado y el valor.
 @Composable
@@ -382,10 +340,7 @@ fun CampoBloqueado(
                         cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()),
                         style = androidx.compose.ui.graphics.drawscope.Stroke(
                             width = 1.5.dp.toPx(),
-                            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(14f, 10f))
-                        )
-                    )
-                }
+                            pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(14f, 10f)))) }
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -396,11 +351,7 @@ fun CampoBloqueado(
                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
                 color = colors.onSurfaceVariant,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    }
-}
+                overflow = TextOverflow.Ellipsis) } } }
 
 // Nombre del técnico con sesión iniciada, disponible para el menú lateral.
 val LocalNombreTecnico = androidx.compose.runtime.staticCompositionLocalOf<String?> { null }
@@ -409,13 +360,11 @@ val LocalNombreTecnico = androidx.compose.runtime.staticCompositionLocalOf<Strin
 fun nombreCortoTecnico(nombre: String?): String? {
     val partes = nombre?.trim()?.split(" ")?.filter { it.isNotBlank() } ?: return null
     if (partes.isEmpty()) return null
-    return if (partes.size == 1) partes[0] else "${partes[0]} ${partes[1].first()}."
-}
+    return if (partes.size == 1) partes[0] else "${partes[0]} ${partes[1].first()}." }
 
 // Color de los títulos de sección: azul marino en claro y azul claro en oscuro.
 // (tertiary es el color de las cabeceras y en oscuro casi no se distingue del fondo).
 @Composable
 fun colorTituloSeccion(): Color {
     return if (LocalAutoClimasDark.current) MaterialTheme.colorScheme.primary
-    else MaterialTheme.colorScheme.tertiary
-}
+    else MaterialTheme.colorScheme.tertiary }

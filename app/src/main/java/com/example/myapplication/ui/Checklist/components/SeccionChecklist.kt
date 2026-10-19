@@ -52,18 +52,13 @@ fun SeccionChecklist(
                 imageVector = icono,
                 contentDescription = null,
                 tint = colors.primary,
-                modifier = Modifier.size(22.dp)
-            )
+                modifier = Modifier.size(22.dp))
             Text(
                 text = titulo.uppercase(),
                 style = typography.labelLarge.copy(letterSpacing = 0.8.sp),
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                 color = com.example.myapplication.ui.components.colorTituloSeccion(),
-                modifier = Modifier.semantics { heading() }
-            )
-        }
+                modifier = Modifier.semantics { heading() }) }
 
         // Aquí se colocan las preguntas de la sección.
-        contenido()
-    }
-}
+        contenido() } }

@@ -37,8 +37,7 @@ fun HallazgosDiagnostico(
     SeccionDiagnostico(
         titulo = stringResource(R.string.diagnostico_findings_title),
         descripcion = stringResource(
-            R.string.diagnostico_findings_description
-        ),
+            R.string.diagnostico_findings_description),
         icono = Icons.Default.Warning,
         modifier = modifier
     ) {
@@ -46,28 +45,20 @@ fun HallazgosDiagnostico(
             !tieneChecklist -> {
                 MensajeHallazgos(
                     texto = stringResource(
-                        R.string.diagnostico_checklist_pending
-                    )
-                )
-            }
+                        R.string.diagnostico_checklist_pending)) }
 
             hallazgos.isEmpty() -> {
                 MensajeHallazgos(
                     texto = stringResource(
-                        R.string.diagnostico_findings_empty
-                    )
-                )
-            }
+                        R.string.diagnostico_findings_empty)) }
 
             else -> {
                 Text(
                     text = stringResource(
                         R.string.diagnostico_findings_count,
-                        hallazgos.size
-                    ),
+                        hallazgos.size),
                     style = MaterialTheme.typography.labelLarge,
-                    color = colors.onSurfaceVariant
-                )
+                    color = colors.onSurfaceVariant)
 
                 hallazgos.forEachIndexed { indice, hallazgo ->
                     Row(
@@ -85,24 +76,15 @@ fun HallazgosDiagnostico(
                                 style = MaterialTheme.typography.labelLarge,
                                 modifier = Modifier.padding(
                                     horizontal = 10.dp,
-                                    vertical = 6.dp
-                                )
-                            )
-                        }
+                                    vertical = 6.dp)) }
 
                         Text(
                             text = stringResource(
-                                descripcionHallazgo(hallazgo)
-                            ),
+                                descripcionHallazgo(hallazgo)),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier
                                 .weight(1f)
-                                .padding(top = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
+                                .padding(top = 4.dp)) } } } }
 
         // Los comentarios originales se muestran como consulta.
         // Las notas adicionales se escribirán en otra sección.
@@ -114,24 +96,15 @@ fun HallazgosDiagnostico(
             ) {
                 Text(
                     text = stringResource(
-                        R.string.diagnostico_checklist_comments_title
-                    ),
-                    style = MaterialTheme.typography.titleSmall
-                )
+                        R.string.diagnostico_checklist_comments_title),
+                    style = MaterialTheme.typography.titleSmall)
 
                 Text(
                     text = comentariosChecklist.trim().ifEmpty {
                         stringResource(
-                            R.string.diagnostico_checklist_comments_empty
-                        )
-                    },
+                            R.string.diagnostico_checklist_comments_empty) },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
+                    color = colors.onSurfaceVariant) } } } }
 
 // Mensaje informativo para revisión pendiente o sin hallazgos.
 @Composable
@@ -156,10 +129,7 @@ private fun MensajeHallazgos(
                 modifier = Modifier.size(24.dp))
             Text(text = texto,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f))
-        }
-    }
-}
+                modifier = Modifier.weight(1f)) } } }
 
 // Traduce cada hallazgo a un recurso de texto.
 // La interpretación de las respuestas se realiza en DiagnosticoUiState.
@@ -193,6 +163,4 @@ internal fun descripcionHallazgo(
             R.string.diagnostico_finding_filter
 
         HallazgoDiagnostico.CONDENSADOR_OBSTRUIDO ->
-            R.string.diagnostico_finding_condenser
-    }
-}
+            R.string.diagnostico_finding_condenser } }

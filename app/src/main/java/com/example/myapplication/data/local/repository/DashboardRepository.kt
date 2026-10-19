@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import java.util.Locale
 
+// Acceso a los ingresos para el listado, el detalle y los cambios de estado.
 class DashboardRepository(
     private val baseDeDatos: AppDatabase
 ) {
@@ -32,36 +33,27 @@ class DashboardRepository(
     ): Flow<List<IngresoResumen>> {
         if (fechaDesde != null && fechaHastaExclusiva != null) {
             require(fechaDesde < fechaHastaExclusiva) {
-                "El inicio del periodo debe ser anterior a su límite final."
-            }
-        }
+                "El inicio del periodo debe ser anterior a su límite final." } }
 
         require(orden == "RECIENTES" || orden == "ANTIGUOS" || orden == "PLACA_ASCENDENTE") {
-            "El orden seleccionado no es válido."
-        }
+            "El orden seleccionado no es válido." }
 
         return ingresoDao.observarIngresos(
             textoBusqueda = textoBusqueda.trim(), estadoFiltro = estadoFiltro?.name,
             fechaDesde = fechaDesde, fechaHastaExclusiva = fechaHastaExclusiva,
-            orden = orden
-        )
-    }
+            orden = orden) }
 
     // Observa el expediente de un ingreso específico.
     fun observarIngresoPorId(ingresoId: Long): Flow<IngresoResumen?> {
         require(ingresoId > 0) {
-            "El identificador del ingreso no es válido."
-        }
-        return ingresoDao.observarIngresoPorId(ingresoId)
-    }
+            "El identificador del ingreso no es válido." }
+        return ingresoDao.observarIngresoPorId(ingresoId) }
 
     // Observa el historial de un ingreso.
     fun observarEventos(ingresoId: Long): Flow<List<EventoIngreso>> {
         require(ingresoId > 0) {
-            "El identificador del ingreso no es válido."
-        }
-        return ingresoDao.observarEventos(ingresoId)
-    }
+            "El identificador del ingreso no es válido." }
+        return ingresoDao.observarEventos(ingresoId) }
 
     // Edita las fichas relacionadas y los datos del ingreso.
     // El estado actual determina si la edición es completa
@@ -80,8 +72,7 @@ class DashboardRepository(
             require(errores.isEmpty()) { errores.values.firstOrNull() ?: "Revisa los campos del formulario." }
 
             val vehiculo = requireNotNull(vehiculoDao.obtener(ingreso.vehiculoId)) {
-                "No se encontró el vehículo del ingreso."
-            }
+                "No se encontró el vehículo del ingreso." }
 
             val cliente = requireNotNull(clienteDao.obtener(vehiculo.clienteId)) {
                 "No se encontró el cliente del vehículo." }
@@ -93,15 +84,12 @@ class DashboardRepository(
             if (telefono != cliente.telefono) {
                 val otroCliente = clienteDao.buscarPorTelefono(telefono)
                 require(otroCliente == null || otroCliente.clienteId == cliente.clienteId) {
-                    "El teléfono ya está asociado a otro cliente."
-                }
-            }
+                    "El teléfono ya está asociado a otro cliente." } }
 
             val clienteActualizado = cliente.copy(
                 nombre = if (edicionCompleta) { formulario.nombre.trim()
                 } else { cliente.nombre },
-                telefono = telefono, email = email
-            )
+                telefono = telefono, email = email)
 
             // Conservamos los campos que no modifica el formulario.
             var vehiculoActualizado = vehiculo
@@ -111,8 +99,7 @@ class DashboardRepository(
                 val placa = formulario.placa.trim().uppercase(Locale.ROOT)
                 val otroVehiculo = vehiculoDao.buscarPorPlaca(placa)
                 require(otroVehiculo == null || otroVehiculo.vehiculoId == vehiculo.vehiculoId) {
-                    "La placa ya está asociada a otro vehículo."
-                }
+                    "La placa ya está asociada a otro vehículo." }
 
                 vehiculoActualizado = vehiculo.copy(
                     placa = placa, modelo = formulario.modelo.trim(),
@@ -124,9 +111,7 @@ class DashboardRepository(
                         fechaOriginal = ingreso.fecha,
                         nuevaFecha = formulario.fecha),
                     motivoIngreso = formulario.motivo.trim().ifEmpty { null },
-                    condicionInicial = formulario.condicion.trim().ifEmpty { null }
-                )
-            }
+                    condicionInicial = formulario.condicion.trim().ifEmpty { null }) }
 
             val cambioCliente = clienteActualizado != cliente
             val cambioVehiculo = vehiculoActualizado != vehiculo
@@ -134,26 +119,19 @@ class DashboardRepository(
 
             // Guardar sin cambios no genera un evento de edición.
             if (!cambioCliente && !cambioVehiculo && !cambioIngreso) {
-                return@withTransaction
-            }
+                return@withTransaction }
 
             if (cambioCliente) {
                 check(clienteDao.actualizar(clienteActualizado) == 1) {
-                    "No fue posible actualizar el cliente."
-                }
-            }
+                    "No fue posible actualizar el cliente." } }
 
             if (cambioVehiculo) {
                 check(vehiculoDao.actualizar(vehiculoActualizado) == 1) {
-                    "No fue posible actualizar el vehículo."
-                }
-            }
+                    "No fue posible actualizar el vehículo." } }
 
             if (cambioIngreso) {
                 check(ingresoDao.actualizar(ingresoActualizado) == 1) {
-                    "No fue posible actualizar el ingreso."
-                }
-            }
+                    "No fue posible actualizar el ingreso." } }
 
             ingresoDao.insertarEvento(
                 EventoIngreso(
@@ -163,12 +141,7 @@ class DashboardRepository(
                     motivo = if (edicionCompleta) {
                         "Se actualizaron los datos del ingreso o sus fichas de cliente y vehículo."
                     } else {
-                        "Se actualizaron los datos de contacto."
-                    }
-                )
-            )
-        }
-    }
+                        "Se actualizaron los datos de contacto." })) } }
 
     // Cambia el estado y registra el evento en una transacción.
     suspend fun cambiarEstado(ingresoId: Long, destino: EstadoIngreso, motivo: String, tecnicoId: Long) {
@@ -182,14 +155,10 @@ class DashboardRepository(
             // Los avances comprueban que el módulo anterior esté completo.
             if (destino == EstadoIngreso.EN_REPARACION && ReglasIngreso.iniciarReparacion(estadoActual)) {
                 requireNotNull(checklistDao.obtenerPorIngreso(ingresoId)) {
-                    "Guarda primero el checklist para iniciar la reparación."
-                }
-            }
+                    "Guarda primero el checklist para iniciar la reparación." } }
             if (destino == EstadoIngreso.LISTO_PARA_FIRMA) {
                 requireNotNull(diagnosticoDao.obtenerPorIngreso(ingresoId)) {
-                    "Guarda primero el diagnóstico para pasar a firma."
-                }
-            }
+                    "Guarda primero el diagnóstico para pasar a firma." } }
             val filasActualizadas = ingresoDao.actualizar(ingreso.copy(estado = destino.name))
             check(filasActualizadas == 1) { "No fue posible actualizar el ingreso." }
 
@@ -197,17 +166,12 @@ class DashboardRepository(
                 EventoIngreso(ingresoId = ingreso.ingresoId,
                     fecha = System.currentTimeMillis(), tecnicoId = tecnicoId,
                     accion = "ESTADO", estadoAnterior = ingreso.estado,
-                    estadoNuevo = destino.name, motivo = motivoLimpio
-                )
-            )
-        }
-    }
+                    estadoNuevo = destino.name, motivo = motivoLimpio)) } }
 
     // Cancela conservando el expediente y el motivo.
     suspend fun cancelar(ingresoId: Long, motivo: String, tecnicoId: Long
     ) { cambiarEstado(ingresoId = ingresoId, destino = EstadoIngreso.CANCELADO,
-            motivo = motivo, tecnicoId = tecnicoId)
-    }
+            motivo = motivo, tecnicoId = tecnicoId) }
 
     // Elimina únicamente una captura registrada sin actividad posterior.
     suspend fun eliminar(ingresoId: Long, tecnicoId: Long
@@ -222,18 +186,14 @@ class DashboardRepository(
             require(ReglasIngreso.eliminar(estado = estadoActual, tieneActividadPosterior = tieneActividadPosterior)
             ) { "Solo puedes eliminar una captura registrada sin actividad posterior a su creación." }
             check(ingresoDao.eliminar(ingresoId) == 1) {
-                "No fue posible eliminar el ingreso."
-            }
-        }
-    }
+                "No fue posible eliminar el ingreso." } } }
 
     // Cambia el día conservando la hora local de entrada.
     // Si se selecciona el mismo día, conserva exactamente
     // el valor original en milisegundos.
     private fun actualizarDiaConservandoHora(fechaOriginal: Long, nuevaFecha: String): Long {
         val fechaInterpretada = requireNotNull(FormularioIngreso.interpretarFecha(nuevaFecha)) {
-            "La fecha de entrada no es válida."
-        }
+            "La fecha de entrada no es válida." }
 
         val original = Calendar.getInstance().apply { timeInMillis = fechaOriginal }
         val seleccionada = Calendar.getInstance().apply { time = fechaInterpretada }
@@ -245,19 +205,16 @@ class DashboardRepository(
 
         original.set(seleccionada.get(Calendar.YEAR),
             seleccionada.get(Calendar.MONTH),
-            seleccionada.get(Calendar.DAY_OF_MONTH)
-        )
+            seleccionada.get(Calendar.DAY_OF_MONTH))
 
-        return original.timeInMillis
-    }
+        return original.timeInMillis }
 
+    // Obtiene el ingreso o detiene la operación si ya no existe.
     private suspend fun obtenerIngresoExistente(ingresoId: Long): Ingreso {
         require(ingresoId > 0) { "El identificador del ingreso no es válido." }
-        return requireNotNull(ingresoDao.obtener(ingresoId)) { "El ingreso ya no existe." }
-    }
+        return requireNotNull(ingresoDao.obtener(ingresoId)) { "El ingreso ya no existe." } }
 
+    // Comprueba que el técnico de la sesión siga existiendo.
     private suspend fun validarTecnico(tecnicoId: Long) {
         require(tecnicoId > 0) { "Inicia sesión nuevamente para continuar." }
-        requireNotNull(tecnicoDao.obtener(tecnicoId)) { "El técnico ya no existe. Inicia sesión nuevamente." }
-    }
-}
+        requireNotNull(tecnicoDao.obtener(tecnicoId)) { "El técnico ya no existe. Inicia sesión nuevamente." } } }

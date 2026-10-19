@@ -64,6 +64,7 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.checklist.components.PreguntaChecklist
 import com.example.myapplication.ui.checklist.components.SeccionChecklist
 
+// Pantalla del checklist: nueve preguntas, fotos y comentarios.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChecklistScreen(
@@ -84,16 +85,12 @@ fun ChecklistScreen(
             if (estado.tieneCambiosSinGuardar) {
                 confirmarSalida = true
             } else {
-                onVolver()
-            }
-        }
-    }
+                onVolver() } } }
 
     // Durante el guardado también intercepta el regreso
     // para evitar abandonar la operación.
     BackHandler {
-        solicitarSalida()
-    }
+        solicitarSalida() }
 
     val respondidas = listOf(
         estado.faltaGasRefrigerante, estado.fugaVisibleMangueras, estado.fugasDetectadasLuzUV,
@@ -118,21 +115,14 @@ fun ChecklistScreen(
                             color = if (respondidas == 0) androidx.compose.ui.graphics.Color.Transparent
                             else androidx.compose.ui.graphics.Color.White,
                             trackColor = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.25f),
-                            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
-                        )
-                    }
+                            strokeCap = androidx.compose.ui.graphics.StrokeCap.Round) }
                 } else null,
                 acciones = {
                     if (estado.formularioDisponible) {
                         Text(
                             text = "$respondidas/9",
                             style = MaterialTheme.typography.titleLarge,
-                            color = androidx.compose.ui.graphics.Color.White
-                        )
-                    }
-                }
-            )
-        },
+                            color = androidx.compose.ui.graphics.Color.White) } }) },
         bottomBar = {
             // Guardar es la acción principal del checklist.
             if (estado.formularioDisponible && estado.permiteEdicion) {
@@ -147,24 +137,15 @@ fun ChecklistScreen(
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                            Spacer(Modifier.width(12.dp))
-                        }
+                                color = MaterialTheme.colorScheme.onPrimary)
+                            Spacer(Modifier.width(12.dp)) }
                         Text(
                             text = stringResource(
                                 when {
                                     estado.guardando -> R.string.checklist_saving
                                     estado.checklistId != null -> R.string.checklist_save_changes
-                                    else -> R.string.checklist_save
-                                }
-                            ),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
-            }
-        }
+                                    else -> R.string.checklist_save }),
+                            style = MaterialTheme.typography.titleMedium) } } } }
     ) { padding ->
         Box(
             modifier = Modifier.fillMaxSize()
@@ -177,9 +158,7 @@ fun ChecklistScreen(
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.Center)
-                            .size(40.dp)
-                    )
-                }
+                            .size(40.dp)) }
 
                 estado.errorCarga != null || estado.ingresoNoEncontrado -> {
                     Column(
@@ -193,16 +172,11 @@ fun ChecklistScreen(
                         Text(
                             text = estado.errorCarga
                                 ?: stringResource(
-                                    R.string.checklist_not_found
-                                ),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                                    R.string.checklist_not_found),
+                            style = MaterialTheme.typography.bodyLarge)
 
                         Button(onClick = viewModel::reintentarCarga) {
-                            Text(stringResource(R.string.checklist_retry))
-                        }
-                    }
-                }
+                            Text(stringResource(R.string.checklist_retry)) } } }
 
                 estado.formularioDisponible -> {
                     LazyColumn(
@@ -223,23 +197,16 @@ fun ChecklistScreen(
                                 ) {
                                     Text(
                                         text = stringResource(
-                                            R.string.checklist_read_only
-                                        ),
+                                            R.string.checklist_read_only),
                                         modifier = Modifier.padding(16.dp),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
-                        }
+                                        style = MaterialTheme.typography.bodyMedium) } } }
 
                         item(key = "refrigerante") {
                             SeccionChecklist(
                                 titulo = stringResource(
-                                    R.string.checklist_section_refrigerant_title
-                                ),
+                                    R.string.checklist_section_refrigerant_title),
                                 descripcion = stringResource(
-                                    R.string.checklist_section_refrigerant_description
-                                ),
+                                    R.string.checklist_section_refrigerant_description),
                                 icono = Icons.Default.Search,
                                 preguntasRespondidas = listOf(
                                     estado.faltaGasRefrigerante,
@@ -251,52 +218,42 @@ fun ChecklistScreen(
                                 PreguntaChecklist(
                                     numero = 1,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_refrigerant
-                                    ),
+                                        R.string.checklist_question_refrigerant),
                                     respuesta = estado.faltaGasRefrigerante,
                                     onRespuestaChange =
                                         viewModel::onFaltaGasRefrigeranteChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
+                                        estado.mostrarPreguntasPendientes)
 
                                 PreguntaChecklist(
                                     numero = 2,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_hoses
-                                    ),
+                                        R.string.checklist_question_hoses),
                                     respuesta = estado.fugaVisibleMangueras,
                                     onRespuestaChange =
                                         viewModel::onFugaVisibleManguerasChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
+                                        estado.mostrarPreguntasPendientes)
 
                                 PreguntaChecklist(
                                     numero = 3,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_uv
-                                    ),
+                                        R.string.checklist_question_uv),
                                     respuesta = estado.fugasDetectadasLuzUV,
                                     onRespuestaChange =
                                         viewModel::onFugasDetectadasLuzUVChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
-                            }
-                        }
+                                        estado.mostrarPreguntasPendientes) } }
 
                         item(key = "compresor") {
                             SeccionChecklist(
                                 titulo = stringResource(
-                                    R.string.checklist_section_compressor_title
-                                ),
+                                    R.string.checklist_section_compressor_title),
                                 descripcion = stringResource(
-                                    R.string.checklist_section_compressor_description
-                                ),
+                                    R.string.checklist_section_compressor_description),
                                 icono = Icons.Default.Build,
                                 preguntasRespondidas = listOf(
                                     estado.compresorEmbragaAlEncender,
@@ -308,52 +265,42 @@ fun ChecklistScreen(
                                 PreguntaChecklist(
                                     numero = 4,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_engagement
-                                    ),
+                                        R.string.checklist_question_engagement),
                                     respuesta = estado.compresorEmbragaAlEncender,
                                     onRespuestaChange =
                                         viewModel::onCompresorEmbragaAlEncenderChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
+                                        estado.mostrarPreguntasPendientes)
 
                                 PreguntaChecklist(
                                     numero = 5,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_compressor_damage
-                                    ),
+                                        R.string.checklist_question_compressor_damage),
                                     respuesta = estado.compresorDanadoOAmarrado,
                                     onRespuestaChange =
                                         viewModel::onCompresorDanadoOAmarradoChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
+                                        estado.mostrarPreguntasPendientes)
 
                                 PreguntaChecklist(
                                     numero = 6,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_belt
-                                    ),
+                                        R.string.checklist_question_belt),
                                     respuesta = estado.bandaCompresorDesgastada,
                                     onRespuestaChange =
                                         viewModel::onBandaCompresorDesgastadaChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
-                            }
-                        }
+                                        estado.mostrarPreguntasPendientes) } }
 
                         item(key = "ventilacion") {
                             SeccionChecklist(
                                 titulo = stringResource(
-                                    R.string.checklist_section_ventilation_title
-                                ),
+                                    R.string.checklist_section_ventilation_title),
                                 descripcion = stringResource(
-                                    R.string.checklist_section_ventilation_description
-                                ),
+                                    R.string.checklist_section_ventilation_description),
                                 icono = Icons.Default.Settings,
                                 preguntasRespondidas = listOf(
                                     estado.funcionanAbanicosRadiador,
@@ -365,43 +312,35 @@ fun ChecklistScreen(
                                 PreguntaChecklist(
                                     numero = 7,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_fans
-                                    ),
+                                        R.string.checklist_question_fans),
                                     respuesta = estado.funcionanAbanicosRadiador,
                                     onRespuestaChange =
                                         viewModel::onFuncionanAbanicosRadiadorChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
+                                        estado.mostrarPreguntasPendientes)
 
                                 PreguntaChecklist(
                                     numero = 8,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_filter
-                                    ),
+                                        R.string.checklist_question_filter),
                                     respuesta = estado.filtroCabinaSucioUObstruido,
                                     onRespuestaChange =
                                         viewModel::onFiltroCabinaSucioUObstruidoChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
+                                        estado.mostrarPreguntasPendientes)
 
                                 PreguntaChecklist(
                                     numero = 9,
                                     pregunta = stringResource(
-                                        R.string.checklist_question_condenser
-                                    ),
+                                        R.string.checklist_question_condenser),
                                     respuesta = estado.condensadorObstruido,
                                     onRespuestaChange =
                                         viewModel::onCondensadorObstruidoChange,
                                     habilitada = estado.puedeModificar,
                                     mostrarPendiente =
-                                        estado.mostrarPreguntasPendientes
-                                )
-                            }
-                        }
+                                        estado.mostrarPreguntasPendientes) } }
 
                         item(key = "evidencias") {
                             if (evidenciasViewModel != null) {
@@ -417,9 +356,7 @@ fun ChecklistScreen(
                                             text = stringResource(R.string.registro_evidence_title).uppercase(),
                                             style = MaterialTheme.typography.labelLarge,
                                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                            color = com.example.myapplication.ui.components.colorTituloSeccion()
-                                        )
-                                    }
+                                            color = com.example.myapplication.ui.components.colorTituloSeccion()) }
                                     if (estadoFotos.permiteAgregar && estadoFotos.rutaPendiente == null) {
                                         androidx.compose.material3.OutlinedButton(
                                             onClick = onAgregarFoto,
@@ -429,22 +366,15 @@ fun ChecklistScreen(
                                             border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                                             colors = ButtonDefaults.outlinedButtonColors(
                                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                                contentColor = MaterialTheme.colorScheme.primary
-                                            )
+                                                contentColor = MaterialTheme.colorScheme.primary)
                                         ) {
                                             Icon(Icons.Default.PhotoCamera, contentDescription = null)
                                             Text("  " + stringResource(R.string.fotos_add),
-                                                style = MaterialTheme.typography.titleMedium)
-                                        }
-                                    }
+                                                style = MaterialTheme.typography.titleMedium) } }
                                     com.example.myapplication.ui.camara.components.GaleriaIngresoConectada(
                                         viewModel = evidenciasViewModel,
                                         tecnicoId = tecnicoId,
-                                        habilitada = !estado.guardando
-                                    )
-                                }
-                            }
-                        }
+                                        habilitada = !estado.guardando) } } }
 
                         item(key = "comentarios") {
                             OutlinedTextField(
@@ -455,30 +385,16 @@ fun ChecklistScreen(
                                 label = {
                                     Text(
                                         stringResource(
-                                            R.string.checklist_comments
-                                        )
-                                    )
-                                },
+                                            R.string.checklist_comments)) },
                                 minLines = 4,
-                                shape = MaterialTheme.shapes.medium
-                            )
-                        }
+                                shape = MaterialTheme.shapes.medium) }
 
                         estado.errorGuardado?.let { mensaje ->
                             item(key = "error_guardado") {
                                 Text(
                                     text = mensaje,
                                     color = MaterialTheme.colorScheme.error,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
-
-                    }
-                }
-            }
-        }
-    }
+                                    style = MaterialTheme.typography.bodyMedium) } } } } } } }
 
     // Confirma la salida únicamente cuando hay cambios pendientes.
     if (confirmarSalida) {
@@ -491,9 +407,7 @@ fun ChecklistScreen(
                 onVolver() },
             textoPrincipal = stringResource(R.string.checklist_keep_editing),
             onPrincipal = { confirmarSalida = false },
-            onDismiss = { confirmarSalida = false }
-        )
-    }
+            onDismiss = { confirmarSalida = false }) }
 
     // Espera a que termine toda la operación antes de mostrar el éxito.
     if (estado.guardadoExitoso && !estado.guardando) {
@@ -506,10 +420,7 @@ fun ChecklistScreen(
             textoPrincipal = stringResource(R.string.checklist_back_to_detail),
             onPrincipal = { viewModel.consumirGuardadoExitoso()
                 onVolver() },
-            onDismiss = viewModel::consumirGuardadoExitoso
-        )
-    }
-}
+            onDismiss = viewModel::consumirGuardadoExitoso) } }
 
 // Presenta el vehículo y el avance real de las respuestas.
 // El progreso no representa un diagnóstico ni un cambio de estado.
@@ -543,9 +454,7 @@ private fun EncabezadoChecklist(
                         contentDescription = null,
                         modifier = Modifier
                             .padding(12.dp)
-                            .size(28.dp)
-                    )
-                }
+                            .size(28.dp)) }
 
                 Column(
                     modifier = Modifier.weight(1f),
@@ -554,45 +463,35 @@ private fun EncabezadoChecklist(
                     Text(
                         text = ingreso.placa,
                         style = MaterialTheme.typography.headlineSmall,
-                        color = colors.primary
-                    )
+                        color = colors.primary)
 
                     Text(
                         text = ingreso.modelo,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
+                        style = MaterialTheme.typography.bodyLarge)
 
                     Text(
                         text = stringResource(
                             R.string.checklist_ingreso_number,
-                            ingreso.ingresoId
-                        ),
+                            ingreso.ingresoId),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
-                }
-            }
+                        color = colors.onSurfaceVariant) } }
 
             Text(
                 text = stringResource(R.string.checklist_instructions),
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant
-            )
+                color = colors.onSurfaceVariant)
 
             LinearProgressIndicator(
                 progress = { estado.progreso },
-                modifier = Modifier.fillMaxWidth()
-            )
+                modifier = Modifier.fillMaxWidth())
 
             Text(
                 text = stringResource(
                     R.string.checklist_section_progress,
                     estado.preguntasRespondidas,
-                    estado.totalPreguntas
-                ),
+                    estado.totalPreguntas),
                 style = MaterialTheme.typography.labelLarge,
-                color = colors.primary
-            )
+                color = colors.primary)
 
             Text(
                 text = stringResource(
@@ -604,12 +503,6 @@ private fun EncabezadoChecklist(
                             R.string.checklist_saved_record
 
                         else ->
-                            R.string.checklist_new_record
-                    }
-                ),
+                            R.string.checklist_new_record }),
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
-            )
-        }
-    }
-}
+                color = colors.onSurfaceVariant) } } }

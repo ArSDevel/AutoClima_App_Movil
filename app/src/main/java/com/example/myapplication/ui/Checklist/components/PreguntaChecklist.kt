@@ -52,8 +52,7 @@ fun PreguntaChecklist(
         color = colors.surface,
         border = BorderStroke(
             width = 1.dp,
-            color = if (pendiente) colors.error else colors.outlineVariant
-        )
+            color = if (pendiente) colors.error else colors.outlineVariant)
     ) {
         Column(
             modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
@@ -69,8 +68,7 @@ fun PreguntaChecklist(
                     color = colors.onSurface,
                     modifier = Modifier
                         .weight(1f)
-                        .semantics { heading() }
-                )
+                        .semantics { heading() })
                 // Las dos opciones forman un grupo de selección única.
                 Row(
                     modifier = Modifier.selectableGroup(),
@@ -82,28 +80,19 @@ fun PreguntaChecklist(
                         colorSeleccion = MaterialTheme.estadoIngresoColors.listoParaFirma,
                         seleccionada = respuesta == true,
                         habilitada = habilitada,
-                        onClick = { onRespuestaChange(true) }
-                    )
+                        onClick = { onRespuestaChange(true) })
                     OpcionRespuestaChecklist(
                         descripcion = stringResource(R.string.checklist_answer_no),
                         icono = Icons.Default.Close,
                         colorSeleccion = colors.error,
                         seleccionada = respuesta == false,
                         habilitada = habilitada,
-                        onClick = { onRespuestaChange(false) }
-                    )
-                }
-            }
+                        onClick = { onRespuestaChange(false) }) } }
             if (pendiente) {
                 Text(
                     text = stringResource(R.string.checklist_answer_required),
                     style = MaterialTheme.typography.bodySmall,
-                    color = colors.error
-                )
-            }
-        }
-    }
-}
+                    color = colors.error) } } } }
 
 // Conserva visible la selección incluso en modo de consulta.
 // selectable comunica a accesibilidad si está seleccionada
@@ -130,8 +119,7 @@ private fun OpcionRespuestaChecklist(
                     selected = seleccionada,
                     enabled = habilitada,
                     role = Role.RadioButton,
-                    onClick = onClick
-                )
+                    onClick = onClick)
                 .heightIn(min = 48.dp)
                 .padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.Center,
@@ -140,8 +128,4 @@ private fun OpcionRespuestaChecklist(
             Icon(
                 imageVector = icono,
                 contentDescription = descripcion,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}
+                modifier = Modifier.size(24.dp)) } } }

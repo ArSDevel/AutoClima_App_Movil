@@ -37,11 +37,9 @@ import kotlinx.coroutines.launch
         EventoIngreso::class,
         Diagnostico::class,
         ConceptoCotizacion::class,
-        Evidencia::class
-    ],
+        Evidencia::class],
     version = 9,
-    exportSchema = true
-)
+    exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tecnicoDao(): TecnicoDao
     abstract fun clienteDao(): ClienteDao
@@ -62,8 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
                 INSTANCE ?: Room.databaseBuilder(
                     contextoAplicacion,
                     AppDatabase::class.java,
-                    "autoclima_diag.db"
-                )
+                    "autoclima_diag.db")
                     // Rutas disponibles:
                     // versión 5 → 6 → 9
                     // versión 6 → 9
@@ -78,13 +75,9 @@ abstract class AppDatabase : RoomDatabase() {
                             super.onCreate(db)
                             Log.d("CargaInicial",
                                 "Se ejecutó onCreate")
-                            sembrarUsuarioInicial(contextoAplicacion)
-                        }
-                    })
+                            sembrarUsuarioInicial(contextoAplicacion) } })
                     .build()
-                    .also { INSTANCE = it }
-            }
-        }
+                    .also { INSTANCE = it } } }
         // Conserva el técnico de prueba para instalaciones nuevas.
         private fun sembrarUsuarioInicial(
             context: Context
@@ -101,9 +94,4 @@ abstract class AppDatabase : RoomDatabase() {
                     throw cancelacion
                 } catch (error: Exception) {
                     Log.e("CargaInicial", "Falló la inserción del técnico",
-                        error)
-                }
-            }
-        }
-    }
-}
+                        error) } } } } }

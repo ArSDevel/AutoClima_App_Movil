@@ -63,8 +63,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
         "CHECKLIST" -> Icons.Default.Checklist to estados.registrado
         "DIAGNOSTICO" -> Icons.Default.Description to estados.enReparacion
         "EDITADO" -> Icons.Default.Edit to estados.registrado
-        else -> Icons.Default.History to estados.registrado
-    }
+        else -> Icons.Default.History to estados.registrado }
     // Un cambio de estado se titula con el cambio mismo: "Revisión → Reparación".
     val titulo = if (evento.accion == "ESTADO" && evento.estadoNuevo.isNotBlank() && evento.estadoAnterior.isNotBlank()) {
         stringResource(R.string.detalle_event_transition,
@@ -89,8 +88,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
                         .background(color.copy(alpha = 0.18f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(icono, contentDescription = null, tint = color)
-                }
+                    Icon(icono, contentDescription = null, tint = color) }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(text = titulo, style = MaterialTheme.typography.titleSmall,
                         maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -99,25 +97,18 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurfaceVariant,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
+                        overflow = TextOverflow.Ellipsis) }
                 Icon(
                     imageVector = if (expandido) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
                     contentDescription = stringResource(if (expandido) R.string.historial_less else R.string.historial_details),
-                    tint = colors.onSurfaceVariant
-                )
-            }
+                    tint = colors.onSurfaceVariant) }
             if (expandido) {
                 if (evento.motivo.isNotBlank()) {
                     Surface(shape = MaterialTheme.shapes.small, color = colors.surfaceVariant) {
                         Text(
                             text = evento.motivo,
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                }
+                            style = MaterialTheme.typography.bodyMedium) } }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -126,25 +117,18 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(16.dp),
                             tint = colors.onSurfaceVariant)
-                        Text(tecnico, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
-                    }
+                        Text(tecnico, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant) }
                     TextButton(onClick = { onAbrirIngreso(evento.ingresoId) }) {
                         Text(stringResource(R.string.historial_open_short), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-                        Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(18.dp))
-                    }
-                }
-            }
-        }
-    }
-}
+                        Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(18.dp)) } } } } } }
 
 // "Jesús Martínez Pérez" → "Jesús M."
 private fun nombreCorto(nombre: String?): String? {
     val partes = nombre?.trim()?.split(" ")?.filter { it.isNotBlank() } ?: return null
     if (partes.isEmpty()) return null
-    return if (partes.size == 1) partes[0] else "${partes[0]} ${partes[1].first()}."
-}
+    return if (partes.size == 1) partes[0] else "${partes[0]} ${partes[1].first()}." }
 
+// Muestra Hoy o Ayer con la hora; para otros días, la fecha corta.
 @Composable
 private fun fechaRelativa(milisegundos: Long): String {
     val ahora = Calendar.getInstance()
@@ -155,6 +139,4 @@ private fun fechaRelativa(milisegundos: Long): String {
     return when (dias) {
         0 -> stringResource(R.string.historial_today) + " " + hora
         1 -> stringResource(R.string.historial_yesterday) + " " + hora
-        else -> DateFormat.getDateInstance(DateFormat.SHORT).format(Date(milisegundos)) + " " + hora
-    }
-}
+        else -> DateFormat.getDateInstance(DateFormat.SHORT).format(Date(milisegundos)) + " " + hora } }

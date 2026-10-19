@@ -14,5 +14,4 @@ data class EventoHistorial(
     val accion: String,
     val estadoAnterior: String,
     val estadoNuevo: String,
-    val motivo: String
-)
+    val motivo: String)

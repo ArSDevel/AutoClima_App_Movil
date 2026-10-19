@@ -23,13 +23,11 @@ object CatalogoVehiculos {
         "Mitsubishi" to listOf("L200", "Outlander", "Mirage", "ASX"),
         "Jeep" to listOf("Wrangler", "Compass", "Grand Cherokee", "Renegade"),
         "BMW" to listOf("Serie 1", "Serie 3", "Serie 5", "X1", "X3"),
-        "Mercedes-Benz" to listOf("Clase A", "Clase C", "GLA", "GLC")
-    )
+        "Mercedes-Benz" to listOf("Clase A", "Clase C", "GLA", "GLC"))
 
     // Todas las combinaciones, por ejemplo "Nissan Versa".
     val vehiculos: List<String> = modelosPorMarca.flatMap { (marca, modelos) ->
-        modelos.map { modelo -> "$marca $modelo" }
-    }
+        modelos.map { modelo -> "$marca $modelo" } }
 
     // Devuelve hasta [limite] sugerencias para lo que el técnico escribe.
     // Ignora mayúsculas y acentos; cada palabra escrita debe aparecer en la sugerencia.
@@ -41,17 +39,14 @@ object CatalogoVehiculos {
 
         val coincidencias = vehiculos.filter { vehiculo ->
             val clave = normalizar(vehiculo)
-            clave != consulta && palabras.all { it in clave }
-        }
+            clave != consulta && palabras.all { it in clave } }
         // Primero las que empiezan con lo escrito.
         return coincidencias
             .sortedByDescending { normalizar(it).startsWith(consulta) }
-            .take(limite)
-    }
+            .take(limite) }
 
+    // Pasa a minúsculas, quita acentos y espacios repetidos para comparar textos.
     private fun normalizar(texto: String): String {
         return Normalizer.normalize(texto.trim().lowercase(), Normalizer.Form.NFD)
             .replace(Regex("\\p{Mn}+"), "")
-            .replace(Regex("\\s+"), " ")
-    }
-}
+            .replace(Regex("\\s+"), " ") } }

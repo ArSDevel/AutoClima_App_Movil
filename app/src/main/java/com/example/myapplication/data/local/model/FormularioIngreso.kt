@@ -28,8 +28,7 @@ data class FormularioIngreso(
             else if (!placaValida(placa)) { errores["placa"] = MENSAJE_PLACA }
             if (modelo.isBlank()) { errores["modelo"] = "Escribe el modelo." }
             if (nombre.isBlank()) { errores["nombre"] = "Escribe el nombre del cliente." }
-            if (interpretarFecha(fecha) == null) { errores["fecha"] = "Escribe una fecha válida con formato dd/MM/aaaa." }
-        }
+            if (interpretarFecha(fecha) == null) { errores["fecha"] = "Escribe una fecha válida con formato dd/MM/aaaa." } }
 
         val telefonoLimpio = telefono.trim()
         val cantidadDigitos = telefonoLimpio.count { it in '0'..'9' }
@@ -38,15 +37,12 @@ data class FormularioIngreso(
                 ('+' !in telefonoLimpio || telefonoLimpio.startsWith("+"))
 
         if (cantidadDigitos !in 7..15 || !caracteresValidos || !signoMasValido) {
-            errores["telefono"] = "Escribe un teléfono de 7 a 15 dígitos."
-        }
+            errores["telefono"] = "Escribe un teléfono de 7 a 15 dígitos." }
 
         val emailLimpio = email.trim()
         if (emailLimpio.isNotEmpty() && !patronCorreo.matches(emailLimpio)) {
-            errores["email"] = "Revisa el correo electrónico."
-        }
-        return errores
-    }
+            errores["email"] = "Revisa el correo electrónico." }
+        return errores }
 
     companion object {
         const val MENSAJE_PLACA = "Revisa la placa. Ejemplos: ABC-123-D, A12-BCD, 123-ABC."
@@ -60,25 +56,21 @@ data class FormularioIngreso(
             if (!patronPlaca.matches(texto)) { return false }
             val compacta = texto.filter { it != '-' }
             return compacta.length in 5..7 &&
-                    compacta.any { it in 'A'..'Z' } && compacta.any { it in '0'..'9' }
-        }
+                    compacta.any { it in 'A'..'Z' } && compacta.any { it in '0'..'9' } }
 
         // Pasa a mayúsculas y quita lo que una placa no admite mientras se escribe.
         fun normalizarPlaca(valor: String): String {
-            return valor.uppercase(Locale.ROOT).filter { it in 'A'..'Z' || it in '0'..'9' || it == '-' }.take(9)
-        }
+            return valor.uppercase(Locale.ROOT).filter { it in 'A'..'Z' || it in '0'..'9' || it == '-' }.take(9) }
 
         private const val PATRON_FECHA = "dd/MM/yyyy"
         private val patronFecha = Regex("[0-9]{2}/[0-9]{2}/[0-9]{4}")
         // Validación básica de formato, no comprueba que el correo exista.
         private val patronCorreo = Regex("""^[^\s@]+@[^\s@]+\.[^\s@]+$""")
         private fun crearFormatoFecha(): SimpleDateFormat {
-            return SimpleDateFormat(PATRON_FECHA, Locale.ROOT).apply { isLenient = false }
-        }
+            return SimpleDateFormat(PATRON_FECHA, Locale.ROOT).apply { isLenient = false } }
         fun fechaActual(): String { return formatearFecha(System.currentTimeMillis()) }
         fun formatearFecha(milisegundos: Long): String {
-            return crearFormatoFecha().format(Date(milisegundos))
-        }
+            return crearFormatoFecha().format(Date(milisegundos)) }
 
         // Interpreta una fecha en la zona horaria del dispositivo.
         // Devuelve null si el texto está incompleto o si la fecha o existe, por ejemplo 31/02/2026.
@@ -88,7 +80,4 @@ data class FormularioIngreso(
 
             val posicion = ParsePosition(0)
             val resultado = crearFormatoFecha().parse(valor, posicion)
-            return resultado?.takeIf { posicion.index == valor.length }
-        }
-    }
-}
+            return resultado?.takeIf { posicion.index == valor.length } } } }

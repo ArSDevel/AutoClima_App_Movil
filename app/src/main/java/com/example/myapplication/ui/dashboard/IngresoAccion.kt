@@ -22,5 +22,4 @@ enum class IngresoAccion {
     CANCELAR,
     ELIMINAR,
     // Corrección de registros con estado desconocido
-    REGULARIZAR_ESTADO
-}
+    REGULARIZAR_ESTADO }

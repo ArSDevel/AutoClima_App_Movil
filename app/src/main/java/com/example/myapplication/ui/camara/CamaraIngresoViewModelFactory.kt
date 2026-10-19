@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.data.local.repository.EvidenciaRepository
 
+// Crea el ViewModel de fotografías para un ingreso.
 class CamaraIngresoViewModelFactory(
     private val ingresoId: Long,
     private val repository: EvidenciaRepository
@@ -14,18 +15,13 @@ class CamaraIngresoViewModelFactory(
     ): T {
         if (
             modelClass.isAssignableFrom(
-                CamaraIngresoViewModel::class.java
-            )
+                CamaraIngresoViewModel::class.java)
         ) {
             @Suppress("UNCHECKED_CAST")
             return CamaraIngresoViewModel(
                 ingresoId = ingresoId,
                 repository = repository
-            ) as T
-        }
+            ) as T }
 
         throw IllegalArgumentException(
-            "ViewModel desconocido: ${modelClass.name}"
-        )
-    }
-}
+            "ViewModel desconocido: ${modelClass.name}") } }

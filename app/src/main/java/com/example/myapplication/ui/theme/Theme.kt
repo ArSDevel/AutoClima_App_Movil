@@ -64,8 +64,7 @@ private val LightColorScheme = lightColorScheme(
     errorContainer = AutoClimasErrorContainer,
     onErrorContainer = AutoClimasOnErrorContainer,
     // Capa que oscurece el contenido detrás de un modal
-    scrim = Color.Black
-)
+    scrim = Color.Black)
 
 
 // Tema oscuro
@@ -115,8 +114,7 @@ private val DarkColorScheme = darkColorScheme(
     onError = AutoClimasOnErrorDark,
     errorContainer = AutoClimasErrorContainerDark,
     onErrorContainer = AutoClimasOnErrorContainerDark,
-    scrim = Color.Black
-)
+    scrim = Color.Black)
 
 // Tema de la aplicación
 @Composable
@@ -131,17 +129,13 @@ fun MyApplicationTheme(
             if (darkTheme) {
                 dynamicDarkColorScheme(context)
             } else {
-                dynamicLightColorScheme(context)
-            }
-        }
+                dynamicLightColorScheme(context) } }
         darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+        else -> LightColorScheme }
     val estadoColors = if (darkTheme) {
         DarkEstadoIngresoColors
     } else {
-        LightEstadoIngresoColors
-    }
+        LightEstadoIngresoColors }
     CompositionLocalProvider(
         LocalEstadoIngresoColors provides estadoColors,
         LocalAutoClimasDark provides darkTheme
@@ -150,7 +144,4 @@ fun MyApplicationTheme(
             colorScheme = colorScheme,
             typography = Typography,
             shapes = AutoClimasShapes,
-            content = content
-        )
-    }
-}
+            content = content) } }

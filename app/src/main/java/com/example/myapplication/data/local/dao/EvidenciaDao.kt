@@ -6,6 +6,7 @@ import androidx.room.Query
 import com.example.myapplication.data.local.entity.Evidencia
 import kotlinx.coroutines.flow.Flow
 
+// Consultas y cambios de las fotografías de los ingresos.
 @Dao
 interface EvidenciaDao {
 
@@ -20,8 +21,7 @@ interface EvidenciaDao {
         SELECT *
         FROM tabla_evidencias
         ORDER BY fecha DESC, id DESC
-        """
-    )
+        """)
     fun obtenerTodas(): Flow<List<Evidencia>>
 
     // Observa las fotografías del ingreso seleccionado.
@@ -31,8 +31,7 @@ interface EvidenciaDao {
         FROM tabla_evidencias
         WHERE ingresoId = :ingresoId
         ORDER BY fecha DESC, id DESC
-        """
-    )
+        """)
     fun observarPorIngreso(
         ingresoId: Long
     ): Flow<List<Evidencia>>
@@ -44,8 +43,7 @@ interface EvidenciaDao {
         FROM tabla_evidencias
         WHERE ingresoId IS NULL
         ORDER BY id DESC
-        """
-    )
+        """)
     fun observarSinAsignar(): Flow<List<Evidencia>>
 
     // Obtiene una evidencia por su identificador.
@@ -54,8 +52,7 @@ interface EvidenciaDao {
         SELECT *
         FROM tabla_evidencias
         WHERE id = :evidenciaId
-        """
-    )
+        """)
     suspend fun obtener(evidenciaId: Int): Evidencia?
 
     // Permite reconocer un guardado ya realizado.
@@ -66,8 +63,7 @@ interface EvidenciaDao {
         WHERE rutaImagen = :ruta
         ORDER BY id ASC
         LIMIT 1
-        """
-    )
+        """)
     suspend fun buscarPorRuta(ruta: String): Evidencia?
 
     // Comprueba si el ingreso tiene fotografías asociadas.
@@ -76,19 +72,20 @@ interface EvidenciaDao {
         SELECT COUNT(*)
         FROM tabla_evidencias
         WHERE ingresoId = :ingresoId
-        """
-    )
+        """)
     suspend fun contarPorIngreso(ingresoId: Long): Int
 
+    // Lista las fotografías de un ingreso.
     @Query("SELECT * FROM tabla_evidencias WHERE ingresoId = :ingresoId ORDER BY fecha DESC, id DESC")
     suspend fun obtenerPorIngreso(ingresoId: Long): List<Evidencia>
 
+    // Elimina una fotografía de un ingreso y devuelve las filas afectadas.
     @Query("DELETE FROM tabla_evidencias WHERE id = :id AND ingresoId = :ingresoId")
     suspend fun eliminar(id: Int, ingresoId: Long): Int
 
+    // Cuenta cuántos registros usan una misma ruta de archivo.
     @Query("""SELECT
         (SELECT COUNT(*) FROM tabla_evidencias WHERE rutaImagen = :ruta) +
         (SELECT COUNT(*) FROM ingreso WHERE fotoPath = :ruta)
     """)
-    suspend fun contarReferenciasRuta(ruta: String): Int
-}
+    suspend fun contarReferenciasRuta(ruta: String): Int }

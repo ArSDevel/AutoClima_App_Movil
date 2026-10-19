@@ -9,64 +9,54 @@ object ReglasIngreso {
         return estado in setOf(
             EstadoIngreso.REGISTRADO,
             EstadoIngreso.EN_REVISION,
-            EstadoIngreso.EN_REPARACION
-        )
-    }
+            EstadoIngreso.EN_REPARACION) }
 
     // En estas etapas solo se permite corregir teléfono y correo.
     fun soloContacto(estado: EstadoIngreso): Boolean {
         return estado in setOf(
             EstadoIngreso.LISTO_PARA_FIRMA,
             EstadoIngreso.LISTO_PARA_ENTREGA,
-            EstadoIngreso.NO_DISPONIBLE
-        )
-    }
+            EstadoIngreso.NO_DISPONIBLE) }
 
+    // Un ingreso se puede editar si permite edición completa o solo de contacto.
     fun editar(estado: EstadoIngreso): Boolean {
-        return edicionCompleta(estado) || soloContacto(estado)
-    }
+        return edicionCompleta(estado) || soloContacto(estado) }
 
     // La cancelación se permite antes de comenzar la reparación.
     fun cancelar(estado: EstadoIngreso): Boolean {
         return estado in setOf(
             EstadoIngreso.REGISTRADO,
-            EstadoIngreso.EN_REVISION
-        )
-    }
+            EstadoIngreso.EN_REVISION) }
 
     // Solo se puede eliminar una captura registrada que no tenga actividad posterior a su creación.
     fun eliminar(estado: EstadoIngreso, tieneActividadPosterior: Boolean): Boolean {
-        return estado == EstadoIngreso.REGISTRADO && !tieneActividadPosterior
-    }
+        return estado == EstadoIngreso.REGISTRADO && !tieneActividadPosterior }
 
+    // Solo un ingreso registrado puede pasar a revisión.
     fun iniciarRevision(estado: EstadoIngreso): Boolean {
-        return estado == EstadoIngreso.REGISTRADO
-    }
+        return estado == EstadoIngreso.REGISTRADO }
 
     // Avanza de la revisión a la reparación. Requiere el checklist guardado.
     fun iniciarReparacion(estado: EstadoIngreso): Boolean {
-        return estado == EstadoIngreso.EN_REVISION
-    }
+        return estado == EstadoIngreso.EN_REVISION }
 
     // Termina la reparación y pasa a firma. Requiere el diagnóstico guardado.
     fun enviarAFirma(estado: EstadoIngreso): Boolean {
-        return estado == EstadoIngreso.EN_REPARACION
-    }
+        return estado == EstadoIngreso.EN_REPARACION }
 
+    // Desde listo para firma se puede regresar a reparación.
     fun devolverAReparacion(estado: EstadoIngreso): Boolean {
-        return estado == EstadoIngreso.LISTO_PARA_FIRMA
-    }
+        return estado == EstadoIngreso.LISTO_PARA_FIRMA }
 
+    // Un ingreso con estado desconocido se puede regularizar.
     fun regularizarEstado(estado: EstadoIngreso): Boolean {
-        return estado == EstadoIngreso.NO_DISPONIBLE
-    }
+        return estado == EstadoIngreso.NO_DISPONIBLE }
 
+    // Un ingreso entregado o cancelado ya no admite cambios.
     fun estaCerrado(estado: EstadoIngreso): Boolean {
         return estado in setOf(
             EstadoIngreso.ENTREGADO,
-            EstadoIngreso.CANCELADO
-        )
-    }
+            EstadoIngreso.CANCELADO) }
 
     // Cambios de estado que se confirman con un motivo.
     // Firma y entrega se incorporarán cuando sus módulos estén desarrollados.
@@ -79,16 +69,11 @@ object ReglasIngreso {
             EstadoIngreso.LISTO_PARA_FIRMA -> enviarAFirma(origen)
             EstadoIngreso.LISTO_PARA_ENTREGA,
             EstadoIngreso.ENTREGADO,
-            EstadoIngreso.NO_DISPONIBLE -> false
-        }
-    }
+            EstadoIngreso.NO_DISPONIBLE -> false } }
 
     // Detiene la operación si el cambio no está permitido o no se proporcionó un motivo
     fun validarTransicion(origen: EstadoIngreso, destino: EstadoIngreso, motivo: String) {
         require(puedeCambiarEstado(origen, destino)) {
             "El cambio de estado no está permitido o requiere " +
-                    "completar los módulos técnicos correspondientes."
-        }
-        require(motivo.isNotBlank()) { "Escribe un motivo para registrar el cambio." }
-    }
-}
+                    "completar los módulos técnicos correspondientes." }
+        require(motivo.isNotBlank()) { "Escribe un motivo para registrar el cambio." } } }

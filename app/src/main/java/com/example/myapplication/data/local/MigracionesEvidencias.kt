@@ -7,18 +7,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 // hacia la versión que incorpora evidencias asociadas a ingresos.
 val MIGRATION_6_9 = object : Migration(6, 9) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        prepararEvidenciasVersion9(db)
-    }
-}
+        prepararEvidenciasVersion9(db) } }
 
 // Actualiza la versión incluida en el proyecto de cámara.
 // Conserva las fotografías que ya estaban registradas.
 val MIGRATION_8_9 = object : Migration(8, 9) {
     override fun migrate(db: SupportSQLiteDatabase) {
-        prepararEvidenciasVersion9(db)
-    }
-}
+        prepararEvidenciasVersion9(db) } }
 
+// Crea o completa la tabla de evidencias y la columna fotoPath.
 private fun prepararEvidenciasVersion9(
     db: SupportSQLiteDatabase
 ) {
@@ -29,9 +26,7 @@ private fun prepararEvidenciasVersion9(
             """
             ALTER TABLE ingreso
             ADD COLUMN fotoPath TEXT
-            """.trimIndent()
-        )
-    }
+            """.trimIndent()) }
 
     // En la versión 6 todavía no existía esta tabla.
     // En la versión 8 se conserva la tabla y sus registros.
@@ -41,8 +36,7 @@ private fun prepararEvidenciasVersion9(
             id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
             rutaImagen TEXT NOT NULL
         )
-        """.trimIndent()
-    )
+        """.trimIndent())
 
     // Las fotografías anteriores permanecen sin asignar.
     // No es posible deducir a qué ingreso pertenecían.
@@ -53,40 +47,35 @@ private fun prepararEvidenciasVersion9(
         REFERENCES ingreso (ingresoId)
         ON UPDATE NO ACTION
         ON DELETE RESTRICT
-        """.trimIndent()
-    )
+        """.trimIndent())
 
     // Los datos desconocidos de fotografías antiguas quedan en null.
     db.execSQL(
         """
         ALTER TABLE tabla_evidencias
         ADD COLUMN tecnicoId INTEGER
-        """.trimIndent()
-    )
+        """.trimIndent())
 
     db.execSQL(
         """
         ALTER TABLE tabla_evidencias
         ADD COLUMN fecha INTEGER
-        """.trimIndent()
-    )
+        """.trimIndent())
 
     db.execSQL(
         """
         ALTER TABLE tabla_evidencias
         ADD COLUMN descripcion TEXT NOT NULL DEFAULT ''
-        """.trimIndent()
-    )
+        """.trimIndent())
 
     // Facilita las consultas de fotografías por ingreso.
     db.execSQL(
         """
         CREATE INDEX index_tabla_evidencias_ingresoId
         ON tabla_evidencias (ingresoId)
-        """.trimIndent()
-    )
-}
+        """.trimIndent()) }
 
+// Indica si la tabla ingreso ya tiene la columna fotoPath.
 private fun existeColumnaFotoPath(
     db: SupportSQLiteDatabase
 ): Boolean {
@@ -95,10 +84,6 @@ private fun existeColumnaFotoPath(
 
         while (cursor.moveToNext()) {
             if (cursor.getString(indiceNombre) == "fotoPath") {
-                return true
-            }
-        }
-    }
+                return true } } }
 
-    return false
-}
+    return false }

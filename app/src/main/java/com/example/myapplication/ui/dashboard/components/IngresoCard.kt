@@ -55,8 +55,7 @@ fun IngresoCard(
     val estado = EstadoIngreso.desdeValor(ingreso.estado)
     val locale = LocalConfiguration.current.locales[0]
     val fechaFormateada = remember(ingreso.fechaEntrada, locale) {
-        DateFormat.getDateInstance(DateFormat.MEDIUM, locale).format(Date(ingreso.fechaEntrada))
-    }
+        DateFormat.getDateInstance(DateFormat.MEDIUM, locale).format(Date(ingreso.fechaEntrada)) }
     val vehiculo = listOfNotNull(
         ingreso.modelo.takeIf { it.isNotBlank() },
         ingreso.color?.takeIf { it.isNotBlank() }
@@ -71,8 +70,7 @@ fun IngresoCard(
             containerColor = colors.surface,
             contentColor = colors.onSurface,
             disabledContainerColor = colors.surface,
-            disabledContentColor = colors.onSurface
-        ),
+            disabledContentColor = colors.onSurface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
@@ -93,38 +91,27 @@ fun IngresoCard(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                        overflow = TextOverflow.Ellipsis)
                     Text(
                         text = vehiculo,
                         style = MaterialTheme.typography.bodyMedium,
                         color = colors.onSurfaceVariant,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    PildoraEstado(estado = estado)
-                }
+                        overflow = TextOverflow.Ellipsis)
+                    PildoraEstado(estado = estado) }
                 Column {
                     if (onVerFotos != null) {
                         IconButton(onClick = { onVerFotos(ingreso.ingresoId) }) {
                             Icon(
                                 imageVector = Icons.Default.CameraAlt,
                                 contentDescription = stringResource(R.string.fotos_card_action),
-                                tint = colors.primary
-                            )
-                        }
-                    }
+                                tint = colors.primary) } }
                     if (onEditar != null) {
                         IconButton(onClick = { onEditar(ingreso.ingresoId) }) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = stringResource(R.string.dashboard_action_edit),
-                                tint = colors.primary
-                            )
-                        }
-                    }
-                }
-            }
+                                tint = colors.primary) } } } }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
@@ -134,16 +121,14 @@ fun IngresoCard(
                     verticalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     DatoBreve(icono = Icons.Default.Person, texto = ingreso.nombreCliente)
-                    DatoBreve(icono = Icons.Default.DateRange, texto = fechaFormateada)
-                }
+                    DatoBreve(icono = Icons.Default.DateRange, texto = fechaFormateada) }
                 // Siguiente paso del ingreso: checklist en revisión, diagnóstico en reparación.
                 val (textoAccion, abrirAccion) = when {
                     estado == EstadoIngreso.EN_REVISION && onAbrirChecklist != null ->
                         R.string.dashboard_action_checklist to onAbrirChecklist
                     estado == EstadoIngreso.EN_REPARACION && onAbrirDiagnostico != null ->
                         R.string.dashboard_action_diagnosis to onAbrirDiagnostico
-                    else -> R.string.dashboard_card_view_detail to onVerDetalle
-                }
+                    else -> R.string.dashboard_card_view_detail to onVerDetalle }
                 if (abrirAccion != null) {
                     Button(
                         onClick = { abrirAccion(ingreso.ingresoId) },
@@ -154,14 +139,7 @@ fun IngresoCard(
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
                             contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+                            modifier = Modifier.size(18.dp)) } } } } } }
 
 // Dato con icono y sin etiqueta.
 @Composable
@@ -174,17 +152,13 @@ private fun DatoBreve(icono: ImageVector, texto: String) {
             imageVector = icono,
             contentDescription = null,
             modifier = Modifier.size(16.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(
             text = texto,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
+            overflow = TextOverflow.Ellipsis) } }
 
 // Datos exclusivos de las previews.
 private val ingresoEjemplo = IngresoResumen(
@@ -197,9 +171,9 @@ private val ingresoEjemplo = IngresoResumen(
     telefonoCliente = "8100000000",
     emailCliente = null,
     fechaEntrada = 1788955200000L,
-    estado = EstadoIngreso.EN_REVISION.name
-)
+    estado = EstadoIngreso.EN_REVISION.name)
 
+// Vista previa de la tarjeta en modo claro.
 @Preview(name = "Ingreso · claro", showBackground = true, widthDp = 360)
 @Composable
 private fun IngresoCardClaroPreview() {
@@ -209,11 +183,9 @@ private fun IngresoCardClaroPreview() {
             modifier = Modifier.padding(16.dp),
             onVerDetalle = {},
             onVerFotos = {},
-            onEditar = {}
-        )
-    }
-}
+            onEditar = {}) } }
 
+// Vista previa de la tarjeta en modo oscuro.
 @Preview(name = "Ingreso · oscuro", showBackground = true, widthDp = 360)
 @Composable
 private fun IngresoCardOscuraPreview() {
@@ -223,7 +195,4 @@ private fun IngresoCardOscuraPreview() {
             modifier = Modifier.padding(16.dp),
             onVerDetalle = {},
             onVerFotos = {},
-            onEditar = {}
-        )
-    }
-}
+            onEditar = {}) } }

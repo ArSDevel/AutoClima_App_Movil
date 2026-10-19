@@ -68,19 +68,14 @@ fun CotizacionDiagnostico(
                     text = stringResource(R.string.diagnostico_quote_title).uppercase(),
                     style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
                     fontWeight = FontWeight.Bold,
-                    color = com.example.myapplication.ui.components.colorTituloSeccion()
-                )
+                    color = com.example.myapplication.ui.components.colorTituloSeccion())
                 if (!soloLectura) {
                     IconButton(onClick = onAgregarConcepto, enabled = habilitado) {
                         Icon(Icons.Default.Add, contentDescription = stringResource(R.string.diagnostico_quote_add),
-                            tint = colors.primary)
-                    }
-                }
-            }
+                            tint = colors.primary) } } }
             if (formulario.conceptos.isEmpty()) {
                 Text(text = stringResource(R.string.diagnostico_quote_pending),
-                    style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
-            }
+                    style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant) }
             formulario.conceptos.forEachIndexed { indice, concepto ->
                 if (indice > 0) HorizontalDivider(color = colors.outlineVariant)
                 Row(
@@ -100,8 +95,7 @@ fun CotizacionDiagnostico(
                             capitalization = androidx.compose.ui.text.input.KeyboardCapitalization.Sentences,
                             imeAction = ImeAction.Next),
                         maxLines = 2,
-                        shape = MaterialTheme.shapes.small
-                    )
+                        shape = MaterialTheme.shapes.small)
                     OutlinedTextField(
                         value = concepto.importe,
                         onValueChange = { onImporteChange(indice, it) },
@@ -114,23 +108,16 @@ fun CotizacionDiagnostico(
                         supportingText = erroresCampos["conceptos.$indice.importe"]?.let { { Text("!") } },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                         singleLine = true,
-                        shape = MaterialTheme.shapes.small
-                    )
+                        shape = MaterialTheme.shapes.small)
                     if (!soloLectura) {
                         IconButton(onClick = { onEliminarConcepto(indice) }, enabled = habilitado) {
                             Icon(Icons.Default.Close,
                                 contentDescription = stringResource(R.string.diagnostico_concept_remove, indice + 1),
-                                tint = colors.onSurfaceVariant)
-                        }
-                    }
-                }
+                                tint = colors.onSurfaceVariant) } } }
                 erroresCampos["conceptos.$indice.importe"]?.let {
-                    Text(text = it, style = MaterialTheme.typography.bodySmall, color = colors.error)
-                }
-            }
+                    Text(text = it, style = MaterialTheme.typography.bodySmall, color = colors.error) } }
             erroresCampos["conceptos.total"]?.let { mensaje ->
-                Text(text = mensaje, style = MaterialTheme.typography.bodySmall, color = colors.error)
-            }
+                Text(text = mensaje, style = MaterialTheme.typography.bodySmall, color = colors.error) }
             if (formulario.tieneCotizacion) {
                 HorizontalDivider(color = colors.outline, thickness = 2.dp)
                 Row(
@@ -143,21 +130,13 @@ fun CotizacionDiagnostico(
                     Text(
                         text = if (totalCentavos != null) formatearImporte(totalCentavos) else "—",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-                }
+                        fontWeight = FontWeight.ExtraBold) }
                 // Si falta algún importe, el aviso va aparte y en pequeño.
                 if (totalCentavos == null) {
                     Text(
                         text = stringResource(R.string.diagnostico_quote_invalid_total),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
-                }
-            }
-        }
-    }
-}
+                        color = colors.onSurfaceVariant) } } } } }
 
 // Formatea centavos como pesos mexicanos sin convertir a Double.
 private fun formatearImporte(centavos: Long): String {
@@ -166,10 +145,7 @@ private fun formatearImporte(centavos: Long): String {
     ).apply {
         currency = Currency.getInstance("MXN")
         minimumFractionDigits = 2
-        maximumFractionDigits = 2
-    }
+        maximumFractionDigits = 2 }
 
     return formato.format(
-        BigDecimal.valueOf(centavos, 2)
-    )
-}
+        BigDecimal.valueOf(centavos, 2)) }

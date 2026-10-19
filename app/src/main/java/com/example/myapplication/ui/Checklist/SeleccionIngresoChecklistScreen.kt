@@ -60,9 +60,7 @@ fun SeleccionIngresoChecklistScreen(
         topBar = {
             EncabezadoAutoClimas(
                 titulo = stringResource(R.string.checklist_selector_title),
-                onVolver = onVolver
-            )
-        }
+                onVolver = onVolver) }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -83,8 +81,7 @@ fun SeleccionIngresoChecklistScreen(
 
                 com.example.myapplication.ui.dashboard.components.BuscadorIngreso(
                     textoBusqueda = estado.textoBusqueda,
-                    onBusquedaChange = viewModel::cambiarBusqueda
-                )
+                    onBusquedaChange = viewModel::cambiarBusqueda)
 
                 when {
                     estado.cargando -> {
@@ -94,9 +91,7 @@ fun SeleccionIngresoChecklistScreen(
                                 .weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+                            CircularProgressIndicator() } }
 
                     estado.hayError -> {
                         Column(
@@ -108,19 +103,12 @@ fun SeleccionIngresoChecklistScreen(
                         ) {
                             Text(
                                 stringResource(
-                                    R.string.checklist_selector_error
-                                )
-                            )
+                                    R.string.checklist_selector_error))
 
                             Button(onClick = viewModel::reintentar) {
                                 Text(
                                     stringResource(
-                                        R.string.checklist_retry
-                                    )
-                                )
-                            }
-                        }
-                    }
+                                        R.string.checklist_retry)) } } }
 
                     estado.ingresos.isEmpty() -> {
                         Text(
@@ -128,13 +116,9 @@ fun SeleccionIngresoChecklistScreen(
                                 if (estado.textoBusqueda.isBlank()) {
                                     R.string.checklist_selector_empty
                                 } else {
-                                    R.string.checklist_selector_no_results
-                                }
-                            ),
+                                    R.string.checklist_selector_no_results }),
                             modifier = Modifier.padding(vertical = 24.dp),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                            style = MaterialTheme.typography.bodyLarge) }
 
                     else -> {
                         LazyColumn(
@@ -148,13 +132,4 @@ fun SeleccionIngresoChecklistScreen(
                             ) { ingreso ->
                                 TarjetaSeleccionIngreso(
                                     ingreso = ingreso,
-                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }) } } } } } } } }

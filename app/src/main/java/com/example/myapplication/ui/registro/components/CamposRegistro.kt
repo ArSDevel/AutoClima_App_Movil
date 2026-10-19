@@ -51,24 +51,17 @@ internal fun CamposAdaptables(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Box(Modifier.weight(1f)) {
-                    primero()
-                }
+                    primero() }
 
                 Box(Modifier.weight(1f)) {
-                    segundo()
-                }
-            }
+                    segundo() } }
         } else {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 primero()
-                segundo()
-            }
-        }
-    }
-}
+                segundo() } } } }
 
 /*
  * Etiqueta externa y campo Material 3.
@@ -101,16 +94,12 @@ internal fun CampoRegistroTexto(
         ) {
             Text(
                 text = nombre,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp)
-            )
+                style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp))
             if (!obligatorio) {
                 Text(
                     text = stringResource(R.string.registro_optional),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+                    color = MaterialTheme.colorScheme.onSurfaceVariant) } }
 
         OutlinedTextField(
             value = valor,
@@ -121,8 +110,7 @@ internal fun CampoRegistroTexto(
             textStyle = if (destacado) {
                 MaterialTheme.typography.titleLarge.copy(letterSpacing = 1.sp)
             } else {
-                MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
-            },
+                MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp) },
             singleLine = !multilinea,
             minLines = if (multilinea) 3 else 1,
             isError = error != null,
@@ -131,11 +119,9 @@ internal fun CampoRegistroTexto(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
                 errorContainerColor = MaterialTheme.colorScheme.surface,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-            ),
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant),
             keyboardOptions = KeyboardOptions(
-                keyboardType = tipo
-            ),
+                keyboardType = tipo),
             trailingIcon = {
                 if (contenidoFinal != null) {
                     contenidoFinal()
@@ -147,31 +133,20 @@ internal fun CampoRegistroTexto(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(
                                 R.string.registro_clear_field,
-                                nombre
-                            )
-                        )
-                    }
-                }
-            }
-        )
+                                nombre)) } } })
 
         if (ayuda != null && error == null) {
             Text(
                 text = ayuda,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+                color = MaterialTheme.colorScheme.onSurfaceVariant) }
         if (error != null) {
             Text(
                 text = error,
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
+                style = MaterialTheme.typography.bodySmall) } } }
 
+// Campo de fecha que abre el selector de calendario.
 @Composable
 internal fun FechaRegistro(
     valor: String,
@@ -187,16 +162,14 @@ internal fun FechaRegistro(
     ) {
         Text(
             text = stringResource(R.string.dashboard_entry_date),
-            style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp)
-        )
+            style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp))
 
         OutlinedButton(
             enabled = habilitado,
             shape = MaterialTheme.shapes.small,
             colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
                 containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
+                contentColor = MaterialTheme.colorScheme.onSurface),
             border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp),
             modifier = Modifier
@@ -206,52 +179,38 @@ internal fun FechaRegistro(
                 val calendario = Calendar.getInstance()
 
                 FormularioIngreso.interpretarFecha(valor)?.let {
-                    calendario.time = it
-                }
+                    calendario.time = it }
 
                 DatePickerDialog(
                     context,
                     { _, anio, mes, dia ->
                         val seleccionada = Calendar.getInstance().apply {
                             clear()
-                            set(anio, mes, dia)
-                        }
+                            set(anio, mes, dia) }
 
                         onCambio(
                             FormularioIngreso.formatearFecha(
-                                seleccionada.timeInMillis
-                            )
-                        )
-                    },
+                                seleccionada.timeInMillis)) },
                     calendario.get(Calendar.YEAR),
                     calendario.get(Calendar.MONTH),
                     calendario.get(Calendar.DAY_OF_MONTH)
-                ).show()
-            }
+                ).show() }
         ) {
             Icon(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
 
             Spacer(Modifier.width(12.dp))
 
             Text(
                 text = valor.ifBlank {
-                    stringResource(R.string.registro_select_date)
-                },
+                    stringResource(R.string.registro_select_date) },
                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                modifier = Modifier.weight(1f)
-            )
-        }
+                modifier = Modifier.weight(1f)) }
 
         if (error != null) {
             Text(
                 text = error,
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
-        }
-    }
-}
+                style = MaterialTheme.typography.bodySmall) } } }

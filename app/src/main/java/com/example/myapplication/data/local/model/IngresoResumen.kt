@@ -15,5 +15,4 @@ data class IngresoResumen(
     val estado: String = EstadoIngreso.NO_DISPONIBLE.name,
     val motivoIngreso: String? = null,
     val condicionInicial: String? = null,
-    val fotoPath: String? = null
-)
+    val fotoPath: String? = null)

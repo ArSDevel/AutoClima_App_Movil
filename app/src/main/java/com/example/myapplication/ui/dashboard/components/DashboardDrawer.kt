@@ -107,9 +107,7 @@ fun DashboardDrawer(
                     com.example.myapplication.ui.components.LogoAutoClimas(
                         sobreFondoOscuro = false,
                         descripcion = stringResource(R.string.dashboard_logo_description),
-                        modifier = Modifier.size(54.dp)
-                    )
-                }
+                        modifier = Modifier.size(54.dp)) }
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(
                         text = com.example.myapplication.ui.components.nombreCortoTecnico(
@@ -117,9 +115,7 @@ fun DashboardDrawer(
                         ) ?: stringResource(R.string.dashboard_title),
                         style = typography.titleLarge, color = Color.White, maxLines = 1)
                     Text(text = stringResource(R.string.drawer_role),
-                        style = typography.bodyMedium, color = Color(0xFFDBEAFE))
-                }
-            }
+                        style = typography.bodyMedium, color = Color(0xFFDBEAFE)) } }
 
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
@@ -138,10 +134,7 @@ fun DashboardDrawer(
                     OpcionPrincipalDrawer(
                         opcion = opcion,
                         seleccionada = opcionSeleccionada == opcion,
-                        onClick = { onOpcionSeleccionada(opcion) }
-                    )
-                }
-            }
+                        onClick = { onOpcionSeleccionada(opcion) }) } }
 
             HorizontalDivider(color = colors.outlineVariant)
             // Acción independiente de las secciones.
@@ -160,12 +153,7 @@ fun DashboardDrawer(
                         contentDescription = null,
                         modifier = Modifier.size(22.dp))
                     Spacer(modifier = Modifier.width(12.dp))
-                    Text(text = stringResource(R.string.dashboard_logout), style = typography.labelLarge)
-                }
-            }
-        }
-    }
-}
+                    Text(text = stringResource(R.string.dashboard_logout), style = typography.labelLarge) } } } } }
 
 // Acceso del menú: icono y nombre. El seleccionado lleva fondo azul claro.
 // Firma sigue en desarrollo, por eso se muestra atenuada y sin acción.
@@ -190,23 +178,17 @@ private fun OpcionPrincipalDrawer(
         Icon(
             imageVector = iconoDrawer(opcion), contentDescription = null,
             tint = if (seleccionada) colors.primary else colors.onSurfaceVariant,
-            modifier = Modifier.size(24.dp).alpha(if (disponible) 1f else 0.5f)
-        )
+            modifier = Modifier.size(24.dp).alpha(if (disponible) 1f else 0.5f))
         Text(
             text = stringResource(etiquetaDrawer(opcion)),
             style = MaterialTheme.typography.titleSmall.copy(fontSize = 16.sp),
             color = color.copy(alpha = if (disponible) 1f else 0.5f),
-            modifier = Modifier.weight(1f)
-        )
+            modifier = Modifier.weight(1f))
         if (!disponible) {
             Text(
                 text = stringResource(R.string.in_development),
                 style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant
-            )
-        }
-    }
-}
+                color = colors.onSurfaceVariant) } } }
 
 // Elemento informativo sin acción de navegación.
 // También se identifica como no disponible para accesibilidad.
@@ -222,10 +204,9 @@ private fun OpcionPendienteDrawer(
         Icon(imageVector = iconoDrawer(opcion), contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
         Text(text = stringResource(etiquetaDrawer(opcion)), style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-    }
-}
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f)) } }
 
+// Nombre de cada opción del menú.
 @StringRes
 private fun etiquetaDrawer(opcion: DashboardMenuOption): Int {
     return when (opcion) {
@@ -235,10 +216,9 @@ private fun etiquetaDrawer(opcion: DashboardMenuOption): Int {
         DashboardMenuOption.EVIDENCIAS -> R.string.dashboard_menu_evidence
         DashboardMenuOption.DIAGNOSTICO -> R.string.dashboard_menu_diagnosis
         DashboardMenuOption.FIRMA -> R.string.dashboard_menu_signature
-        DashboardMenuOption.HISTORIAL -> R.string.dashboard_menu_history
-    }
-}
+        DashboardMenuOption.HISTORIAL -> R.string.dashboard_menu_history } }
 
+// Icono de cada opción del menú.
 private fun iconoDrawer(
     opcion: DashboardMenuOption
 ): ImageVector {
@@ -249,57 +229,46 @@ private fun iconoDrawer(
         DashboardMenuOption.EVIDENCIAS -> Icons.Outlined.PhotoCamera
         DashboardMenuOption.DIAGNOSTICO -> Icons.Outlined.Description
         DashboardMenuOption.FIRMA -> Icons.Outlined.Draw
-        DashboardMenuOption.HISTORIAL -> Icons.Outlined.Schedule
-    }
-}
+        DashboardMenuOption.HISTORIAL -> Icons.Outlined.Schedule } }
 
+// Vista previa del menú en modo claro.
 @Preview(
     name = "Menú lateral · claro",
     showBackground = true,
     widthDp = 320,
-    heightDp = 900
-)
+    heightDp = 900)
 @Composable
 private fun DashboardDrawerPreview() {
     MyApplicationTheme(darkTheme = false) {
         DashboardDrawer(
             opcionSeleccionada = DashboardMenuOption.DASHBOARD,
             onOpcionSeleccionada = {},
-            onLogout = {}
-        )
-    }
-}
+            onLogout = {}) } }
 
+// Vista previa del menú en modo oscuro.
 @Preview(
     name = "Menú lateral · oscuro",
     showBackground = true,
     widthDp = 320,
-    heightDp = 900
-)
+    heightDp = 900)
 @Composable
 private fun DashboardDrawerOscuroPreview() {
     MyApplicationTheme(darkTheme = true) {
         DashboardDrawer(
             opcionSeleccionada = DashboardMenuOption.REGISTRO,
             onOpcionSeleccionada = {},
-            onLogout = {}
-        )
-    }
-}
+            onLogout = {}) } }
 
+// Vista previa del menú en una pantalla baja.
 @Preview(
     name = "Menú lateral · pantalla baja",
     showBackground = true,
     widthDp = 320,
-    heightDp = 400
-)
+    heightDp = 400)
 @Composable
 private fun DashboardDrawerCompactoPreview() {
     MyApplicationTheme(darkTheme = true) {
         DashboardDrawer(
             opcionSeleccionada = DashboardMenuOption.DASHBOARD,
             onOpcionSeleccionada = {},
-            onLogout = {}
-        )
-    }
-}
+            onLogout = {}) } }

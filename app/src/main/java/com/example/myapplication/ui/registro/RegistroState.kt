@@ -66,8 +66,4 @@ data class RegistroUiState(
             email = emailCliente,
             fecha = fechaEntrada,
             motivo = motivoIngreso,
-            condicion = condicionInicial,
-
-            )
-    }
-}
+            condicion = condicionInicial) } }

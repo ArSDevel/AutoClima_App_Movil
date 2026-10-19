@@ -97,8 +97,7 @@ fun DiagnosticoScreen(
     val colors = MaterialTheme.colorScheme
 
     var confirmarSalida by rememberSaveable {
-        mutableStateOf(false)
-    }
+        mutableStateOf(false) }
 
     // Comparte la validación de salida entre la flecha superior
     // y el botón o gesto de regreso del dispositivo.
@@ -107,14 +106,10 @@ fun DiagnosticoScreen(
             if (estado.tieneCambiosSinGuardar) {
                 confirmarSalida = true
             } else {
-                onVolver()
-            }
-        }
-    }
+                onVolver() } } }
 
     BackHandler {
-        solicitarSalida()
-    }
+        solicitarSalida() }
 
     Scaffold(
         topBar = {
@@ -122,9 +117,7 @@ fun DiagnosticoScreen(
                 titulo = stringResource(R.string.diagnostico_title),
                 onVolver = solicitarSalida,
                 habilitado = !estado.guardando && !estadoFotos.guardando,
-                subtitulo = estado.ingreso?.let { listOf(it.placa, it.nombreCliente).filter { t -> t.isNotBlank() }.joinToString(" · ") }
-            )
-        },
+                subtitulo = estado.ingreso?.let { listOf(it.placa, it.nombreCliente).filter { t -> t.isNotBlank() }.joinToString(" · ") }) },
         bottomBar = {
             if (estado.reporteDisponible) {
                 BarraAccionInferior {
@@ -137,8 +130,7 @@ fun DiagnosticoScreen(
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Icon(Icons.AutoMirrored.Filled.Send,
-                            contentDescription = stringResource(R.string.whatsapp_pending))
-                    }
+                            contentDescription = stringResource(R.string.whatsapp_pending)) }
                     if (estado.permiteEdicion) {
                         Button(
                             onClick = { viewModel.guardar(tecnicoId) },
@@ -150,25 +142,15 @@ fun DiagnosticoScreen(
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(20.dp),
                                     strokeWidth = 2.dp,
-                                    color = colors.onPrimary
-                                )
-                                Spacer(Modifier.width(12.dp))
-                            }
+                                    color = colors.onPrimary)
+                                Spacer(Modifier.width(12.dp)) }
                             Text(
                                 text = stringResource(
                                     when {
                                         estado.guardando -> R.string.diagnostico_saving
                                         estado.diagnosticoId != null -> R.string.diagnostico_save_changes
-                                        else -> R.string.diagnostico_save
-                                    }
-                                ),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
-                }
-            }
-        }
+                                        else -> R.string.diagnostico_save }),
+                                style = MaterialTheme.typography.titleMedium) } } } } }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -197,12 +179,7 @@ fun DiagnosticoScreen(
 
                             Text(
                                 stringResource(
-                                    R.string.diagnostico_loading
-                                )
-                            )
-                        }
-                    }
-                }
+                                    R.string.diagnostico_loading)) } } }
 
                 estado.errorCarga != null ||
                         estado.ingresoNoEncontrado -> {
@@ -220,18 +197,14 @@ fun DiagnosticoScreen(
                         ) {
                             Text(
                                 text = stringResource(
-                                    R.string.diagnostico_load_error_title
-                                ),
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                                    R.string.diagnostico_load_error_title),
+                                style = MaterialTheme.typography.titleMedium)
 
                             Text(
                                 text = estado.errorCarga
                                     ?: stringResource(
-                                        R.string.diagnostico_not_found
-                                    ),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                                        R.string.diagnostico_not_found),
+                                style = MaterialTheme.typography.bodyMedium)
 
                             Button(
                                 onClick = viewModel::reintentarCarga,
@@ -239,13 +212,7 @@ fun DiagnosticoScreen(
                             ) {
                                 Text(
                                     stringResource(
-                                        R.string.diagnostico_retry
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
+                                        R.string.diagnostico_retry)) } } } }
 
                 estado.reporteDisponible -> {
                     val ingreso = estado.ingreso
@@ -277,21 +244,14 @@ fun DiagnosticoScreen(
                                                 text = stringResource(
                                                     if (!estado.tieneChecklist) R.string.diagnostico_requires_checklist
                                                     else R.string.diagnostico_read_only),
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                                                style = MaterialTheme.typography.bodyMedium) } } } }
 
                             item(key = "hallazgos") {
                                 CajaHallazgos(
                                     estado = estado,
                                     fotos = estadoFotos.evidencias.map { it.rutaImagen },
                                     onAbrirChecklist = onAbrirChecklist,
-                                    onAbrirEvidencias = onAbrirEvidencias
-                                )
-                            }
+                                    onAbrirEvidencias = onAbrirEvidencias) }
 
                             item(key = "observaciones") {
                                 Surface(
@@ -308,8 +268,7 @@ fun DiagnosticoScreen(
                                             text = stringResource(R.string.diagnostico_notes_title).uppercase(),
                                             style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
                                             fontWeight = FontWeight.Bold,
-                                            color = com.example.myapplication.ui.components.colorTituloSeccion()
-                                        )
+                                            color = com.example.myapplication.ui.components.colorTituloSeccion())
                                         OutlinedTextField(
                                             value = estado.observaciones,
                                             onValueChange = viewModel::onObservacionesChange,
@@ -317,11 +276,7 @@ fun DiagnosticoScreen(
                                             enabled = !estado.guardando && !estadoFotos.guardando,
                                             readOnly = !estado.puedeModificar,
                                             minLines = 3,
-                                            shape = MaterialTheme.shapes.small
-                                        )
-                                    }
-                                }
-                            }
+                                            shape = MaterialTheme.shapes.small) } } }
 
                             item(key = "cotizacion") {
                                 CotizacionDiagnostico(
@@ -332,22 +287,12 @@ fun DiagnosticoScreen(
                                     onEliminarConcepto = viewModel::eliminarConcepto,
                                     habilitado = !estado.guardando && !estado.guardadoExitoso,
                                     soloLectura = !estado.permiteEdicion,
-                                    erroresCampos = estado.erroresCampos
-                                )
-                            }
+                                    erroresCampos = estado.erroresCampos) }
 
                             estado.errorGuardado?.let { mensaje ->
                                 item(key = "error_guardado") {
                                     Text(text = mensaje, style = MaterialTheme.typography.bodyMedium,
-                                        color = colors.error)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+                                        color = colors.error) } } } } } } } }
 
     // Advierte antes de descartar notas o cambios en la cotización.
     if (confirmarSalida) {
@@ -360,9 +305,7 @@ fun DiagnosticoScreen(
                 onVolver() },
             textoPrincipal = stringResource(R.string.diagnostico_keep_editing),
             onPrincipal = { confirmarSalida = false },
-            onDismiss = { confirmarSalida = false }
-        )
-    }
+            onDismiss = { confirmarSalida = false }) }
 
     // Se muestra cuando finaliza el guardado.
     if (estado.guardadoExitoso && !estado.guardando) {
@@ -375,10 +318,7 @@ fun DiagnosticoScreen(
             textoPrincipal = stringResource(R.string.diagnostico_back),
             onPrincipal = { viewModel.consumirGuardadoExitoso()
                 onVolver() },
-            onDismiss = viewModel::consumirGuardadoExitoso
-        )
-    }
-}
+            onDismiss = viewModel::consumirGuardadoExitoso) } }
 
 // Presentación del reporte y estado de sus cambios.
 // No representa un documento enviado ni firmado.
@@ -408,8 +348,7 @@ private fun EncabezadoReporteDiagnostico(
             Text(text = stringResource(
                 R.string.diagnostico_report_description),
                 style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant
-            )
+                color = colors.onSurfaceVariant)
 
             Text(
                 text = stringResource(
@@ -418,14 +357,9 @@ private fun EncabezadoReporteDiagnostico(
                         estado.diagnosticoId != null ->
                             R.string.diagnostico_saved_record
                         else ->
-                            R.string.diagnostico_new_record
-                    }),
+                            R.string.diagnostico_new_record }),
                 style = MaterialTheme.typography.labelLarge,
-                color = colors.primary
-            )
-        }
-    }
-}
+                color = colors.primary) } } }
 
 // Hallazgos del checklist en una caja compacta, con las fotos del ingreso en miniatura.
 @Composable
@@ -452,12 +386,9 @@ private fun CajaHallazgos(
                     text = stringResource(R.string.diagnostico_findings_title).uppercase(),
                     style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
                     fontWeight = FontWeight.Bold,
-                    color = com.example.myapplication.ui.components.colorTituloSeccion()
-                )
+                    color = com.example.myapplication.ui.components.colorTituloSeccion())
                 TextButton(onClick = onAbrirChecklist) {
-                    Text(stringResource(R.string.dashboard_action_checklist), fontWeight = FontWeight.Bold)
-                }
-            }
+                    Text(stringResource(R.string.dashboard_action_checklist), fontWeight = FontWeight.Bold) } }
             when {
                 !estado.tieneChecklist -> FilaHallazgo(
                     icono = Icons.Default.Warning, color = colors.error,
@@ -468,13 +399,10 @@ private fun CajaHallazgos(
                 else -> estado.hallazgos.forEach { hallazgo ->
                     FilaHallazgo(
                         icono = Icons.Default.Warning, color = colors.error,
-                        texto = stringResource(descripcionHallazgo(hallazgo)))
-                }
-            }
+                        texto = stringResource(descripcionHallazgo(hallazgo))) } }
             if (estado.comentariosChecklist.isNotBlank()) {
                 Text(text = estado.comentariosChecklist, style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant)
-            }
+                    color = colors.onSurfaceVariant) }
             if (fotos.isNotEmpty()) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     fotos.take(3).forEach { ruta ->
@@ -483,28 +411,18 @@ private fun CajaHallazgos(
                             contentDescription = null,
                             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                             modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
-                                .clickable(onClick = onAbrirEvidencias)
-                        )
-                    }
+                                .clickable(onClick = onAbrirEvidencias)) }
                     if (fotos.size > 3) {
                         Box(
                             modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
                                 .background(colors.surfaceVariant).clickable(onClick = onAbrirEvidencias),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text("+${fotos.size - 3}", style = MaterialTheme.typography.titleSmall)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                            Text("+${fotos.size - 3}", style = MaterialTheme.typography.titleSmall) } } } } } } }
 
+// Una línea de la caja de hallazgos, con icono y texto.
 @Composable
 private fun FilaHallazgo(icono: androidx.compose.ui.graphics.vector.ImageVector, color: androidx.compose.ui.graphics.Color, texto: String) {
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(icono, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
-        Text(text = texto, style = MaterialTheme.typography.titleSmall)
-    }
-}
+        Text(text = texto, style = MaterialTheme.typography.titleSmall) } }

@@ -29,9 +29,7 @@ fun GaleriaIngresoConectada(
             estado.errorCarga != null -> {
                 Text(estado.errorCarga.orEmpty(), color = MaterialTheme.colorScheme.error)
                 TextButton(onClick = viewModel::reintentarCarga, enabled = !estado.guardando) {
-                    Text(stringResource(R.string.camera_retry))
-                }
-            }
+                    Text(stringResource(R.string.camera_retry)) } }
             estado.ingresoNoEncontrado -> Text(stringResource(R.string.evidence_missing_ingreso))
             else -> {
                 val editable = estado.permiteAgregar && habilitada && estado.rutaPendiente == null
@@ -42,34 +40,23 @@ fun GaleriaIngresoConectada(
                         mensaje,
                         modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
                         color = if (estado.errorGaleria != null) MaterialTheme.colorScheme.error
-                        else MaterialTheme.colorScheme.onSurface
-                    )
+                        else MaterialTheme.colorScheme.onSurface)
                     TextButton(onClick = viewModel::limpiarMensajeGaleria) {
-                        Text(stringResource(R.string.evidence_close))
-                    }
-                }
+                        Text(stringResource(R.string.evidence_close)) } }
                 GaleriaFotografias(
                     rutas = estado.evidencias.map { it.rutaImagen },
                     principal = estado.ingreso?.fotoPath,
                     ocupado = estado.guardando || !habilitada,
                     onPrincipal = if (editable) { ruta ->
                         estado.evidencias.firstOrNull { it.rutaImagen == ruta }?.let {
-                            viewModel.seleccionarPrincipal(it.id, tecnicoId)
-                        }
+                            viewModel.seleccionarPrincipal(it.id, tecnicoId) }
                     } else null,
                     onEliminar = if (editable) { ruta ->
                         estado.evidencias.firstOrNull { it.rutaImagen == ruta }?.let {
-                            viewModel.eliminarEvidencia(it.id, tecnicoId)
-                        }
+                            viewModel.eliminarEvidencia(it.id, tecnicoId) }
                     } else null,
                     permiteEliminar = { editable && estado.evidencias.size > 1 },
                     aviso = when {
                         !estado.permiteAgregar -> stringResource(R.string.evidence_read_only)
                         estado.evidencias.size == 1 -> stringResource(R.string.fotos_keep_one)
-                        else -> null
-                    }
-                )
-            }
-        }
-    }
-}
+                        else -> null }) } } } }

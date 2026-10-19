@@ -27,10 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.ui.registro.RegistroUiState
 
-/**
- * Estado de espera durante la consulta inicial del expediente.
- * Permite volver sin esperar a que termine la consulta.
- */
+// Estado de espera durante la consulta inicial del expediente.
+// Permite volver sin esperar a que termine la consulta.
 @Composable
 internal fun CargaInicialRegistro(
     onVolver: () -> Unit
@@ -53,30 +51,19 @@ internal fun CargaInicialRegistro(
                 CircularProgressIndicator(
                     modifier = Modifier.size(36.dp),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    strokeWidth = 3.dp
-                )
-            }
-        }
+                    strokeWidth = 3.dp) } }
 
         Text(
             text = stringResource(R.string.navigation_loading_form),
             style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center
-        )
+            textAlign = TextAlign.Center)
 
         TextButton(onClick = onVolver) {
             Text(
                 text = stringResource(
-                    R.string.registro_back_dashboard
-                )
-            )
-        }
-    }
-}
+                    R.string.registro_back_dashboard)) } } }
 
-/**
- * Muestra el error de carga y delega el reintento al ViewModel.
- */
+// Muestra el error de carga y delega el reintento al ViewModel.
 @Composable
 internal fun ErrorCargaRegistro(
     mensaje: String,
@@ -104,44 +91,33 @@ internal fun ErrorCargaRegistro(
                 Icon(
                     imageVector = Icons.Default.ErrorOutline,
                     contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
-            }
-        }
+                    modifier = Modifier.size(40.dp)) } }
 
         Text(
             text = stringResource(R.string.navigation_form_error),
             style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center
-        )
+            textAlign = TextAlign.Center)
 
         Text(
             text = mensaje,
             color = colors.onSurfaceVariant,
             style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
+            textAlign = TextAlign.Center)
 
         Button(
             onClick = onReintentar,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(stringResource(R.string.dashboard_retry))
-        }
+            Text(stringResource(R.string.dashboard_retry)) }
 
         TextButton(
             onClick = onVolver,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(stringResource(R.string.registro_back_dashboard))
-        }
-    }
-}
+            Text(stringResource(R.string.registro_back_dashboard)) } } }
 
-/**
- * Confirmación visual después de registrar o editar.
- * Las acciones se delegan a la pantalla que utiliza el componente.
- */
+// Confirmación visual después de registrar o editar.
+// Las acciones se delegan a la pantalla que utiliza el componente.
 @Composable
 internal fun ResultadoRegistro(
     uiState: RegistroUiState,
@@ -170,22 +146,16 @@ internal fun ResultadoRegistro(
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = null,
-                    modifier = Modifier.size(44.dp)
-                )
-            }
-        }
+                    modifier = Modifier.size(44.dp)) } }
 
         Text(
             text = stringResource(
                 if (uiState.esEdicion) {
                     R.string.registro_updated_success
                 } else {
-                    R.string.registro_created_success
-                }
-            ),
+                    R.string.registro_created_success }),
             style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center
-        )
+            textAlign = TextAlign.Center)
 
         uiState.idRegistrado?.let { id ->
             Surface(
@@ -196,15 +166,11 @@ internal fun ResultadoRegistro(
                 Text(
                     text = stringResource(
                         R.string.registro_saved_identifier,
-                        id
-                    ),
+                        id),
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.padding(
                         horizontal = 16.dp,
-                        vertical = 10.dp
-                    )
-                )
-            }
+                        vertical = 10.dp)) }
 
             onVerIngreso?.let { abrir ->
                 Button(
@@ -214,12 +180,7 @@ internal fun ResultadoRegistro(
                 ) {
                     Text(
                         stringResource(
-                            R.string.dashboard_card_view_detail
-                        )
-                    )
-                }
-            }
-        }
+                            R.string.dashboard_card_view_detail)) } } }
 
         if (!uiState.esEdicion) {
             OutlinedButton(
@@ -227,9 +188,7 @@ internal fun ResultadoRegistro(
                 onClick = onNuevaCaptura,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.registro_another))
-            }
-        }
+                Text(stringResource(R.string.registro_another)) } }
 
         if (uiState.esEdicion && onVerIngreso == null) {
             // Único destino posible: regresar. Se ofrece como acción principal.
@@ -238,8 +197,7 @@ internal fun ResultadoRegistro(
                 onClick = onVolver,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.registro_back_detail))
-            }
+                Text(stringResource(R.string.registro_back_detail)) }
         } else {
             TextButton(
                 enabled = !uiState.cargando,
@@ -247,8 +205,4 @@ internal fun ResultadoRegistro(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 // Al editar se regresa a la pantalla de donde se llegó; al crear, a la lista.
-                Text(stringResource(if (uiState.esEdicion) R.string.registro_back else R.string.registro_back_dashboard))
-            }
-        }
-    }
-}
+                Text(stringResource(if (uiState.esEdicion) R.string.registro_back else R.string.registro_back_dashboard)) } } } }

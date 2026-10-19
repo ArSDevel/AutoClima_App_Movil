@@ -100,12 +100,10 @@ fun DashboardScreen(
     DisposableEffect(lifecycleOwner, viewModel) {
         val lifecycle = lifecycleOwner.lifecycle
         val observador = LifecycleEventObserver { _, evento ->
-            if (evento == Lifecycle.Event.ON_RESUME) { viewModel.actualizarPeriodoFecha() }
-        }
+            if (evento == Lifecycle.Event.ON_RESUME) { viewModel.actualizarPeriodoFecha() } }
         lifecycle.addObserver(observador)
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) { viewModel.actualizarPeriodoFecha() }
-        onDispose { lifecycle.removeObserver(observador) }
-    }
+        onDispose { lifecycle.removeObserver(observador) } }
 
     DashboardContent(
         uiState = uiState, onBusquedaChange = viewModel::cambiarBusqueda,
@@ -115,14 +113,12 @@ fun DashboardScreen(
         onMenuSeleccionado = onMenuSeleccionado, onEditarIngreso = onEditarIngreso,
         onVerDetalle = onVerDetalle, onVerFotos = onVerFotos,
         onAbrirChecklist = onAbrirChecklist, onAbrirDiagnostico = onAbrirDiagnostico,
-        modifier = modifier
-    )
-}
+        modifier = modifier) }
 
+// Contenido del listado: búsqueda, filtros por estado y tarjetas.
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class
-)
+    ExperimentalLayoutApi::class)
 @Composable
 fun DashboardContent(
     uiState: DashboardUiState,
@@ -164,12 +160,9 @@ fun DashboardContent(
                             DashboardMenuOption.DIAGNOSTICO,
                             DashboardMenuOption.EVIDENCIAS,
                             DashboardMenuOption.HISTORIAL -> {
-                                onMenuSeleccionado(opcion)
-                            }
+                                onMenuSeleccionado(opcion) }
                             else -> snackbarState.showSnackbar(mensajePendiente) } } },
-                onLogout = onLogout
-            )
-        }
+                onLogout = onLogout) }
     ) {
         Scaffold(
             containerColor = colors.background,
@@ -184,10 +177,7 @@ fun DashboardContent(
                             com.example.myapplication.ui.components.LogoAutoClimas(
                                 sobreFondoOscuro = true,
                                 descripcion = stringResource(R.string.dashboard_logo_description),
-                                modifier = Modifier.size(width = 86.dp, height = 58.dp)
-                            )
-                        }
-                    )
+                                modifier = Modifier.size(width = 86.dp, height = 58.dp)) })
                     // La búsqueda se superpone a la parte inferior de la cabecera.
                     Row(
                         modifier = Modifier
@@ -196,25 +186,18 @@ fun DashboardContent(
                                 val colocable = medible.measure(restricciones)
                                 val solape = 28.dp.roundToPx()
                                 layout(colocable.width, colocable.height - solape) {
-                                    colocable.place(0, -solape)
-                                }
-                            },
+                                    colocable.place(0, -solape) } },
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         BuscadorIngreso(
                             textoBusqueda = uiState.textoBusqueda,
                             onBusquedaChange = onBusquedaChange,
-                            modifier = Modifier.weight(1f)
-                        )
+                            modifier = Modifier.weight(1f))
                         BotonFiltros(
                             activo = uiState.fechaSeleccionada != FiltroFechaIngreso.TODAS ||
                                     uiState.ordenSeleccionado != OrdenIngreso.RECIENTES,
-                            onClick = { mostrarFiltros = true }
-                        )
-                    }
-                }
-            },
+                            onClick = { mostrarFiltros = true }) } } },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = { onMenuSeleccionado(DashboardMenuOption.REGISTRO) },
@@ -223,10 +206,7 @@ fun DashboardContent(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.registro_title_new)
-                    )
-                }
-            }
+                        contentDescription = stringResource(R.string.registro_title_new)) } }
         ) { padding ->
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
@@ -243,19 +223,13 @@ fun DashboardContent(
                                 ChipEstado(
                                     texto = stringResource(R.string.dashboard_filter_all),
                                     seleccionado = uiState.estadoSeleccionado == null,
-                                    onClick = { onEstadoChange(null) }
-                                )
-                            }
+                                    onClick = { onEstadoChange(null) }) }
                             items(EstadoIngreso.entries.filter { it != EstadoIngreso.NO_DISPONIBLE }) { estado ->
                                 ChipEstado(
                                     texto = stringResource(etiquetaEstado(estado)),
                                     seleccionado = uiState.estadoSeleccionado == estado,
                                     onClick = { onEstadoChange(estado) },
-                                    color = colorEstado(estado)
-                                )
-                            }
-                        }
-                    }
+                                    color = colorEstado(estado)) } } }
 
                     when {
                         uiState.cargando -> {
@@ -264,17 +238,12 @@ fun DashboardContent(
                                     CircularProgressIndicator(modifier = Modifier.align(
                                         Alignment.CenterHorizontally))
                                     Text(text = stringResource(R.string.dashboard_loading),
-                                        modifier = Modifier.align(Alignment.CenterHorizontally))
-                                }
-                            }
-                        }
+                                        modifier = Modifier.align(Alignment.CenterHorizontally)) } } }
                         uiState.hayError -> {
                             item(key = "error_listado") {
                                 MensajeDashboard(titulo = stringResource(R.string.dashboard_load_error),
                                     textoAccion = stringResource(R.string.dashboard_retry),
-                                    onAccion = onReintentar)
-                            }
-                        }
+                                    onAccion = onReintentar) } }
 
                         uiState.ingresos.isEmpty() -> {
                             item(key = "listado_vacio") {
@@ -290,11 +259,7 @@ fun DashboardContent(
                                         } else { R.string.registro_title_new }),
                                     onAccion = {
                                         if (uiState.hayFiltrosActivos) { onLimpiarFiltros()
-                                        } else { onMenuSeleccionado(DashboardMenuOption.REGISTRO) }
-                                    }
-                                )
-                            }
-                        }
+                                        } else { onMenuSeleccionado(DashboardMenuOption.REGISTRO) } }) } }
 
                         else -> {
                             items(
@@ -311,14 +276,7 @@ fun DashboardContent(
                                     // El acceso rápido a edición solo aparece cuando corresponde.
                                     onEditar = if (onEditarIngreso != null && ReglasIngreso.editar(estado)) {
                                         onEditarIngreso
-                                    } else null
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
+                                    } else null) } } } } } }
 
         if (mostrarFiltros) {
             ModalBottomSheet(
@@ -338,44 +296,31 @@ fun DashboardContent(
                         Text(
                             text = stringResource(R.string.filtros_title),
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.ExtraBold
-                        )
+                            fontWeight = FontWeight.ExtraBold)
                         TextButton(onClick = onLimpiarFiltros) {
-                            Text(stringResource(R.string.dashboard_clear_filters))
-                        }
-                    }
+                            Text(stringResource(R.string.dashboard_clear_filters)) } }
                     GrupoFiltro(titulo = stringResource(R.string.filtros_state)) {
                         ChipEstado(
                             texto = stringResource(R.string.dashboard_filter_all),
                             seleccionado = uiState.estadoSeleccionado == null,
-                            onClick = { onEstadoChange(null) }
-                        )
+                            onClick = { onEstadoChange(null) })
                         EstadoIngreso.entries.forEach { estado ->
                             ChipEstado(
                                 texto = stringResource(etiquetaEstado(estado)),
                                 seleccionado = uiState.estadoSeleccionado == estado,
-                                onClick = { onEstadoChange(estado) }
-                            )
-                        }
-                    }
+                                onClick = { onEstadoChange(estado) }) } }
                     GrupoFiltro(titulo = stringResource(R.string.dashboard_date_filter_label)) {
                         FiltroFechaIngreso.entries.forEach { filtro ->
                             ChipEstado(
                                 texto = stringResource(etiquetaFecha(filtro)),
                                 seleccionado = uiState.fechaSeleccionada == filtro,
-                                onClick = { onFechaChange(filtro) }
-                            )
-                        }
-                    }
+                                onClick = { onFechaChange(filtro) }) } }
                     GrupoFiltro(titulo = stringResource(R.string.dashboard_sort_label)) {
                         OrdenIngreso.entries.forEach { orden ->
                             ChipEstado(
                                 texto = stringResource(etiquetaOrden(orden)),
                                 seleccionado = uiState.ordenSeleccionado == orden,
-                                onClick = { onOrdenChange(orden) }
-                            )
-                        }
-                    }
+                                onClick = { onOrdenChange(orden) }) } }
                     Button(
                         onClick = { mostrarFiltros = false },
                         modifier = Modifier.fillMaxWidth(),
@@ -384,15 +329,9 @@ fun DashboardContent(
                     ) {
                         Text(
                             text = androidx.compose.ui.res.pluralStringResource(R.plurals.filtros_show_results, uiState.cantidadResultados, uiState.cantidadResultados),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
+                            style = MaterialTheme.typography.titleMedium) } } } } } }
 
+// Grupo de opciones con título dentro de la hoja de filtros.
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun GrupoFiltro(
@@ -403,15 +342,13 @@ private fun GrupoFiltro(
         Text(
             text = titulo,
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) { contenido() }
-    }
-}
+        ) { contenido() } } }
 
+// Chip de filtro; si recibe color muestra un punto de ese color.
 @Composable
 private fun ChipEstado(
     texto: String,
@@ -429,11 +366,9 @@ private fun ChipEstado(
         } else null,
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )
-}
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary)) }
 
+// Botón que abre la hoja de filtros; marca si hay filtros activos.
 @Composable
 private fun BotonFiltros(
     activo: Boolean,
@@ -451,32 +386,26 @@ private fun BotonFiltros(
             BadgedBox(badge = { if (activo) Badge(containerColor = MaterialTheme.colorScheme.secondary) }) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
-                    contentDescription = stringResource(R.string.filtros_open)
-                )
-            }
-        }
-    }
-}
+                    contentDescription = stringResource(R.string.filtros_open)) } } } }
 
+// Texto de cada periodo de fecha.
 @StringRes
 private fun etiquetaFecha(filtro: FiltroFechaIngreso): Int {
     return when (filtro) {
         FiltroFechaIngreso.TODAS -> R.string.dashboard_date_all
         FiltroFechaIngreso.HOY -> R.string.dashboard_date_today
         FiltroFechaIngreso.ULTIMOS_SIETE_DIAS -> R.string.dashboard_date_last_seven_days
-        FiltroFechaIngreso.ESTE_MES -> R.string.dashboard_date_this_month
-    }
-}
+        FiltroFechaIngreso.ESTE_MES -> R.string.dashboard_date_this_month } }
 
+// Texto de cada orden del listado.
 @StringRes
 private fun etiquetaOrden(orden: OrdenIngreso): Int {
     return when (orden) {
         OrdenIngreso.RECIENTES -> R.string.dashboard_sort_recent
         OrdenIngreso.ANTIGUOS -> R.string.dashboard_sort_oldest
-        OrdenIngreso.PLACA_ASCENDENTE -> R.string.dashboard_sort_plate
-    }
-}
+        OrdenIngreso.PLACA_ASCENDENTE -> R.string.dashboard_sort_plate } }
 
+// Panel blanco para mensajes y avisos del listado.
 @Composable
 private fun PanelDashboard(
     contenido: @Composable ColumnScope.() -> Unit
@@ -487,10 +416,9 @@ private fun PanelDashboard(
         contentColor = MaterialTheme.colorScheme.onSurface
     ) {
         Column(modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp), content = contenido)
-    }
-}
+            verticalArrangement = Arrangement.spacedBy(12.dp), content = contenido) } }
 
+// Mensaje con una acción, para listado vacío o con error.
 @Composable
 private fun MensajeDashboard(
     titulo: String,
@@ -504,11 +432,8 @@ private fun MensajeDashboard(
         if (descripcion != null) {
             Text(text = descripcion,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        TextButton(onClick = onAccion) { Text(textoAccion) }
-    }
-}
+                color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        TextButton(onClick = onAccion) { Text(textoAccion) } } }
 
 // Datos exclusivos de las previews.
 private val ingresosPreview = listOf(
@@ -522,8 +447,7 @@ private val ingresosPreview = listOf(
         telefonoCliente = "8100000000",
         emailCliente = "cliente@example.com",
         fechaEntrada = 1788955200000L,
-        estado = EstadoIngreso.EN_REPARACION.name
-    ),
+        estado = EstadoIngreso.EN_REPARACION.name),
     IngresoResumen(
         ingresoId = 2L,
         placa = "XYZ-456",
@@ -534,15 +458,13 @@ private val ingresosPreview = listOf(
         telefonoCliente = "8111111111",
         emailCliente = null,
         fechaEntrada = 1788955200000L,
-        estado = EstadoIngreso.LISTO_PARA_FIRMA.name
-    )
-)
+        estado = EstadoIngreso.LISTO_PARA_FIRMA.name))
 
 private val estadoDashboardPreview = DashboardUiState(
     cargando = false,
-    ingresos = ingresosPreview
-)
+    ingresos = ingresosPreview)
 
+// Contenido de ejemplo para las vistas previas.
 @Composable
 private fun ContenidoDashboardPreview(
     uiState: DashboardUiState = estadoDashboardPreview
@@ -558,56 +480,45 @@ private fun ContenidoDashboardPreview(
         onLogout = {},
         onMenuSeleccionado = {},
         onEditarIngreso = {},
-        onVerDetalle = {}
-    )
-}
+        onVerDetalle = {}) }
 
+// Vista previa del listado en modo claro.
 @Preview(
     name = "Dashboard · teléfono",
     showBackground = true,
     widthDp = 360,
-    heightDp = 1000
-)
+    heightDp = 1000)
 @Preview(
     name = "Dashboard · amplio",
     showBackground = true,
     widthDp = 800,
-    heightDp = 1000
-)
+    heightDp = 1000)
 @Composable
 private fun DashboardClaroPreview() {
     MyApplicationTheme(darkTheme = false) {
-        ContenidoDashboardPreview()
-    }
-}
+        ContenidoDashboardPreview() } }
 
+// Vista previa del listado en modo oscuro.
 @Preview(
     name = "Dashboard · oscuro",
     showBackground = true,
     widthDp = 360,
-    heightDp = 1000
-)
+    heightDp = 1000)
 @Composable
 private fun DashboardOscuroPreview() {
     MyApplicationTheme(darkTheme = true) {
-        ContenidoDashboardPreview()
-    }
-}
+        ContenidoDashboardPreview() } }
 
+// Vista previa del listado con error de carga.
 @Preview(
     name = "Dashboard · errores",
     showBackground = true,
     widthDp = 400,
-    heightDp = 1000
-)
+    heightDp = 1000)
 @Composable
 private fun DashboardErroresPreview() {
     MyApplicationTheme(darkTheme = false) {
         ContenidoDashboardPreview(
             uiState = DashboardUiState(
                 cargando = false,
-                hayError = true
-            )
-        )
-    }
-}
+                hayError = true)) } }

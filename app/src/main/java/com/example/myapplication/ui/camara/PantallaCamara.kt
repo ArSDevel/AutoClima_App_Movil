@@ -66,6 +66,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.myapplication.R
 import java.io.File
 
+// Cámara con permiso, flash y captura; entrega la foto al llamador.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaCamara(
@@ -78,31 +79,25 @@ fun PantallaCamara(
     val colors = MaterialTheme.colorScheme
 
     val executor = remember(contexto) {
-        ContextCompat.getMainExecutor(contexto)
-    }
+        ContextCompat.getMainExecutor(contexto) }
 
     val previewView = remember(contexto) {
-        PreviewView(contexto)
-    }
+        PreviewView(contexto) }
 
     val preview = remember {
-        Preview.Builder().build()
-    }
+        Preview.Builder().build() }
 
     val imageCapture = remember {
         ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-            .build()
-    }
+            .build() }
 
     var permisoConcedido by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
                 contexto,
                 Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED
-        )
-    }
+            ) == PackageManager.PERMISSION_GRANTED) }
 
     var tieneFlash by remember { mutableStateOf(false) }
     var modoFlash by rememberSaveable { mutableStateOf(ImageCapture.FLASH_MODE_OFF) }
@@ -123,8 +118,7 @@ fun PantallaCamara(
     val solicitarPermiso = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { concedido ->
-        permisoConcedido = concedido
-    }
+        permisoConcedido = concedido }
 
     DisposableEffect(lifecycleOwner, contexto) {
         val observador = LifecycleEventObserver { _, evento ->
@@ -132,20 +126,15 @@ fun PantallaCamara(
                 permisoConcedido = ContextCompat.checkSelfPermission(
                     contexto,
                     Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-            }
-        }
+                ) == PackageManager.PERMISSION_GRANTED } }
 
         lifecycleOwner.lifecycle.addObserver(observador)
 
         onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observador)
-        }
-    }
+            lifecycleOwner.lifecycle.removeObserver(observador) } }
     DisposableEffect(Unit) {
         pantallaActiva = true
-        onDispose { pantallaActiva = false }
-    }
+        onDispose { pantallaActiva = false } }
 
     DisposableEffect(permisoConcedido, lifecycleOwner,
         intentoConexion) {
@@ -175,52 +164,39 @@ fun PantallaCamara(
                                     CameraSelector.DEFAULT_FRONT_CAMERA
                                 ) -> CameraSelector.DEFAULT_FRONT_CAMERA
 
-                                else -> null
-                            }
+                                else -> null }
 
                             if (selector == null) {
                                 errorCamara = true
                             } else {
                                 preview.setSurfaceProvider(
-                                    previewView.surfaceProvider
-                                )
+                                    previewView.surfaceProvider)
 
                                 val camara = actual.bindToLifecycle(
                                     lifecycleOwner,
                                     selector,
                                     preview,
-                                    imageCapture
-                                )
+                                    imageCapture)
 
                                 tieneFlash = camara.cameraInfo.hasFlashUnit()
                                 imageCapture.flashMode = if (tieneFlash) modoFlash else ImageCapture.FLASH_MODE_OFF
-                                camaraLista = true
-                            }
+                                camaraLista = true }
                         } catch (_: Exception) {
                             errorCamara = true
-                            camaraLista = false
-                        }
-                    }
+                            camaraLista = false } }
                 }, executor)
             } catch (_: Exception) {
-                errorCamara = true
-            }
-        }
+                errorCamara = true } }
 
         onDispose {
             efectoActivo = false
-            proveedor?.unbind(preview, imageCapture)
-        }
-    }
+            proveedor?.unbind(preview, imageCapture) } }
 
     LaunchedEffect(modoFlash, tieneFlash, camaraLista) {
         if (camaraLista) {
-            imageCapture.flashMode = if (tieneFlash) modoFlash else ImageCapture.FLASH_MODE_OFF
-        }
-    }
+            imageCapture.flashMode = if (tieneFlash) modoFlash else ImageCapture.FLASH_MODE_OFF } }
     LaunchedEffect(capturando, camaraLista) {
-        if (capturando || !camaraLista) menuFlash = false
-    }
+        if (capturando || !camaraLista) menuFlash = false }
 
     // Evita salir mediante el botón del sistema durante la captura.
     BackHandler(enabled = capturando) {}
@@ -229,8 +205,7 @@ fun PantallaCamara(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(stringResource(R.string.camera_screen_title))
-                },
+                    Text(stringResource(R.string.camera_screen_title)) },
                 navigationIcon = {
                     IconButton(
                         onClick = onVolver,
@@ -239,11 +214,7 @@ fun PantallaCamara(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(
-                                R.string.camera_back
-                            )
-                        )
-                    }
-                },
+                                R.string.camera_back)) } },
                 actions = {
                     Box {
                         TextButton(
@@ -255,15 +226,12 @@ fun PantallaCamara(
                                 imageVector = when (efectivo) {
                                     ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
                                     ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
-                                    else -> Icons.Default.FlashOff
-                                },
+                                    else -> Icons.Default.FlashOff },
                                 contentDescription = null,
-                                tint = colors.onTertiary
-                            )
+                                tint = colors.onTertiary)
                             Text(stringResource(if (!camaraLista) R.string.camera_flash_label
                             else if (!tieneFlash) R.string.camera_flash_unavailable
-                            else etiquetaFlash(efectivo)), color = colors.onTertiary)
-                        }
+                            else etiquetaFlash(efectivo)), color = colors.onTertiary) }
                         DropdownMenu(expanded = menuFlash, onDismissRequest = { menuFlash = false }) {
                             listOf(ImageCapture.FLASH_MODE_OFF, ImageCapture.FLASH_MODE_AUTO,
                                 ImageCapture.FLASH_MODE_ON).forEach { modo ->
@@ -272,22 +240,12 @@ fun PantallaCamara(
                                     onClick = {
                                         if (camaraLista && tieneFlash && !capturando) {
                                             imageCapture.flashMode = modo
-                                            modoFlash = modo
-                                        }
-                                        menuFlash = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                },
+                                            modoFlash = modo }
+                                        menuFlash = false }) } } } },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = colors.tertiary,
                     titleContentColor = colors.onTertiary,
-                    navigationIconContentColor = colors.onTertiary
-                )
-            )
-        }
+                    navigationIconContentColor = colors.onTertiary)) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -311,29 +269,21 @@ fun PantallaCamara(
                                 imageVector = Icons.Default.PhotoCamera,
                                 contentDescription = null,
                                 modifier = Modifier.size(48.dp),
-                                tint = colors.primary
-                            )
+                                tint = colors.primary)
 
                             Text(
                                 text = stringResource(
-                                    R.string.camera_permission_message
-                                ),
-                                textAlign = TextAlign.Center
-                            )
+                                    R.string.camera_permission_message),
+                                textAlign = TextAlign.Center)
 
                             Button(
                                 onClick = {
                                     solicitarPermiso.launch(
-                                        Manifest.permission.CAMERA
-                                    )
-                                }
+                                        Manifest.permission.CAMERA) }
                             ) {
                                 Text(
                                     stringResource(
-                                        R.string.camera_allow_permission
-                                    )
-                                )
-                            }
+                                        R.string.camera_allow_permission)) }
 
                             TextButton(
                                 onClick = {
@@ -344,33 +294,20 @@ fun PantallaCamara(
                                             Intent(
                                                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                                 Uri.parse(
-                                                    "package:${contexto.packageName}"
-                                                )
-                                            )
-                                        )
+                                                    "package:${contexto.packageName}")))
                                     } catch (_: Exception) {
-                                        errorAjustes = true
-                                    }
-                                }
+                                        errorAjustes = true } }
                             ) {
                                 Text(
                                     stringResource(
-                                        R.string.camera_open_settings
-                                    )
-                                )
-                            }
+                                        R.string.camera_open_settings)) }
 
                             if (errorAjustes) {
                                 Text(
                                     text = stringResource(
-                                        R.string.camera_settings_error
-                                    ),
+                                        R.string.camera_settings_error),
                                     color = colors.error,
-                                    textAlign = TextAlign.Center
-                                )
-                            }
-                        }
-                    }
+                                    textAlign = TextAlign.Center) } } }
 
                     errorCamara -> {
                         Column(
@@ -380,33 +317,22 @@ fun PantallaCamara(
                         ) {
                             Text(
                                 text = stringResource(
-                                    R.string.camera_connection_error
-                                ),
-                                textAlign = TextAlign.Center
-                            )
+                                    R.string.camera_connection_error),
+                                textAlign = TextAlign.Center)
 
                             Button(
                                 onClick = { intentoConexion++ }
                             ) {
                                 Text(
-                                    stringResource(R.string.camera_retry)
-                                )
-                            }
-                        }
-                    }
+                                    stringResource(R.string.camera_retry)) } } }
 
                     else -> {
                         AndroidView(
                             factory = { previewView },
-                            modifier = Modifier.fillMaxSize()
-                        )
+                            modifier = Modifier.fillMaxSize())
 
                         if (!camaraLista) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                }
-            }
+                            CircularProgressIndicator() } } } }
 
             // Describe el resultado de la captura.
             // La confirmación del guardado en Room corresponde al ViewModel.
@@ -417,22 +343,17 @@ fun PantallaCamara(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                        textAlign = TextAlign.Center) }
 
                 errorCaptura -> {
                     Text(
                         text = stringResource(
-                            R.string.camera_capture_error
-                        ),
+                            R.string.camera_capture_error),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),
                         color = colors.error,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                        textAlign = TextAlign.Center) }
 
                 fotoCapturada -> {
                     Text(
@@ -440,10 +361,7 @@ fun PantallaCamara(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(12.dp),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+                        textAlign = TextAlign.Center) } }
 
             Row(
                 modifier = Modifier
@@ -462,11 +380,9 @@ fun PantallaCamara(
                         contentDescription = null,
                         modifier = Modifier
                             .padding(end = 8.dp)
-                            .size(20.dp)
-                    )
+                            .size(20.dp))
 
-                    Text(stringResource(R.string.camera_gallery))
-                }
+                    Text(stringResource(R.string.camera_gallery)) }
 
                 Button(
                     enabled = permisoConcedido &&
@@ -484,14 +400,12 @@ fun PantallaCamara(
                             val destino = File.createTempFile(
                                 "evidencia_",
                                 ".jpg",
-                                contexto.filesDir
-                            )
+                                contexto.filesDir)
 
                             archivo = destino
 
                             previewView.display?.let { display ->
-                                imageCapture.targetRotation = display.rotation
-                            }
+                                imageCapture.targetRotation = display.rotation }
 
                             val opciones = ImageCapture.OutputFileOptions
                                 .Builder(destino)
@@ -506,13 +420,11 @@ fun PantallaCamara(
                                     ) {
                                         if (!pantallaActiva) {
                                             destino.delete()
-                                            return
-                                        }
+                                            return }
 
                                         capturando = false
                                         fotoCapturada = true
-                                        entregarFoto(destino)
-                                    }
+                                        entregarFoto(destino) }
 
                                     override fun onError(
                                         exception: ImageCaptureException
@@ -521,36 +433,24 @@ fun PantallaCamara(
 
                                         if (pantallaActiva) {
                                             capturando = false
-                                            errorCaptura = true
-                                        }
-                                    }
-                                }
-                            )
+                                            errorCaptura = true } } })
                         } catch (_: Exception) {
                             archivo?.delete()
                             capturando = false
-                            errorCaptura = true
-                        }
-                    }
+                            errorCaptura = true } }
                 ) {
                     Icon(
                         imageVector = Icons.Default.PhotoCamera,
                         contentDescription = null,
                         modifier = Modifier
                             .padding(end = 8.dp)
-                            .size(20.dp)
-                    )
+                            .size(20.dp))
 
-                    Text(stringResource(R.string.camera_capture))
-                }
-            }
-        }
-    }
-}
+                    Text(stringResource(R.string.camera_capture)) } } } } }
 
+// Texto del modo de flash seleccionado.
 @androidx.annotation.StringRes
 private fun etiquetaFlash(modo: Int): Int = when (modo) {
     ImageCapture.FLASH_MODE_ON -> R.string.camera_flash_on
     ImageCapture.FLASH_MODE_AUTO -> R.string.camera_flash_auto
-    else -> R.string.camera_flash_off
-}
+    else -> R.string.camera_flash_off }

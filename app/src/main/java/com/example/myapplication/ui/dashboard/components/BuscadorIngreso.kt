@@ -27,6 +27,7 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import androidx.compose.foundation.background
 
+// Campo de búsqueda con sombra y botón para borrar el texto.
 @Composable
 fun BuscadorIngreso(
     textoBusqueda: String,
@@ -50,21 +51,14 @@ fun BuscadorIngreso(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = null
-            )
-        },
+                contentDescription = null) },
         trailingIcon = {
             if (textoBusqueda.isNotEmpty()) {
                 IconButton(onClick = { onBusquedaChange("") }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(R.string.dashboard_clear_search
-                        )
-                    )
-                }
-            }
-        },
+                        contentDescription = stringResource(R.string.dashboard_clear_search)) } } },
         colors = OutlinedTextFieldDefaults.colors(
             focusedContainerColor = colors.surface,
             unfocusedContainerColor = colors.surface,
@@ -80,25 +74,18 @@ fun BuscadorIngreso(
             unfocusedLeadingIconColor = colors.onSurfaceVariant,
             focusedTrailingIconColor = colors.onSurfaceVariant,
             unfocusedTrailingIconColor = colors.onSurfaceVariant,
-            cursorColor = colors.primary
-        )
-    )
-}
+            cursorColor = colors.primary)) }
 
+// Vista previa del buscador.
 @Preview(
     name = "Buscador de ingresos",
-    showBackground = true,
-)
+    showBackground = true)
 @Composable
 private fun BuscadorIngresoPreview() {
     var texto by rememberSaveable {
-        mutableStateOf("")
-    }
+        mutableStateOf("") }
     MyApplicationTheme(darkTheme = false) {
         BuscadorIngreso(
             textoBusqueda = texto,
             onBusquedaChange = { nuevoTexto -> texto = nuevoTexto },
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
+            modifier = Modifier.padding(16.dp)) } }

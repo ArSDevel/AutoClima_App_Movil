@@ -58,9 +58,7 @@ fun SeleccionIngresoDiagnosticoScreen(
         topBar = {
             EncabezadoAutoClimas(
                 titulo = stringResource(R.string.diagnostico_selector_title),
-                onVolver = onVolver
-            )
-        }
+                onVolver = onVolver) }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -81,8 +79,7 @@ fun SeleccionIngresoDiagnosticoScreen(
 
                 com.example.myapplication.ui.dashboard.components.BuscadorIngreso(
                     textoBusqueda = estado.textoBusqueda,
-                    onBusquedaChange = viewModel::cambiarBusqueda
-                )
+                    onBusquedaChange = viewModel::cambiarBusqueda)
 
                 when {
                     estado.cargando -> {
@@ -92,9 +89,7 @@ fun SeleccionIngresoDiagnosticoScreen(
                                 .weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+                            CircularProgressIndicator() } }
 
                     estado.hayError -> {
                         Column(
@@ -106,19 +101,12 @@ fun SeleccionIngresoDiagnosticoScreen(
                         ) {
                             Text(
                                 stringResource(
-                                    R.string.diagnostico_selector_error
-                                )
-                            )
+                                    R.string.diagnostico_selector_error))
 
                             Button(onClick = viewModel::reintentar) {
                                 Text(
                                     stringResource(
-                                        R.string.diagnostico_retry
-                                    )
-                                )
-                            }
-                        }
-                    }
+                                        R.string.diagnostico_retry)) } } }
 
                     estado.ingresos.isEmpty() -> {
                         Text(
@@ -126,13 +114,9 @@ fun SeleccionIngresoDiagnosticoScreen(
                                 if (estado.textoBusqueda.isBlank()) {
                                     R.string.diagnostico_selector_empty
                                 } else {
-                                    R.string.diagnostico_selector_no_results
-                                }
-                            ),
+                                    R.string.diagnostico_selector_no_results }),
                             modifier = Modifier.padding(vertical = 24.dp),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
+                            style = MaterialTheme.typography.bodyLarge) }
 
                     else -> {
                         LazyColumn(
@@ -146,13 +130,4 @@ fun SeleccionIngresoDiagnosticoScreen(
                             ) { ingreso ->
                                 TarjetaSeleccionIngreso(
                                     ingreso = ingreso,
-                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }) } } } } } } } }

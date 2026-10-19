@@ -10,6 +10,7 @@ import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.model.EventoHistorial
 import kotlinx.coroutines.flow.Flow
 
+// Consultas y cambios de los ingresos y de su historial.
 @Dao
 interface IngresoDao {
 
@@ -17,22 +18,12 @@ interface IngresoDao {
     @Insert
     suspend fun insertar(ingreso: Ingreso): Long
 
-    /*
-     * Observa los ingresos con los datos del vehículo y del cliente.
-     * Permite buscar por placa, serie, modelo o cliente.
-     *
-     * estadoFiltro = null permite mostrar todos los estados.
-     * NO_DISPONIBLE incluye valores de estado desconocidos.
-     *
-     * Las fechas se reciben en milisegundos:
-     * - fechaDesde incluye el instante indicado.
-     * - fechaHastaExclusiva excluye el instante indicado.
-     * - null omite ese límite.
-     *
-     * Órdenes admitidos:
-     * RECIENTES, ANTIGUOS y PLACA_ASCENDENTE.
-     * Cualquier otro valor utiliza el orden por fecha reciente.
-     */
+    // Observa los ingresos con los datos del vehículo y del cliente.
+    // Busca por placa, serie, modelo o cliente. Con estadoFiltro en null muestra todos los estados,
+    // y NO_DISPONIBLE incluye los valores de estado desconocidos.
+    // Las fechas van en milisegundos: fechaDesde incluye el instante y fechaHastaExclusiva lo excluye;
+    // null omite ese límite. Los órdenes son RECIENTES, ANTIGUOS y PLACA_ASCENDENTE,
+    // y cualquier otro valor usa el orden por fecha reciente.
     @Query("""SELECT
             i.ingresoId AS ingresoId,v.placa AS placa,v.modelo AS modelo,v.color AS color,
             v.numeroSerie AS numeroSerie,c.nombre AS nombreCliente,c.telefono AS telefonoCliente,c.email AS emailCliente,
@@ -137,5 +128,4 @@ interface IngresoDao {
         desde: Long?,
         hasta: Long?,
         limite: Int
-    ): Flow<List<EventoHistorial>>
-}
+    ): Flow<List<EventoHistorial>> }

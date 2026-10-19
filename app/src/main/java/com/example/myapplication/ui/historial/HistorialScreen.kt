@@ -59,8 +59,7 @@ fun HistorialScreen(
     val scope = rememberCoroutineScope()
 
     BackHandler {
-        if (drawerState.isOpen) { scope.launch { drawerState.close() } } else { onVolver() }
-    }
+        if (drawerState.isOpen) { scope.launch { drawerState.close() } } else { onVolver() } }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -70,12 +69,8 @@ fun HistorialScreen(
                 onOpcionSeleccionada = { opcion ->
                     scope.launch {
                         drawerState.close()
-                        if (opcion != DashboardMenuOption.HISTORIAL) onMenuSeleccionado(opcion)
-                    }
-                },
-                onLogout = { scope.launch { drawerState.close(); onLogout() } }
-            )
-        }
+                        if (opcion != DashboardMenuOption.HISTORIAL) onMenuSeleccionado(opcion) } },
+                onLogout = { scope.launch { drawerState.close(); onLogout() } }) }
     ) {
         Scaffold(
             containerColor = colors.background,
@@ -84,8 +79,7 @@ fun HistorialScreen(
                     EncabezadoAutoClimas(
                         titulo = stringResource(R.string.historial_title),
                         onMenu = { scope.launch { drawerState.open() } },
-                        espacioInferior = 28.dp
-                    )
+                        espacioInferior = 28.dp)
                     // La búsqueda se superpone a la parte inferior de la cabecera.
                     Box(
                         modifier = Modifier
@@ -94,18 +88,12 @@ fun HistorialScreen(
                                 val colocable = medible.measure(restricciones)
                                 val solape = 28.dp.roundToPx()
                                 layout(colocable.width, colocable.height - solape) {
-                                    colocable.place(0, -solape)
-                                }
-                            }
+                                    colocable.place(0, -solape) } }
                     ) {
                         BuscadorIngreso(
                             textoBusqueda = estado.busqueda,
                             onBusquedaChange = viewModel::buscar,
-                            textoGuia = stringResource(R.string.historial_search)
-                        )
-                    }
-                }
-            }
+                            textoGuia = stringResource(R.string.historial_search)) } } }
         ) { padding ->
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
                 LazyColumn(
@@ -117,9 +105,7 @@ fun HistorialScreen(
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             item {
                                 ChipHistorial(stringResource(R.string.historial_chip_all), estado.accion == null) {
-                                    viewModel.filtrarAccion(null)
-                                }
-                            }
+                                    viewModel.filtrarAccion(null) } }
                             items(listOf(
                                 "ESTADO" to R.string.historial_chip_states,
                                 "FOTOS" to R.string.historial_photos,
@@ -127,65 +113,41 @@ fun HistorialScreen(
                                 "DIAGNOSTICO" to R.string.dashboard_action_diagnosis
                             )) { (accion, texto) ->
                                 ChipHistorial(stringResource(texto), estado.accion == accion) {
-                                    viewModel.filtrarAccion(accion)
-                                }
-                            }
+                                    viewModel.filtrarAccion(accion) } }
                             item {
                                 ChipHistorial(stringResource(R.string.historial_today),
                                     estado.periodo == PeriodoHistorial.HOY) {
                                     viewModel.filtrarPeriodo(
                                         if (estado.periodo == PeriodoHistorial.HOY) PeriodoHistorial.TODOS
-                                        else PeriodoHistorial.HOY)
-                                }
-                            }
-                        }
-                    }
+                                        else PeriodoHistorial.HOY) } } } }
                     if (estado.cargando && estado.eventos.isEmpty()) {
                         item(key = "carga") {
                             Row(Modifier.fillMaxWidth().padding(16.dp),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalAlignment = Alignment.CenterVertically) {
                                 CircularProgressIndicator(Modifier.size(24.dp))
-                                Text(stringResource(R.string.historial_loading))
-                            }
-                        }
-                    }
+                                Text(stringResource(R.string.historial_loading)) } } }
                     if (estado.hayError) {
                         item(key = "error") {
                             Surface(shape = MaterialTheme.shapes.large, color = colors.surface) {
                                 Column(Modifier.fillMaxWidth().padding(16.dp)) {
                                     Text(stringResource(R.string.historial_error), color = colors.error)
                                     TextButton(onClick = viewModel::reintentar) {
-                                        Text(stringResource(R.string.historial_retry))
-                                    }
-                                }
-                            }
-                        }
+                                        Text(stringResource(R.string.historial_retry)) } } } }
                     } else if (!estado.cargando && estado.eventos.isEmpty()) {
                         item(key = "vacio") {
                             Surface(shape = MaterialTheme.shapes.large, color = colors.surface) {
                                 Text(stringResource(if (estado.tieneFiltros) R.string.historial_no_results
-                                    else R.string.historial_empty), Modifier.fillMaxWidth().padding(20.dp))
-                            }
-                        }
-                    }
+                                    else R.string.historial_empty), Modifier.fillMaxWidth().padding(20.dp)) } } }
                     items(estado.eventos, key = { it.eventoId }) { evento ->
-                        EventoHistorialCard(evento, onAbrirIngreso)
-                    }
+                        EventoHistorialCard(evento, onAbrirIngreso) }
                     if (estado.hayMas || (estado.cargando && estado.eventos.isNotEmpty())) {
                         item(key = "mas") {
                             OutlinedButton(onClick = viewModel::cargarMas, enabled = !estado.cargando,
                                 modifier = Modifier.fillMaxWidth()) {
-                                Text(stringResource(if (estado.cargando) R.string.historial_loading else R.string.historial_more))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                                Text(stringResource(if (estado.cargando) R.string.historial_loading else R.string.historial_more)) } } } } } } } }
 
+// Chip de filtro del historial.
 @Composable
 private fun ChipHistorial(texto: String, seleccionado: Boolean, onClick: () -> Unit) {
     FilterChip(
@@ -194,7 +156,4 @@ private fun ChipHistorial(texto: String, seleccionado: Boolean, onClick: () -> U
         label = { Text(texto, style = MaterialTheme.typography.labelLarge) },
         colors = FilterChipDefaults.filterChipColors(
             selectedContainerColor = MaterialTheme.colorScheme.primary,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )
-}
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimary)) }

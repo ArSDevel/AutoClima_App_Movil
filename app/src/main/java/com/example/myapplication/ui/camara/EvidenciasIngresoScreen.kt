@@ -68,6 +68,7 @@ import com.example.myapplication.ui.theme.AutoClimasGradients
 import java.io.File
 import com.example.myapplication.ui.camara.components.GaleriaIngresoConectada
 
+// Pantalla de evidencias: cuadrícula de fotos y captura de una nueva.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EvidenciasIngresoScreen(
@@ -80,37 +81,29 @@ fun EvidenciasIngresoScreen(
     val snackbar = remember { SnackbarHostState() }
 
     var camaraAbierta by rememberSaveable {
-        mutableStateOf(false)
-    }
+        mutableStateOf(false) }
 
     var confirmarDescarte by rememberSaveable {
-        mutableStateOf(false)
-    }
+        mutableStateOf(false) }
 
     // Identifica si el diálogo se abrió para salir de la pantalla.
     var salidaSolicitada by rememberSaveable {
-        mutableStateOf(false)
-    }
+        mutableStateOf(false) }
 
     // Se activa únicamente después de confirmar el descarte.
     var salirTrasDescartar by rememberSaveable {
-        mutableStateOf(false)
-    }
+        mutableStateOf(false) }
 
     var fotoAmpliada by rememberSaveable {
-        mutableStateOf<String?>(null)
-    }
+        mutableStateOf<String?>(null) }
 
     val mensajeGuardado = stringResource(
-        R.string.evidence_saved
-    )
+        R.string.evidence_saved)
 
     LaunchedEffect(estado.guardadoExitoso) {
         if (estado.guardadoExitoso) {
             viewModel.consumirGuardadoExitoso()
-            snackbar.showSnackbar(mensajeGuardado)
-        }
-    }
+            snackbar.showSnackbar(mensajeGuardado) } }
 
     // Espera a que termine el descarte antes de salir.
     // Si falla, conserva la pantalla y muestra el error.
@@ -124,67 +117,50 @@ fun EvidenciasIngresoScreen(
             when {
                 estado.rutaPendiente == null -> {
                     salirTrasDescartar = false
-                    onVolver()
-                }
+                    onVolver() }
 
                 estado.errorGuardado != null -> {
-                    salirTrasDescartar = false
-                }
-            }
-        }
-    }
+                    salirTrasDescartar = false } } } }
 
+    // Cierra la cámara, pide confirmar si hay una foto pendiente o vuelve.
     fun solicitarSalida() {
         if (estado.guardando) return
 
         when {
             camaraAbierta -> {
-                camaraAbierta = false
-            }
+                camaraAbierta = false }
 
             estado.rutaPendiente != null -> {
                 salidaSolicitada = true
-                confirmarDescarte = true
-            }
+                confirmarDescarte = true }
 
-            else -> onVolver()
-        }
-    }
+            else -> onVolver() } }
 
     BackHandler {
-        solicitarSalida()
-    }
+        solicitarSalida() }
 
     // Reutiliza la cámara y devuelve la captura para revisarla.
     if (camaraAbierta) {
         PantallaCamara(
             onNavigateToGallery = {
-                camaraAbierta = false
-            },
+                camaraAbierta = false },
             onPhotoTaken = { archivo ->
                 viewModel.recibirFoto(archivo)
-                camaraAbierta = false
-            },
+                camaraAbierta = false },
             onVolver = {
-                camaraAbierta = false
-            }
-        )
+                camaraAbierta = false })
 
-        return
-    }
+        return }
 
     Scaffold(
         snackbarHost = {
-            SnackbarHost(snackbar)
-        },
+            SnackbarHost(snackbar) },
         topBar = {
             EncabezadoAutoClimas(
                 titulo = stringResource(R.string.evidence_screen_title),
                 subtitulo = estado.ingreso?.placa,
                 onVolver = { solicitarSalida() },
-                habilitado = !estado.guardando
-            )
-        },
+                habilitado = !estado.guardando) },
         bottomBar = {
             // Tomar fotografía es la acción principal de esta pantalla.
             if (estado.permiteAgregar && estado.rutaPendiente == null) {
@@ -196,18 +172,12 @@ fun EvidenciasIngresoScreen(
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSecondary
-                        )
+                            contentColor = MaterialTheme.colorScheme.onSecondary)
                     ) {
                         Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = null)
                         Text(
                             text = "  " + stringResource(R.string.evidence_take_photo),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
-            }
-        }
+                            style = MaterialTheme.typography.titleMedium) } } } }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -238,16 +208,12 @@ fun EvidenciasIngresoScreen(
 
                                     Text(
                                         stringResource(
-                                            R.string.evidence_loading
-                                        )
-                                    )
-                                }
+                                            R.string.evidence_loading)) }
 
                                 estado.errorCarga != null -> {
                                     Text(
                                         text = estado.errorCarga.orEmpty(),
-                                        color = colors.error
-                                    )
+                                        color = colors.error)
 
                                     Button(
                                         onClick = viewModel::reintentarCarga,
@@ -255,34 +221,19 @@ fun EvidenciasIngresoScreen(
                                     ) {
                                         Text(
                                             stringResource(
-                                                R.string.camera_retry
-                                            )
-                                        )
-                                    }
-                                }
+                                                R.string.camera_retry)) } }
 
                                 estado.ingresoNoEncontrado -> {
                                     Text(
                                         stringResource(
-                                            R.string.evidence_missing_ingreso
-                                        )
-                                    )
-                                }
+                                            R.string.evidence_missing_ingreso)) }
 
                                 else -> {
                                     if (!estado.permiteAgregar) {
                                         Text(
                                             text = stringResource(
-                                                R.string.evidence_read_only
-                                            ),
-                                            color = colors.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                                                R.string.evidence_read_only),
+                                            color = colors.onSurfaceVariant) } } } } } }
 
                 // La captura pendiente permanece visible
                 // hasta que se guarda o se descarta.
@@ -296,17 +247,13 @@ fun EvidenciasIngresoScreen(
                             ) {
                                 Text(
                                     text = stringResource(
-                                        R.string.evidence_review_photo
-                                    ),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
+                                        R.string.evidence_review_photo),
+                                    style = MaterialTheme.typography.titleMedium)
 
                                 FotoEvidencia(
                                     ruta = ruta,
                                     onAbrir = {
-                                        fotoAmpliada = ruta
-                                    }
-                                )
+                                        fotoAmpliada = ruta })
 
                                 OutlinedTextField(
                                     value = estado.descripcion,
@@ -316,74 +263,50 @@ fun EvidenciasIngresoScreen(
                                     label = {
                                         Text(
                                             stringResource(
-                                                R.string.evidence_description
-                                            )
-                                        )
-                                    },
+                                                R.string.evidence_description)) },
                                     supportingText = {
                                         Text(
                                             stringResource(
                                                 R.string.evidence_description_count,
-                                                estado.descripcion.length
-                                            )
-                                        )
-                                    },
+                                                estado.descripcion.length)) },
                                     isError = estado.descripcion
                                         .trim().length > 300,
                                     minLines = 2,
                                     maxLines = 4,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                                    modifier = Modifier.fillMaxWidth())
 
                                 estado.errorGuardado?.let { error ->
                                     Text(
                                         text = error,
-                                        color = colors.error
-                                    )
-                                }
+                                        color = colors.error) }
 
                                 if (estado.guardando) {
                                     CircularProgressIndicator()
 
                                     Text(
                                         stringResource(
-                                            R.string.evidence_processing
-                                        )
-                                    )
-                                }
+                                            R.string.evidence_processing)) }
 
                                 Button(
                                     onClick = {
-                                        viewModel.guardar(tecnicoId)
-                                    },
+                                        viewModel.guardar(tecnicoId) },
                                     enabled = estado.puedeGuardar,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
                                         stringResource(
-                                            R.string.evidence_save
-                                        )
-                                    )
-                                }
+                                            R.string.evidence_save)) }
 
                                 TextButton(
                                     onClick = {
                                         salidaSolicitada = false
-                                        confirmarDescarte = true
-                                    },
+                                        confirmarDescarte = true },
                                     enabled = !estado.guardando,
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     Text(
                                         stringResource(
-                                            R.string.evidence_discard
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                                            R.string.evidence_discard)) } } } } }
 
                 item(key = "galeria_guardada") {
                     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
@@ -391,15 +314,8 @@ fun EvidenciasIngresoScreen(
                             Text(
                                 stringResource(R.string.evidence_saved_count, estado.evidencias.size),
                                 style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(bottom = 12.dp)
-                            )
-                            GaleriaIngresoConectada(viewModel, tecnicoId)
-                        }
-                    }
-                }
-            }
-        }
-    }
+                                modifier = Modifier.padding(bottom = 12.dp))
+                            GaleriaIngresoConectada(viewModel, tecnicoId) } } } } } }
 
     if (confirmarDescarte) {
         DialogoAviso(
@@ -412,25 +328,19 @@ fun EvidenciasIngresoScreen(
                 confirmarDescarte = false
                 salidaSolicitada = false
                 viewModel.descartarFoto()
-                salirTrasDescartar = debeSalir
-            },
+                salirTrasDescartar = debeSalir },
             textoPrincipal = stringResource(R.string.evidence_keep),
             onPrincipal = {
                 confirmarDescarte = false
-                salidaSolicitada = false
-            },
+                salidaSolicitada = false },
             onDismiss = {
                 confirmarDescarte = false
-                salidaSolicitada = false
-            }
-        )
-    }
+                salidaSolicitada = false }) }
 
     fotoAmpliada?.let { ruta ->
         Dialog(
             onDismissRequest = {
-                fotoAmpliada = null
-            }
+                fotoAmpliada = null }
         ) {
             Surface(
                 shape = MaterialTheme.shapes.large
@@ -444,29 +354,17 @@ fun EvidenciasIngresoScreen(
                     item {
                         FotoEvidencia(
                             ruta = ruta,
-                            altura = 420.dp
-                        )
-                    }
+                            altura = 420.dp) }
 
                     item {
                         TextButton(
                             onClick = {
-                                fotoAmpliada = null
-                            },
+                                fotoAmpliada = null },
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(
                                 stringResource(
-                                    R.string.evidence_close
-                                )
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                                    R.string.evidence_close)) } } } } } } }
 
 // Vista de la captura pendiente y su ampliación.
 @Composable
@@ -476,12 +374,10 @@ private fun FotoEvidencia(
     onAbrir: (() -> Unit)? = null
 ) {
     var errorImagen by remember(ruta) {
-        mutableStateOf(false)
-    }
+        mutableStateOf(false) }
 
     val etiquetaAbrir = stringResource(
-        R.string.evidence_open_photo
-    )
+        R.string.evidence_open_photo)
 
     val modificador = Modifier
         .fillMaxWidth()
@@ -491,36 +387,25 @@ private fun FotoEvidencia(
         modifier = if (onAbrir != null) {
             modificador.clickable(
                 onClickLabel = etiquetaAbrir,
-                onClick = onAbrir
-            )
+                onClick = onAbrir)
         } else {
-            modificador
-        },
+            modificador },
         contentAlignment = Alignment.Center
     ) {
         AsyncImage(
             model = File(ruta),
             contentDescription = stringResource(
-                R.string.evidence_photo_description
-            ),
+                R.string.evidence_photo_description),
             contentScale = ContentScale.Fit,
             modifier = Modifier.fillMaxSize(),
             onSuccess = {
-                errorImagen = false
-            },
+                errorImagen = false },
             onError = {
-                errorImagen = true
-            }
-        )
+                errorImagen = true })
 
         if (errorImagen) {
             Text(
                 text = stringResource(
-                    R.string.evidence_image_unavailable
-                ),
+                    R.string.evidence_image_unavailable),
                 modifier = Modifier.padding(16.dp),
-                color = MaterialTheme.colorScheme.error
-            )
-        }
-    }
-}
+                color = MaterialTheme.colorScheme.error) } } }

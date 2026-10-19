@@ -8,9 +8,7 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("""ALTER TABLE ingreso
             ADD COLUMN estado TEXT NOT NULL DEFAULT 'NO_DISPONIBLE'
-            """.trimIndent())
-    }
-}
+            """.trimIndent()) } }
 
 // Versión 3 → 4:  incorpora el historial de operaciones de los ingresos.
 val MIGRATION_3_4 = object : Migration(3, 4) {
@@ -30,9 +28,7 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
                     ON DELETE CASCADE
             )""".trimIndent())
         db.execSQL("""CREATE INDEX IF NOT EXISTS index_evento_ingreso_ingresoId
-            ON evento_ingreso (ingresoId)""".trimIndent())
-    }
-}
+            ON evento_ingreso (ingresoId)""".trimIndent()) } }
 
 // Versión 5 → 6: incorpora el diagnóstico y su cotización.
 // Conserva las tablas y los datos existentes.
@@ -54,15 +50,13 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
                     ON UPDATE NO ACTION
                     ON DELETE CASCADE
             )
-            """.trimIndent()
-        )
+            """.trimIndent())
 
         db.execSQL(
             """
             CREATE UNIQUE INDEX IF NOT EXISTS index_diagnostico_ingresoId
             ON diagnostico (ingresoId)
-            """.trimIndent()
-        )
+            """.trimIndent())
 
         // Conceptos capturados por el mecánico.
         db.execSQL(
@@ -78,14 +72,10 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
                     ON UPDATE NO ACTION
                     ON DELETE CASCADE
             )
-            """.trimIndent()
-        )
+            """.trimIndent())
 
         db.execSQL(
             """
             CREATE INDEX IF NOT EXISTS index_concepto_cotizacion_diagnosticoId
             ON concepto_cotizacion (diagnosticoId)
-            """.trimIndent()
-        )
-    }
-}
+            """.trimIndent()) } }

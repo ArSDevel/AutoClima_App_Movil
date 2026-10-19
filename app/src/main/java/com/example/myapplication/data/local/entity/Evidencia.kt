@@ -14,11 +14,8 @@ import androidx.room.PrimaryKey
         ForeignKey(entity = Ingreso::class,
             parentColumns = ["ingresoId"],
             childColumns = ["ingresoId"],
-            onDelete = ForeignKey.RESTRICT
-        )
-    ],
-    indices = [Index(value = ["ingresoId"])]
-)
+            onDelete = ForeignKey.RESTRICT)],
+    indices = [Index(value = ["ingresoId"])])
 data class Evidencia(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
@@ -34,5 +31,4 @@ data class Evidencia(
 
     // Descripción breve y opcional de lo que muestra la fotografía.
     @ColumnInfo(defaultValue = "''")
-    val descripcion: String = ""
-)
+    val descripcion: String = "")

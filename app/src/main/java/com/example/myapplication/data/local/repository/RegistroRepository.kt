@@ -16,6 +16,7 @@ import com.example.myapplication.data.local.entity.Evidencia
 import com.example.myapplication.data.local.model.ReglasIngreso
 import com.example.myapplication.data.local.repository.DashboardRepository
 
+// Registra y edita ingresos junto con su cliente, vehículo y fotografías.
 class RegistroRepository(
     private val baseDeDatos: AppDatabase
 ) {
@@ -63,14 +64,12 @@ class RegistroRepository(
             placa = placaLimpia, modelo = modeloLimpio, color = colorLimpio.orEmpty(),
             numeroSerie = serieLimpia.orEmpty(), nombre = nombreLimpio, telefono = telefonoLimpio,
             email = emailLimpio.orEmpty(), fecha = FormularioIngreso.formatearFecha(fechaEntrada),
-            motivo = motivoLimpio.orEmpty(), condicion = condicionLimpia.orEmpty()
-        )
+            motivo = motivoLimpio.orEmpty(), condicion = condicionLimpia.orEmpty())
 
         val errores = formulario.errores()
 
         require(errores.isEmpty()) {
-            errores.values.firstOrNull() ?: "Revisa los datos del ingreso."
-        }
+            errores.values.firstOrNull() ?: "Revisa los datos del ingreso." }
 
         baseDeDatos.withTransaction {
             require(tecnicoId > 0) { "Inicia sesión nuevamente para continuar." }
@@ -86,9 +85,7 @@ class RegistroRepository(
                 require(
                     clienteExistente.nombre == nombreLimpio &&
                             clienteExistente.email.orEmpty() == emailLimpio.orEmpty()) {
-                    "El teléfono pertenece a un cliente con otros datos. Revisa su ficha antes de registrar otra visita."
-                }
-            }
+                    "El teléfono pertenece a un cliente con otros datos. Revisa su ficha antes de registrar otra visita." } }
 
             // Evita asociar silenciosamente la visita a otro propietario
             // o ignorar diferencias en los datos del vehículo.
@@ -102,9 +99,7 @@ class RegistroRepository(
                     vehiculoExistente.modelo == modeloLimpio &&
                             vehiculoExistente.color.orEmpty() == colorLimpio.orEmpty() &&
                             vehiculoExistente.numeroSerie.orEmpty() == serieLimpia.orEmpty()) {
-                    "La placa ya existe con otros datos del vehículo. Corrige su ficha antes de registrar otra visita."
-                }
-            }
+                    "La placa ya existe con otros datos del vehículo. Corrige su ficha antes de registrar otra visita." } }
 
             val clienteId = clienteExistente?.clienteId
                 ?: clienteDao.insertar(Cliente(nombre = nombreLimpio, telefono = telefonoLimpio,
@@ -115,42 +110,35 @@ class RegistroRepository(
                     Vehiculo(clienteId = clienteId, placa = placaLimpia,
                         modelo = modeloLimpio, color = colorLimpio,
                         numeroSerie = serieLimpia, kilometraje = null,
-                        observaciones = null)
-                )
+                        observaciones = null))
 
             val ingresoId = ingresoDao.insertar(
                 Ingreso(vehiculoId = vehiculoId, tecnicoId = tecnicoId,
                     fecha = fechaEntrada, motivoIngreso = motivoLimpio,
                     condicionInicial = condicionLimpia,
                     estado = EstadoIngreso.REGISTRADO.name,
-                    fotoPath = fotoValidada
-                )
-            )
+                    fotoPath = fotoValidada))
 
             ingresoDao.insertarEvento(
                 EventoIngreso(ingresoId = ingresoId, fecha = System.currentTimeMillis(),
                     tecnicoId = tecnicoId, accion = "CREADO", estadoAnterior = "",
-                    estadoNuevo = EstadoIngreso.REGISTRADO.name, motivo = "Ingreso registrado."
-                )
-            )
+                    estadoNuevo = EstadoIngreso.REGISTRADO.name, motivo = "Ingreso registrado."))
             if (rutasNuevas.isNotEmpty()) {
                 val ingresoGuardado = requireNotNull(ingresoDao.obtener(ingresoId))
                 rutasNuevas.forEach { ruta ->
-                    registrarFotoPrincipal(ingresoGuardado, ruta, tecnicoId)
-                }
-            }
-            ingresoId
-        }
-    }
+                    registrarFotoPrincipal(ingresoGuardado, ruta, tecnicoId) } }
+            ingresoId } }
 
 
     // Consulta las fotografías del expediente sin modificar el formulario.
     fun observarFotos(ingresoId: Long): kotlinx.coroutines.flow.Flow<List<Evidencia>> =
         evidenciaDao.observarPorIngreso(ingresoId)
 
+    // Lista las fotografías ya guardadas de un ingreso.
     suspend fun obtenerFotos(ingresoId: Long): List<Evidencia> =
         evidenciaDao.obtenerPorIngreso(ingresoId)
 
+    // Guarda los cambios de un ingreso existente en una transacción.
     suspend fun editarIngreso(
         ingresoId: Long,
         formulario: FormularioIngreso,
@@ -165,9 +153,7 @@ class RegistroRepository(
             val ingreso = requireNotNull(ingresoDao.obtener(ingresoId)) { "El ingreso ya no existe." }
             if (nuevas.isNotEmpty() || (seleccionada != null && seleccionada != ingreso.fotoPath)) {
                 require(ReglasIngreso.edicionCompleta(EstadoIngreso.desdeValor(ingreso.estado))) {
-                    "En esta etapa no puedes modificar las fotografías."
-                }
-            }
+                    "En esta etapa no puedes modificar las fotografías." } }
             nuevas.forEach { registrarFotoPrincipal(ingreso, it, tecnicoId) }
             val principal = seleccionada ?: ingreso.fotoPath ?: nuevas.firstOrNull()
             if (principal != ingreso.fotoPath && principal != null) {
@@ -178,12 +164,7 @@ class RegistroRepository(
                     EventoIngreso(
                         ingresoId = ingresoId, fecha = System.currentTimeMillis(), tecnicoId = tecnicoId,
                         accion = "FOTO_PRINCIPAL", estadoAnterior = ingreso.estado, estadoNuevo = ingreso.estado,
-                        motivo = "Se actualizó la fotografía principal desde Registro."
-                    )
-                )
-            }
-        }
-    }
+                        motivo = "Se actualizó la fotografía principal desde Registro.")) } } }
 
     // Se ejecuta en Dispatchers.IO para no consultar el disco en el hilo de UI.
     private fun validarFoto(ruta: String?): String? {
@@ -191,10 +172,8 @@ class RegistroRepository(
         require(ruta.isNotBlank()) { "La ubicación de la fotografía no es válida." }
         val archivo = File(ruta).canonicalFile
         require(archivo.isFile && archivo.canRead() && archivo.length() > 0) {
-            "No se encontró la fotografía. Tómala nuevamente antes de guardar."
-        }
-        return archivo.absolutePath
-    }
+            "No se encontró la fotografía. Tómala nuevamente antes de guardar." }
+        return archivo.absolutePath }
 
     // Conserva la foto principal también en la galería del expediente.
     // Las fotografías anteriores no se borran al cambiar la portada.
@@ -214,15 +193,11 @@ class RegistroRepository(
                     ingresoId = ingreso.ingresoId,
                     tecnicoId = tecnicoId,
                     fecha = fecha,
-                    descripcion = "Fotografía del vehículo adjuntada desde Registro."
-                )
-            )
+                    descripcion = "Fotografía del vehículo adjuntada desde Registro."))
         } else {
             require(existente.ingresoId == ingreso.ingresoId) {
-                "La fotografía ya está registrada y no pertenece a este ingreso."
-            }
-            return
-        }
+                "La fotografía ya está registrada y no pertenece a este ingreso." }
+            return }
 
         ingresoDao.insertarEvento(
             EventoIngreso(
@@ -232,8 +207,4 @@ class RegistroRepository(
                 accion = "EVIDENCIA",
                 estadoAnterior = ingreso.estado,
                 estadoNuevo = ingreso.estado,
-                motivo = "Se agregó una fotografía del vehículo desde Registro."
-            )
-        )
-    }
-}
+                motivo = "Se agregó una fotografía del vehículo desde Registro.")) } }

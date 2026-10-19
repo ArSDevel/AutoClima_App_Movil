@@ -5,28 +5,24 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+// Pruebas de las sugerencias de marca y modelo.
 class CatalogoVehiculosTest {
 
     @Test
     fun sugerencias_buscaPorMarcaOModelo() {
         assertTrue("Nissan Versa" in CatalogoVehiculos.sugerencias("nis"))
         assertTrue("Nissan Versa" in CatalogoVehiculos.sugerencias("versa"))
-        assertTrue("Nissan Versa" in CatalogoVehiculos.sugerencias("versa nis"))
-    }
+        assertTrue("Nissan Versa" in CatalogoVehiculos.sugerencias("versa nis")) }
 
     @Test
     fun sugerencias_ignoraAcentosYMayusculas() {
-        assertTrue("SEAT León" in CatalogoVehiculos.sugerencias("LEON"))
-    }
+        assertTrue("SEAT León" in CatalogoVehiculos.sugerencias("LEON")) }
 
     @Test
     fun sugerencias_noRepiteUnaCoincidenciaExacta() {
-        assertTrue(CatalogoVehiculos.sugerencias("Nissan Versa").isEmpty())
-    }
+        assertTrue(CatalogoVehiculos.sugerencias("Nissan Versa").isEmpty()) }
 
     @Test
     fun sugerencias_vacioONoEncontrado() {
         assertTrue(CatalogoVehiculos.sugerencias("").isEmpty())
-        assertEquals(emptyList<String>(), CatalogoVehiculos.sugerencias("zzzz"))
-    }
-}
+        assertEquals(emptyList<String>(), CatalogoVehiculos.sugerencias("zzzz")) } }

@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
 import com.example.myapplication.ui.dashboard.DashboardViewModel
 
+// Lista para elegir el ingreso cuyas fotos se quieren ver.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeleccionIngresoEvidenciasScreen(
@@ -56,9 +57,7 @@ fun SeleccionIngresoEvidenciasScreen(
         topBar = {
             EncabezadoAutoClimas(
                 titulo = stringResource(R.string.evidence_selector_title),
-                onVolver = onVolver
-            )
-        }
+                onVolver = onVolver) }
     ) { padding ->
         Box(
             modifier = Modifier
@@ -73,16 +72,14 @@ fun SeleccionIngresoEvidenciasScreen(
                     .padding(
                         start = 16.dp,
                         end = 16.dp,
-                        top = 16.dp
-                    ),
+                        top = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
 
 
                 com.example.myapplication.ui.dashboard.components.BuscadorIngreso(
                     textoBusqueda = estado.textoBusqueda,
-                    onBusquedaChange = viewModel::cambiarBusqueda
-                )
+                    onBusquedaChange = viewModel::cambiarBusqueda)
 
                 when {
                     estado.cargando -> {
@@ -92,9 +89,7 @@ fun SeleccionIngresoEvidenciasScreen(
                                 .weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator()
-                        }
-                    }
+                            CircularProgressIndicator() } }
 
                     estado.hayError -> {
                         Column(
@@ -103,22 +98,15 @@ fun SeleccionIngresoEvidenciasScreen(
                         ) {
                             Text(
                                 text = stringResource(
-                                    R.string.evidence_selector_error
-                                ),
-                                color = colors.error
-                            )
+                                    R.string.evidence_selector_error),
+                                color = colors.error)
 
                             Button(
                                 onClick = viewModel::reintentar
                             ) {
                                 Text(
                                     stringResource(
-                                        R.string.camera_retry
-                                    )
-                                )
-                            }
-                        }
-                    }
+                                        R.string.camera_retry)) } } }
 
                     estado.ingresos.isEmpty() -> {
                         Text(
@@ -126,19 +114,14 @@ fun SeleccionIngresoEvidenciasScreen(
                                 if (estado.textoBusqueda.isBlank()) {
                                     R.string.evidence_selector_empty
                                 } else {
-                                    R.string.evidence_selector_no_results
-                                }
-                            ),
-                            color = colors.onSurfaceVariant
-                        )
-                    }
+                                    R.string.evidence_selector_no_results }),
+                            color = colors.onSurfaceVariant) }
 
                     else -> {
                         LazyColumn(
                             modifier = Modifier.weight(1f),
                             contentPadding = PaddingValues(
-                                bottom = 24.dp
-                            ),
+                                bottom = 24.dp),
                             verticalArrangement =
                                 Arrangement.spacedBy(12.dp)
                         ) {
@@ -148,13 +131,4 @@ fun SeleccionIngresoEvidenciasScreen(
                             ) { ingreso ->
                                 TarjetaSeleccionIngreso(
                                     ingreso = ingreso,
-                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }) } } } } } } } }

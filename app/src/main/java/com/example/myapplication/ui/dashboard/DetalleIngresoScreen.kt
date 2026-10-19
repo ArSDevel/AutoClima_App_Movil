@@ -136,16 +136,12 @@ fun DetalleIngresoScreen(
                 IngresoAccion.REGULARIZAR_ESTADO ->
                     viewModel.regularizarEstado(destino = destino, motivo = motivo, tecnicoId = tecnicoId)
                 IngresoAccion.ELIMINAR -> viewModel.eliminar(tecnicoId)
-                else -> error("La acción no corresponde a una confirmación del detalle.")
-            }
-        }
-    )
-}
+                else -> error("La acción no corresponde a una confirmación del detalle.") } }) }
 
+// Contenido del detalle: pasos, accesos, datos del ingreso e historial.
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalLayoutApi::class
-)
+    ExperimentalLayoutApi::class)
 @Composable
 private fun DetalleIngresoContent(
     uiState: DetalleIngresoUiState,
@@ -170,20 +166,20 @@ private fun DetalleIngresoContent(
     val accionesHabilitadas = !uiState.cargando && !uiState.procesando && !uiState.operacionExitosa &&
             !uiState.eliminado && uiState.errorCarga == null && ingreso != null
 
+    // Abre la confirmación de una acción si está permitida.
     fun solicitarAccion(accion: IngresoAccion) {
         if (!accionesHabilitadas) return
         onLimpiarError()
         motivo = ""
         destinoRegularizacion = EstadoIngreso.REGISTRADO
-        accionPendiente = accion
-    }
+        accionPendiente = accion }
 
+    // Cierra la confirmación y limpia el motivo escrito.
     fun cerrarConfirmacion() {
         if (uiState.procesando) return
         accionPendiente = null
         motivo = ""
-        onLimpiarError()
-    }
+        onLimpiarError() }
 
     // Evita abandonar la pantalla mientras se guarda una operación.
     BackHandler(enabled = uiState.procesando) {
@@ -195,10 +191,7 @@ private fun DetalleIngresoContent(
             if (uiState.eliminado) { onVolver() } else if (uiState.operacionExitosa) {
                 accionPendiente = null
                 motivo = ""
-                onConsumirExito()
-            }
-        }
-    }
+                onConsumirExito() } } }
 
     val estadoActual = ingreso?.let { EstadoIngreso.desdeValor(it.estado) }
     val puedeEditar = estadoActual != null && ReglasIngreso.editar(estadoActual)
@@ -220,14 +213,12 @@ private fun DetalleIngresoContent(
         estadoActual == EstadoIngreso.LISTO_PARA_FIRMA -> IngresoAccion.FIRMAR
         estadoActual == EstadoIngreso.LISTO_PARA_ENTREGA -> IngresoAccion.ENTREGAR
         puedeRegularizar -> IngresoAccion.REGULARIZAR_ESTADO
-        else -> null
-    }
+        else -> null }
     val requisitoFaltante: Int? = when {
         accionPrincipal == IngresoAccion.INICIAR_REPARACION && !tieneChecklist -> R.string.detalle_missing_checklist
         accionPrincipal == IngresoAccion.ENVIAR_A_FIRMA && !tieneDiagnostico -> R.string.detalle_missing_diagnosis
         accionPrincipal == IngresoAccion.FIRMAR || accionPrincipal == IngresoAccion.ENTREGAR -> R.string.in_development
-        else -> null
-    }
+        else -> null }
     val hayMasOpciones = puedeEditar || puedeDevolver || puedeCancelar || puedeEliminar
 
     Scaffold(
@@ -237,8 +228,7 @@ private fun DetalleIngresoContent(
                 titulo = ingreso?.placa ?: stringResource(R.string.detalle_title),
                 subtitulo = ingreso?.let { datos ->
                     listOfNotNull(datos.modelo.takeIf { it.isNotBlank() },
-                        datos.color?.takeIf { it.isNotBlank() }).joinToString(" · ")
-                },
+                        datos.color?.takeIf { it.isNotBlank() }).joinToString(" · ") },
                 onVolver = onVolver,
                 habilitado = !uiState.procesando,
                 acciones = {
@@ -248,8 +238,7 @@ private fun DetalleIngresoContent(
                                 icono = Icons.Default.MoreVert,
                                 descripcion = stringResource(R.string.detalle_more_options),
                                 habilitado = accionesHabilitadas,
-                                onClick = { menuAbierto = true }
-                            )
+                                onClick = { menuAbierto = true })
                             DropdownMenu(expanded = menuAbierto, onDismissRequest = { menuAbierto = false }) {
                                 if (puedeEditar) {
                                     DropdownMenuItem(
@@ -257,36 +246,22 @@ private fun DetalleIngresoContent(
                                             ReglasIngreso.soloContacto(estadoActual)) {
                                             R.string.detalle_edit_contact } else { R.string.dashboard_action_edit })) },
                                         leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                                        onClick = { menuAbierto = false; onEditar(ingreso.ingresoId) }
-                                    )
-                                }
+                                        onClick = { menuAbierto = false; onEditar(ingreso.ingresoId) }) }
                                 if (puedeDevolver) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.dashboard_action_return_repair)) },
                                         leadingIcon = { Icon(Icons.Default.Undo, contentDescription = null) },
-                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.DEVOLVER_A_REPARACION) }
-                                    )
-                                }
+                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.DEVOLVER_A_REPARACION) }) }
                                 if (puedeCancelar) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.dashboard_action_cancel), color = colors.error) },
                                         leadingIcon = { Icon(Icons.Default.Cancel, contentDescription = null, tint = colors.error) },
-                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.CANCELAR) }
-                                    )
-                                }
+                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.CANCELAR) }) }
                                 if (puedeEliminar) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.dashboard_action_delete), color = colors.error) },
                                         leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = colors.error) },
-                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.ELIMINAR) }
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            )
-        },
+                                        onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.ELIMINAR) }) } } } } }) },
         bottomBar = {
             if (ingreso != null && accionPrincipal != null) {
                 BarraAccionInferior {
@@ -295,13 +270,10 @@ private fun DetalleIngresoContent(
                             Text(
                                 text = stringResource(requisitoFaltante),
                                 style = MaterialTheme.typography.bodySmall,
-                                color = colors.onSurfaceVariant
-                            )
-                        }
+                                color = colors.onSurfaceVariant) }
                         Button(
                             onClick = {
-                                solicitarAccion(accionPrincipal)
-                            },
+                                solicitarAccion(accionPrincipal) },
                             enabled = accionesHabilitadas && requisitoFaltante == null,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                             shape = RoundedCornerShape(16.dp)
@@ -313,15 +285,8 @@ private fun DetalleIngresoContent(
                                     IngresoAccion.ENVIAR_A_FIRMA -> R.string.dashboard_action_to_signature
                                     IngresoAccion.FIRMAR -> R.string.dashboard_action_sign
                                     IngresoAccion.ENTREGAR -> R.string.dashboard_action_deliver
-                                    else -> R.string.dashboard_action_regularize
-                                }),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
-                }
-            }
-        }
+                                    else -> R.string.dashboard_action_regularize }),
+                                style = MaterialTheme.typography.titleMedium) } } } } }
     ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
@@ -331,38 +296,27 @@ private fun DetalleIngresoContent(
             when {
                 uiState.cargando || uiState.eliminado -> {
                     item { PanelDetalle(titulo = stringResource(R.string.detalle_loading)) {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) } }
-                }
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) } } }
 
                 uiState.errorCarga != null -> {
                     item { PanelDetalle(titulo = stringResource(R.string.detalle_load_error)) {
                         Text(uiState.errorCarga)
-                        Button(onClick = onReintentar) { Text(stringResource(R.string.dashboard_retry)) } } }
-                }
+                        Button(onClick = onReintentar) { Text(stringResource(R.string.dashboard_retry)) } } } }
 
                 ingreso == null -> {
                     item {
                         if (uiState.procesando) { PanelDetalle(titulo = stringResource(R.string.detalle_processing)) {
-                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                        }
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
                         } else { PanelDetalle(titulo = stringResource(R.string.navigation_ingreso_not_found)) {
                             TextButton(onClick = onVolver) {
-                                Text(stringResource(R.string.registro_back_dashboard))
-                            }
-                        }
-                        }
-                    }
-                }
+                                Text(stringResource(R.string.registro_back_dashboard)) } } } } }
                 else -> {
                     val estado = EstadoIngreso.desdeValor(ingreso.estado)
                     if (uiState.procesando) {
                         item {
-                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                        }
-                    }
+                            LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) } }
                     if (accionPendiente == null && uiState.errorOperacion != null) {
-                        item { Text(text = uiState.errorOperacion, color = colors.error) }
-                    }
+                        item { Text(text = uiState.errorOperacion, color = colors.error) } }
                     item { PasosIngreso(estado = estado) }
                     item {
                         // Permite capturar durante revisión y reparación.
@@ -377,17 +331,14 @@ private fun DetalleIngresoContent(
                                     color = colors.primary,
                                     habilitada = accionesHabilitadas && (permiteEditarChecklist || tieneChecklistGuardado),
                                     onClick = { onAbrirChecklist(ingreso.ingresoId) },
-                                    modifier = Modifier.weight(1f)
-                                )
+                                    modifier = Modifier.weight(1f))
                                 HerramientaIngreso(
                                     titulo = stringResource(R.string.dashboard_action_evidence),
                                     icono = Icons.Default.CameraAlt,
                                     color = MaterialTheme.estadoIngresoColors.listoParaEntrega,
                                     habilitada = accionesHabilitadas,
                                     onClick = { onAbrirEvidencias(ingreso.ingresoId) },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
+                                    modifier = Modifier.weight(1f)) }
                             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                 HerramientaIngreso(
                                     titulo = stringResource(R.string.dashboard_action_diagnosis),
@@ -395,8 +346,7 @@ private fun DetalleIngresoContent(
                                     color = MaterialTheme.estadoIngresoColors.enReparacion,
                                     habilitada = accionesHabilitadas,
                                     onClick = { onAbrirDiagnostico(ingreso.ingresoId) },
-                                    modifier = Modifier.weight(1f)
-                                )
+                                    modifier = Modifier.weight(1f))
                                 // La firma se consulta desde que el ingreso queda listo para firma.
                                 HerramientaIngreso(
                                     titulo = stringResource(R.string.dashboard_action_sign),
@@ -405,11 +355,7 @@ private fun DetalleIngresoContent(
                                     habilitada = false,
                                     nota = stringResource(R.string.in_development),
                                     onClick = {},
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                    }
+                                    modifier = Modifier.weight(1f)) } } }
                     item {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
@@ -424,31 +370,18 @@ private fun DetalleIngresoContent(
                                 FilaDato(Icons.Default.DateRange, fechaDetalle(ingreso.fechaEntrada))
                                 FilaDato(Icons.Default.Description, ingreso.motivoIngreso)
                                 FilaDato(Icons.Default.Info, ingreso.condicionInicial)
-                                FilaDato(Icons.Default.Tag, ingreso.numeroSerie)
-                            }
-                        }
-                    }
+                                FilaDato(Icons.Default.Tag, ingreso.numeroSerie) } } }
                     if (ReglasIngreso.estaCerrado(estado)) {
                         item {
                             Text(text = stringResource(R.string.detalle_closed),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = colors.onSurfaceVariant)
-                        }
-                    }
+                                color = colors.onSurfaceVariant) } }
                     item {
                         PanelDetalle(titulo = stringResource(R.string.detalle_history)) {
                             if (uiState.historial.isEmpty()) {
-                                Text(stringResource(R.string.detalle_history_empty))
-                            }
+                                Text(stringResource(R.string.detalle_history_empty)) }
                             uiState.historial.forEachIndexed { indice, evento ->
-                                EventoDetalle(evento = evento, ultimo = indice == uiState.historial.lastIndex)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+                                EventoDetalle(evento = evento, ultimo = indice == uiState.historial.lastIndex) } } } } } } }
 
     val accion = accionPendiente
     if (accion != null && ingreso != null && !uiState.eliminado) {
@@ -464,31 +397,23 @@ private fun DetalleIngresoContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(Icons.Default.Delete, contentDescription = null,
-                            tint = colors.error, modifier = Modifier.size(28.dp))
-                    }
-                },
+                            tint = colors.error, modifier = Modifier.size(28.dp)) } },
                 title = { Text(stringResource(R.string.detalle_delete_title, ingreso.placa)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(text = stringResource(R.string.detalle_delete_warning))
                         uiState.errorOperacion?.let { Text(text = it, color = colors.error) }
-                        if (uiState.procesando) { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
-                    }
-                },
+                        if (uiState.procesando) { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) } } },
                 confirmButton = {
                     Button(
                         enabled = accionesHabilitadas,
                         onClick = { onConfirmar(accion, "", destinoRegularizacion) },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = colors.error, contentColor = colors.onError)
-                    ) { Text(stringResource(R.string.dashboard_action_delete)) }
-                },
+                    ) { Text(stringResource(R.string.dashboard_action_delete)) } },
                 dismissButton = {
                     TextButton(enabled = !uiState.procesando, onClick = { cerrarConfirmacion() }) {
-                        Text(stringResource(R.string.detalle_back))
-                    }
-                }
-            )
+                        Text(stringResource(R.string.detalle_back)) } })
         } else {
             ModalBottomSheet(
                 onDismissRequest = { cerrarConfirmacion() },
@@ -508,10 +433,8 @@ private fun DetalleIngresoContent(
                             text = stringResource(tituloConfirmacion(accion)),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier.weight(1f, fill = false)
-                        )
-                        PildoraEstado(estado = EstadoIngreso.desdeValor(ingreso.estado))
-                    }
+                            modifier = Modifier.weight(1f, fill = false))
+                        PildoraEstado(estado = EstadoIngreso.desdeValor(ingreso.estado)) }
                     if (accion == IngresoAccion.REGULARIZAR_ESTADO) {
                         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf(EstadoIngreso.REGISTRADO, EstadoIngreso.EN_REVISION).forEach { destino ->
@@ -519,33 +442,24 @@ private fun DetalleIngresoContent(
                                     enabled = !uiState.procesando,
                                     onClick = { destinoRegularizacion = destino
                                         onLimpiarError() },
-                                    label = { Text(stringResource(etiquetaEstadoDetalle(destino)))}
-                                )
-                            }
-                        }
-                    }
+                                    label = { Text(stringResource(etiquetaEstadoDetalle(destino)))}) } } }
                     if (requiereMotivo) {
                         OutlinedTextField(
                             value = motivo,
                             onValueChange = {
                                 motivo = it
-                                onLimpiarError()
-                            },
+                                onLimpiarError() },
                             label = { Text(stringResource(R.string.detalle_reason)) },
                             enabled = !uiState.procesando,
                             minLines = 3,
                             shape = MaterialTheme.shapes.small,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                            modifier = Modifier.fillMaxWidth()) }
                     Text(
                         text = stringResource(
                             if (accion == IngresoAccion.CANCELAR) R.string.detalle_cancel_warning
-                            else R.string.detalle_change_warning
-                        ),
+                            else R.string.detalle_change_warning),
                         style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant
-                    )
+                        color = colors.onSurfaceVariant)
                     uiState.errorOperacion?.let { Text(text = it, color = colors.error) }
                     if (uiState.procesando) { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -565,15 +479,9 @@ private fun DetalleIngresoContent(
                             ) else ButtonDefaults.buttonColors()
                         ) {
                             Text(text = stringResource(R.string.detalle_confirm),
-                                style = MaterialTheme.typography.titleMedium)
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                                style = MaterialTheme.typography.titleMedium) } } } } } } }
 
+// Panel blanco con título para el historial y los avisos.
 @Composable
 private fun PanelDetalle(
     titulo: String,
@@ -584,11 +492,9 @@ private fun PanelDetalle(
         Column(modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(text = titulo, style = MaterialTheme.typography.titleMedium)
-            contenido()
-        }
-    }
-}
+            contenido() } } }
 
+// Texto de cada estado.
 @StringRes
 private fun etiquetaEstadoDetalle(estado: EstadoIngreso): Int {
     return when (estado) {
@@ -599,10 +505,9 @@ private fun etiquetaEstadoDetalle(estado: EstadoIngreso): Int {
         EstadoIngreso.LISTO_PARA_ENTREGA -> R.string.dashboard_status_delivery
         EstadoIngreso.ENTREGADO -> R.string.dashboard_status_delivered
         EstadoIngreso.CANCELADO -> R.string.dashboard_status_cancelled
-        EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown
-    }
-}
+        EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown } }
 
+// Título de la confirmación de cada acción.
 @StringRes
 private fun tituloConfirmacion(accion: IngresoAccion): Int {
     return when (accion) {
@@ -613,18 +518,17 @@ private fun tituloConfirmacion(accion: IngresoAccion): Int {
         IngresoAccion.CANCELAR -> R.string.dashboard_action_cancel
         IngresoAccion.ELIMINAR -> R.string.dashboard_action_delete
         IngresoAccion.REGULARIZAR_ESTADO -> R.string.dashboard_action_regularize
-        else -> error("Acción sin diálogo de confirmación.")
-    }
-}
+        else -> error("Acción sin diálogo de confirmación.") } }
 
+// Fecha y hora con el formato del dispositivo.
 @Composable
 private fun fechaDetalle(milisegundos: Long): String {
     val locale = LocalConfiguration.current.locales[0]
     return DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
         DateFormat.SHORT, locale
-    ).format(Date(milisegundos))
-}
+    ).format(Date(milisegundos)) }
 
+// Un evento del historial dentro de la línea de tiempo.
 @Composable
 private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
     val colors = MaterialTheme.colorScheme
@@ -638,17 +542,13 @@ private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
             "FOTO_PRINCIPAL" -> R.string.fotos_event_main
             "EVIDENCIA_ELIMINADA" -> R.string.fotos_event_deleted
             "DIAGNOSTICO" -> R.string.detalle_event_diagnosis
-            else -> R.string.detalle_event_other
-        }
-    )
+            else -> R.string.detalle_event_other })
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.padding(top = 6.dp).size(12.dp).clip(CircleShape).background(colors.primary))
             if (!ultimo) {
                 Box(modifier = Modifier.padding(top = 4.dp).width(2.dp).height(40.dp)
-                    .background(colors.outlineVariant))
-            }
-        }
+                    .background(colors.outlineVariant)) } }
         Column(modifier = Modifier.weight(1f).padding(bottom = if (ultimo) 0.dp else 8.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = titulo, style = MaterialTheme.typography.titleSmall)
@@ -660,14 +560,9 @@ private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
                     R.string.detalle_event_transition, stringResource(etiquetaEstadoDetalle(
                         EstadoIngreso.desdeValor(evento.estadoAnterior))),
                     stringResource(etiquetaEstadoDetalle(EstadoIngreso.desdeValor(evento.estadoNuevo)))
-                ), style = MaterialTheme.typography.bodyMedium)
-            }
+                ), style = MaterialTheme.typography.bodyMedium) }
             if (evento.motivo.isNotBlank()) {
-                Text(text = evento.motivo, style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-    }
-}
+                Text(text = evento.motivo, style = MaterialTheme.typography.bodyMedium) } } } }
 
 // Paso actual del ingreso dentro del proceso del taller.
 @Composable
@@ -676,23 +571,20 @@ private fun PasosIngreso(estado: EstadoIngreso) {
     // CANCELADO y NO_DISPONIBLE no forman parte del avance normal.
     if (estado == EstadoIngreso.CANCELADO || estado == EstadoIngreso.NO_DISPONIBLE) {
         PildoraEstado(estado = estado)
-        return
-    }
+        return }
     val actual = when (estado) {
         EstadoIngreso.REGISTRADO -> 0
         EstadoIngreso.EN_REVISION -> 1
         EstadoIngreso.EN_REPARACION -> 2
         EstadoIngreso.LISTO_PARA_FIRMA -> 3
         EstadoIngreso.LISTO_PARA_ENTREGA -> 4
-        else -> 5
-    }
+        else -> 5 }
     val pasos = listOf(
         R.string.detalle_step_registered,
         R.string.detalle_step_review,
         R.string.detalle_step_repair,
         R.string.detalle_step_signature,
-        R.string.detalle_step_delivery
-    )
+        R.string.detalle_step_delivery)
     val colorActual = colorEstado(estado)
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -718,9 +610,7 @@ private fun PasosIngreso(estado: EstadoIngreso) {
                     ) {
                         if (hecho) {
                             Icon(imageVector = Icons.Default.Check, contentDescription = null,
-                                modifier = Modifier.size(16.dp), tint = colors.onPrimary)
-                        }
-                    }
+                                modifier = Modifier.size(16.dp), tint = colors.onPrimary) } }
                     // El tamaño no crece con la letra grande del sistema: son cinco etiquetas en una fila.
                     Text(
                         text = stringResource(texto),
@@ -729,13 +619,7 @@ private fun PasosIngreso(estado: EstadoIngreso) {
                         fontWeight = if (enCurso) FontWeight.Bold else FontWeight.Normal,
                         color = when { enCurso -> colorActual; hecho -> colors.primary
                             else -> colors.onSurfaceVariant },
-                        maxLines = 1
-                    )
-                }
-            }
-        }
-    }
-}
+                        maxLines = 1) } } } } }
 
 // Acceso a un módulo del ingreso.
 @Composable
@@ -765,18 +649,12 @@ private fun HerramientaIngreso(
                     .background(color.copy(alpha = 0.14f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(imageVector = icono, contentDescription = null, tint = color)
-            }
+                Icon(imageVector = icono, contentDescription = null, tint = color) }
             Column {
                 Text(text = titulo, style = MaterialTheme.typography.titleMedium)
                 if (nota != null) {
                     Text(text = nota, style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
-        }
-    }
-}
+                        color = MaterialTheme.colorScheme.onSurfaceVariant) } } } } }
 
 // Dato con icono. No se muestra si no tiene valor.
 @Composable
@@ -790,16 +668,14 @@ private fun FilaDato(icono: ImageVector, valor: String?, conDivisor: Boolean = t
     ) {
         Icon(imageVector = icono, contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(text = valor, style = MaterialTheme.typography.bodyLarge)
-    }
-}
+        Text(text = valor, style = MaterialTheme.typography.bodyLarge) } }
 
+// Vista previa del detalle en modo claro.
 @Preview(
     name = "Detalle · claro",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun DetalleClaroPreview() {
     MyApplicationTheme(darkTheme = false) {
@@ -812,17 +688,14 @@ private fun DetalleClaroPreview() {
             onLimpiarError = {},
             onConsumirExito = {},
             onAbrirChecklist = {},
-            onConfirmar = { _, _, _ -> }
-        )
-    }
-}
+            onConfirmar = { _, _, _ -> }) } }
 
+// Vista previa del detalle en modo oscuro.
 @Preview(
     name = "Detalle · oscuro",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun DetalleOscuroPreview() {
     MyApplicationTheme(darkTheme = true) {
@@ -835,11 +708,9 @@ private fun DetalleOscuroPreview() {
             onAbrirDiagnostico = {},
             onConsumirExito = {},
             onAbrirChecklist = {},
-            onConfirmar = { _, _, _ -> }
-        )
-    }
-}
+            onConfirmar = { _, _, _ -> }) } }
 
+// Datos de ejemplo para las vistas previas del detalle.
 private fun estadoDetallePreview(): DetalleIngresoUiState {
     return DetalleIngresoUiState(
         cargando = false,
@@ -855,8 +726,7 @@ private fun estadoDetallePreview(): DetalleIngresoUiState {
             fechaEntrada = 1788955200000L,
             estado = EstadoIngreso.REGISTRADO.name,
             motivoIngreso = "El aire acondicionado no enfría.",
-            condicionInicial = "Vehículo recibido para revisión."
-        ),
+            condicionInicial = "Vehículo recibido para revisión."),
         historial = listOf(
             EventoIngreso(
                 eventoId = 1L,
@@ -866,8 +736,4 @@ private fun estadoDetallePreview(): DetalleIngresoUiState {
                 accion = "CREADO",
                 estadoAnterior = "",
                 estadoNuevo = EstadoIngreso.REGISTRADO.name,
-                motivo = "Ingreso registrado."
-            )
-        )
-    )
-}
+                motivo = "Ingreso registrado."))) }

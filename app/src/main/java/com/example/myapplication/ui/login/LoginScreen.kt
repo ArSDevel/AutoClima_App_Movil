@@ -88,13 +88,11 @@ fun LoginScreen(
     // Notifica cuando la sesión es exitosa.
     // AutoClimaApp gestiona el cambio de ruta.
     LaunchedEffect(uiState.isLoggedIn) {
-        if (uiState.isLoggedIn) { onLoginSuccessActual() }
-    }
+        if (uiState.isLoggedIn) { onLoginSuccessActual() } }
     // Renderizado del contenido visual.
     LoginContent(uiState = uiState, onIdChanged = viewModel::onIdChanged,
         onPasswordChanged = viewModel::onPasswordChanged, onLoginClick = viewModel::login,
-        modifier = modifier)
-}
+        modifier = modifier) }
 
 // Componente que construye los elementos visuales
 // del formulario de Login.
@@ -139,21 +137,19 @@ fun LoginContent(
         errorTextColor = colors.onBackground,
         disabledTextColor = colors.onSurfaceVariant,
         cursorColor = colors.primary,
-        errorCursorColor = colors.error
-    )
+        errorCursorColor = colors.error)
 
     // Oculta la contraseña y retira el foco al iniciar la operación.
     LaunchedEffect(uiState.cargando, uiState.isLoggedIn) {
         if (uiState.cargando || uiState.isLoggedIn) { passwordVisible = false
-            focusManager.clearFocus() }
-    }
+            focusManager.clearFocus() } }
 
+    // Oculta la contraseña y quita el foco antes de iniciar sesión.
     fun enviarFormulario() {
         if (!formularioHabilitado) return
         passwordVisible = false
         focusManager.clearFocus()
-        onLoginClick()
-    }
+        onLoginClick() }
 
     Box(modifier = modifier
             .fillMaxSize().background(brush = backgroundGradient).safeDrawingPadding()
@@ -170,8 +166,7 @@ fun LoginContent(
             Card(shape = shapes.extraLarge,
                 colors = CardDefaults.cardColors(
                     containerColor = colors.surface,
-                    contentColor = colors.onSurface
-                ),
+                    contentColor = colors.onSurface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
                 modifier = Modifier
                     .widthIn(max = 480.dp).fillMaxWidth()
@@ -184,8 +179,7 @@ fun LoginContent(
                     // Logo con fondo transparente; en modo oscuro usa la versión de texto claro.
                     com.example.myapplication.ui.components.LogoAutoClimas(
                         descripcion = stringResource(R.string.login_logo_description),
-                        modifier = Modifier.width(240.dp).height(164.dp)
-                    )
+                        modifier = Modifier.width(240.dp).height(164.dp))
                     Spacer(modifier = Modifier.height(28.dp))
                     // Campo de entrada: ID de usuario.
                     Column(modifier = Modifier.fillMaxWidth()
@@ -204,14 +198,11 @@ fun LoginContent(
                                 onNext = { if (formularioHabilitado) { focusManager.moveFocus(FocusDirection.Next) } }),
                             shape = shapes.small,
                             colors = coloresCampos,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).semantics { contentDescription = etiquetaUsuario }
-                        )
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).semantics { contentDescription = etiquetaUsuario })
                         uiState.idError?.let { mensaje ->
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(text = mensaje, color = colors.error,
-                                style = typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                        }
-                    }
+                                style = typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) } }
                     Spacer(modifier = Modifier.height(16.dp))
                     // Campo de entrada: Contraseña.
                     Column(modifier = Modifier.fillMaxWidth()
@@ -236,21 +227,16 @@ fun LoginContent(
                                         } else { Icons.Filled.VisibilityOff },
                                         contentDescription = stringResource(
                                             if (passwordVisible) { R.string.login_hide_password
-                                            } else { R.string.login_show_password }))
-                                }
-                            },
+                                            } else { R.string.login_show_password })) } },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(onDone = { enviarFormulario() }),
                             shape = shapes.small, colors = coloresCampos,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).semantics { contentDescription = etiquetaPassword }
-                        )
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp).semantics { contentDescription = etiquetaPassword })
                         uiState.passwordError?.let { mensaje ->
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(text = mensaje, color = colors.error,
                                 style = typography.bodySmall,
-                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
-                        }
-                    }
+                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) } }
                     Spacer(modifier = Modifier.height(28.dp))
                     // Botón principal de Iniciar Sesión.
                     // Solo usa el degradado cuando admite interacción.
@@ -260,14 +246,12 @@ fun LoginContent(
                             containerColor = Color.Transparent,
                             contentColor = AutoClimasWhite,
                             disabledContainerColor = colors.surface,
-                            disabledContentColor = colors.onSurfaceVariant
-                        ),
+                            disabledContentColor = colors.onSurfaceVariant),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
                         modifier = Modifier.fillMaxWidth().heightIn(min = 60.dp).clip(shapes.small)
                             .then(if (formularioHabilitado) {
                                 Modifier.background(brush = buttonGradient)
-                                } else { Modifier }
-                            )
+                                } else { Modifier })
                     ) { Row(horizontalArrangement = Arrangement.spacedBy(10.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) { if (uiState.cargando) {
@@ -279,23 +263,15 @@ fun LoginContent(
                                 } else { stringResource(R.string.login_button) },
                                 style = typography.labelLarge,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
+                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) } } } } } } }
 
 
+// Vista previa del inicio de sesión en modo claro.
 @Preview(
     name = "Login · claro",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 fun LoginScreenPreview() {
     MyApplicationTheme(darkTheme = false) {
@@ -303,17 +279,14 @@ fun LoginScreenPreview() {
             uiState = LoginUiState(),
             onIdChanged = {},
             onPasswordChanged = {},
-            onLoginClick = {}
-        )
-    }
-}
+            onLoginClick = {}) } }
 
+// Vista previa del inicio de sesión en modo oscuro.
 @Preview(
     name = "Login · oscuro",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun LoginOscuroPreview() {
     MyApplicationTheme(darkTheme = true) {
@@ -321,17 +294,14 @@ private fun LoginOscuroPreview() {
             uiState = LoginUiState(),
             onIdChanged = {},
             onPasswordChanged = {},
-            onLoginClick = {}
-        )
-    }
-}
+            onLoginClick = {}) } }
 
+// Vista previa mientras se valida el usuario.
 @Preview(
     name = "Login · cargando",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun LoginCargandoPreview() {
     MyApplicationTheme(darkTheme = true) {
@@ -339,42 +309,34 @@ private fun LoginCargandoPreview() {
             uiState = LoginUiState(
                 id = "erik",
                 password = "1234",
-                cargando = true
-            ),
+                cargando = true),
             onIdChanged = {},
             onPasswordChanged = {},
-            onLoginClick = {}
-        )
-    }
-}
+            onLoginClick = {}) } }
 
+// Vista previa con los errores de los campos.
 @Preview(
     name = "Login · errores",
     showBackground = true,
     widthDp = 400,
-    heightDp = 850
-)
+    heightDp = 850)
 @Composable
 private fun LoginErroresPreview() {
     MyApplicationTheme(darkTheme = false) {
         LoginContent(
             uiState = LoginUiState(
                 idError = "El usuario no puede estar vacío",
-                passwordError = "La contraseña no puede estar vacía"
-            ),
+                passwordError = "La contraseña no puede estar vacía"),
             onIdChanged = {},
             onPasswordChanged = {},
-            onLoginClick = {}
-        )
-    }
-}
+            onLoginClick = {}) } }
 
+// Vista previa con la pantalla en horizontal.
 @Preview(
     name = "Login · horizontal",
     showBackground = true,
     widthDp = 850,
-    heightDp = 400
-)
+    heightDp = 400)
 @Composable
 private fun LoginHorizontalPreview() {
     MyApplicationTheme(darkTheme = false) {
@@ -382,7 +344,4 @@ private fun LoginHorizontalPreview() {
             uiState = LoginUiState(),
             onIdChanged = {},
             onPasswordChanged = {},
-            onLoginClick = {}
-        )
-    }
-}
+            onLoginClick = {}) } }
