@@ -308,7 +308,7 @@ fun DiagnosticoScreen(
                                             text = stringResource(R.string.diagnostico_notes_title).uppercase(),
                                             style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
                                             fontWeight = FontWeight.Bold,
-                                            color = colors.tertiary
+                                            color = com.example.myapplication.ui.components.colorTituloSeccion()
                                         )
                                         OutlinedTextField(
                                             value = estado.observaciones,
@@ -452,7 +452,7 @@ private fun CajaHallazgos(
                     text = stringResource(R.string.diagnostico_findings_title).uppercase(),
                     style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
                     fontWeight = FontWeight.Bold,
-                    color = colors.tertiary
+                    color = com.example.myapplication.ui.components.colorTituloSeccion()
                 )
                 TextButton(onClick = onAbrirChecklist) {
                     Text(stringResource(R.string.dashboard_action_checklist), fontWeight = FontWeight.Bold)

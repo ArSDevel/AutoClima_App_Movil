@@ -721,9 +721,11 @@ private fun PasosIngreso(estado: EstadoIngreso) {
                                 modifier = Modifier.size(16.dp), tint = colors.onPrimary)
                         }
                     }
+                    // El tamaño no crece con la letra grande del sistema: son cinco etiquetas en una fila.
                     Text(
                         text = stringResource(texto),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = with(androidx.compose.ui.platform.LocalDensity.current) { 11.dp.toSp() }),
                         fontWeight = if (enCurso) FontWeight.Bold else FontWeight.Normal,
                         color = when { enCurso -> colorActual; hecho -> colors.primary
                             else -> colors.onSurfaceVariant },

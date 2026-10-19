@@ -68,7 +68,7 @@ fun CotizacionDiagnostico(
                     text = stringResource(R.string.diagnostico_quote_title).uppercase(),
                     style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
                     fontWeight = FontWeight.Bold,
-                    color = colors.tertiary
+                    color = com.example.myapplication.ui.components.colorTituloSeccion()
                 )
                 if (!soloLectura) {
                     IconButton(onClick = onAgregarConcepto, enabled = habilitado) {

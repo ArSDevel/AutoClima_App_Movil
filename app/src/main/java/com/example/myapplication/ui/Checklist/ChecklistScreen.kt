@@ -417,7 +417,7 @@ fun ChecklistScreen(
                                             text = stringResource(R.string.registro_evidence_title).uppercase(),
                                             style = MaterialTheme.typography.labelLarge,
                                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                                            color = MaterialTheme.colorScheme.tertiary
+                                            color = com.example.myapplication.ui.components.colorTituloSeccion()
                                         )
                                     }
                                     if (estadoFotos.permiteAgregar && estadoFotos.rutaPendiente == null) {

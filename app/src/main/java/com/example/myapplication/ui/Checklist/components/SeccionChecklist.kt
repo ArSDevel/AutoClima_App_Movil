@@ -58,7 +58,7 @@ fun SeccionChecklist(
                 text = titulo.uppercase(),
                 style = typography.labelLarge.copy(letterSpacing = 0.8.sp),
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                color = colors.tertiary,
+                color = com.example.myapplication.ui.components.colorTituloSeccion(),
                 modifier = Modifier.semantics { heading() }
             )
         }

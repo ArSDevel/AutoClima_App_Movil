@@ -407,3 +407,11 @@ fun nombreCortoTecnico(nombre: String?): String? {
     if (partes.isEmpty()) return null
     return if (partes.size == 1) partes[0] else "${partes[0]} ${partes[1].first()}."
 }
+
+// Color de los títulos de sección: azul marino en claro y azul claro en oscuro.
+// (tertiary es el color de las cabeceras y en oscuro casi no se distingue del fondo).
+@Composable
+fun colorTituloSeccion(): Color {
+    return if (LocalAutoClimasDark.current) MaterialTheme.colorScheme.primary
+    else MaterialTheme.colorScheme.tertiary
+}

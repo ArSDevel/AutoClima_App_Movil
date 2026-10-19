@@ -164,7 +164,7 @@ private fun MensajeHallazgos(
 // Traduce cada hallazgo a un recurso de texto.
 // La interpretación de las respuestas se realiza en DiagnosticoUiState.
 @StringRes
-private fun descripcionHallazgo(
+internal fun descripcionHallazgo(
     hallazgo: HallazgoDiagnostico
 ): Int {
     return when (hallazgo) {
