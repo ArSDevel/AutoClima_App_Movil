@@ -410,6 +410,9 @@ fun AutoClimaApp() {
                         val registroViewModel: RegistroViewModel =
                             viewModel(factory = registroFactory)
 
+                        val vieneDelDetalle = key.ingresoId != null &&
+                                (backStack.getOrNull(backStack.lastIndex - 1) as? DetalleIngresoRoute)?.ingresoId == key.ingresoId
+
                         var mostrarCamara by rememberSaveable {
                             mutableStateOf(false)
                         }
@@ -460,7 +463,10 @@ fun AutoClimaApp() {
                                         seleccionarMenu(opcion)
                                     }
                                 },
-                                onVerIngreso = { abrirDetalle(it) }
+                                // Si se llegó desde el detalle del mismo ingreso, "Ver detalle" y "Atrás"
+                                // llevarían al mismo lugar: se ofrece solo un botón.
+                                onVerIngreso = if (vieneDelDetalle) null else { id -> abrirDetalle(id) },
+                                onVolver = { volverUnaPantalla() }
                             )
                         }
 

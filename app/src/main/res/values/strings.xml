@@ -162,7 +162,7 @@
     <string name="registro_updated_success">Cambios guardados</string>
     <string name="registro_saved_identifier">Ingreso n.º %1$d</string>
     <string name="registro_another">Registrar otro vehículo</string>
-    <string name="registro_back_dashboard">Volver al dashboard</string>
+    <string name="registro_back_dashboard">Volver a ingresos</string>
 
     <!-- Registro y edición: salida con cambios pendientes -->
     <string name="registro_discard_title">¿Salir sin guardar?</string>
@@ -586,4 +586,5 @@
     <string name="diagnostico_findings_ok">Sin problemas</string>
     <string name="drawer_role">Técnico</string>
     <string name="diagnostico_concept_short">Concepto</string>
+    <string name="registro_back_detail">Volver al detalle</string>
 </resources>

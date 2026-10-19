@@ -231,12 +231,24 @@ internal fun ResultadoRegistro(
             }
         }
 
-        TextButton(
-            enabled = !uiState.cargando,
-            onClick = onVolver,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(stringResource(R.string.registro_back_dashboard))
+        if (uiState.esEdicion && onVerIngreso == null) {
+            // Único destino posible: regresar. Se ofrece como acción principal.
+            Button(
+                enabled = !uiState.cargando,
+                onClick = onVolver,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.registro_back_detail))
+            }
+        } else {
+            TextButton(
+                enabled = !uiState.cargando,
+                onClick = onVolver,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                // Al editar se regresa a la pantalla de donde se llegó; al crear, a la lista.
+                Text(stringResource(if (uiState.esEdicion) R.string.registro_back else R.string.registro_back_dashboard))
+            }
         }
     }
 }

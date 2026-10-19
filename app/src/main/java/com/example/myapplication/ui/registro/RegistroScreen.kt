@@ -119,7 +119,8 @@ fun RegistroScreen(
     tecnicoId: Long,
     onTomarFotoClick: () -> Unit,
     modifier: Modifier = Modifier,
-    onVerIngreso: ((Long) -> Unit)? = null
+    onVerIngreso: ((Long) -> Unit)? = null,
+    onVolver: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     RegistroContent(
@@ -149,6 +150,7 @@ fun RegistroScreen(
         onLogout = onLogout,
         onMenuSeleccionado = onMenuSeleccionado,
         onVerIngreso = onVerIngreso,
+        onVolver = onVolver,
         modifier = modifier
     )
 }
@@ -159,6 +161,8 @@ private enum class CampoRegistro {
 }
 
 private enum class SalidaRegistro {
+    // Volver a la pantalla anterior (flecha, ×, atrás del sistema).
+    VOLVER,
     DASHBOARD,
     CHECKLIST,
     DIAGNOSTICO,
@@ -183,7 +187,8 @@ private fun RegistroContent(
     onSeleccionarFoto: (String) -> Unit = {},
     onQuitarFoto: (String) -> Unit = {},
     onPasoChange: (Int) -> Unit = {},
-    onValidarPaso: (Int) -> Boolean = { true }
+    onValidarPaso: (Int) -> Boolean = { true },
+    onVolver: () -> Unit = {}
 ) {
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -214,6 +219,7 @@ private fun RegistroContent(
 
     fun ejecutarSalida(destino: SalidaRegistro) {
         when (destino) {
+            SalidaRegistro.VOLVER -> onVolver()
             SalidaRegistro.DASHBOARD -> {
                 onMenuSeleccionado(DashboardMenuOption.DASHBOARD) }
             SalidaRegistro.CHECKLIST -> {
@@ -271,7 +277,7 @@ private fun RegistroContent(
         // También protege la salida mediante el botón Atrás de Android.
         BackHandler {
             if (drawerState.isOpen) { scope.launch { drawerState.close() } }
-            else { solicitarSalida(SalidaRegistro.DASHBOARD) }
+            else { solicitarSalida(SalidaRegistro.VOLVER) }
         }
         Scaffold(
             containerColor = colors.background,
@@ -282,7 +288,7 @@ private fun RegistroContent(
                     EncabezadoAutoClimas(
                         titulo = stringResource(R.string.registro_title_edit),
                         subtitulo = uiState.placa.ifBlank { null },
-                        onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD) },
+                        onVolver = { solicitarSalida(SalidaRegistro.VOLVER) },
                         habilitado = !uiState.cargando,
                         acciones = {
                             if (uiState.estadoIngreso != EstadoIngreso.NO_DISPONIBLE || uiState.formularioDisponible) {
@@ -294,7 +300,7 @@ private fun RegistroContent(
                 Column {
                     EncabezadoAutoClimas(
                         titulo = stringResource(R.string.registro_title_new),
-                        onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD) },
+                        onVolver = { solicitarSalida(SalidaRegistro.VOLVER) },
                         habilitado = !uiState.cargando,
                         iconoVolver = Icons.Default.Close,
                         descripcionVolver = stringResource(R.string.evidence_close),
@@ -400,7 +406,7 @@ private fun RegistroContent(
                         // se está preparando una edición.
                         uiState.cargandoIngreso -> {
                             CargaInicialRegistro(
-                                onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD)}
+                                onVolver = { solicitarSalida(SalidaRegistro.VOLVER)}
                             )
                         }
                         // El reintento vuelve a consultar desde
@@ -408,14 +414,14 @@ private fun RegistroContent(
                         uiState.errorCarga != null -> {
                             ErrorCargaRegistro(mensaje = uiState.errorCarga,
                                 onReintentar = onReintentarCarga,
-                                onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD) }
+                                onVolver = { solicitarSalida(SalidaRegistro.VOLVER) }
                             )
                         }
 
                         uiState.registroExitoso -> {
                             ResultadoRegistro(uiState = uiState,
                                 onNuevaCaptura = onNuevaCaptura,
-                                onVolver = { solicitarSalida(SalidaRegistro.DASHBOARD) },
+                                onVolver = { solicitarSalida(SalidaRegistro.VOLVER) },
                                 onVerIngreso = onVerIngreso
                             )
                         }
