@@ -314,8 +314,12 @@ fun DiagnosticoScreen(
         val fotosReporte = estadoFotos.evidencias.sortedBy { it.id }.map { FotoReporte(java.io.File(it.rutaImagen), it.descripcion) }
         val total = estado.totalCentavos
         val mensaje = when {
-            estadoEnvio.tipo == TipoReporte.ACTA ->
-                stringResource(R.string.send_message_delivery, ingresoEnvio.nombreCliente, ingresoEnvio.modelo, ingresoEnvio.placa)
+            estadoEnvio.tipo == TipoReporte.COTIZACION && total != null && estado.conceptos.isNotEmpty() ->
+                stringResource(R.string.send_message_quote, ingresoEnvio.nombreCliente, ingresoEnvio.modelo,
+                    ingresoEnvio.placa, FormatoReporte.pesos(total))
+            estadoEnvio.tipo == TipoReporte.COTIZACION ->
+                stringResource(R.string.send_message_quote_no_total, ingresoEnvio.nombreCliente, ingresoEnvio.modelo,
+                    ingresoEnvio.placa)
             total != null && estado.conceptos.isNotEmpty() ->
                 stringResource(R.string.send_message, ingresoEnvio.nombreCliente, ingresoEnvio.modelo,
                     ingresoEnvio.placa, FormatoReporte.pesos(total))
@@ -336,11 +340,12 @@ fun DiagnosticoScreen(
             telefono = ingresoEnvio.telefonoCliente,
             cantidadFotos = fotosReporte.size,
             mensaje = mensaje,
-            actaDisponible = estado.estadoActual == EstadoIngreso.ENTREGADO,
+            tipos = listOf(TipoReporte.COMPLETO, TipoReporte.COTIZACION),
             onCambiarTipo = envioViewModel::cambiarTipo,
             onCambiarReporte = envioViewModel::cambiarReporte,
             onCambiarFotos = envioViewModel::cambiarFotos,
             onEnviar = { envioViewModel.enviar(datos, mensaje, tecnicoId) },
+            onAbrirChat = { envioViewModel.abrirChat(ingresoEnvio.telefonoCliente, mensaje) },
             onCerrar = { mostrarEnvio = false
                 envioViewModel.reiniciar() }) }
 

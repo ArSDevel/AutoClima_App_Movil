@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.firma
 
 import androidx.compose.ui.geometry.Offset
+import com.example.myapplication.data.local.entity.ConceptoCotizacion
 import com.example.myapplication.data.local.entity.Firma
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.IngresoResumen
@@ -14,6 +15,8 @@ data class FirmaUiState(
     val ingreso: IngresoResumen? = null,
     // null cuando todavía no hay cotización guardada.
     val totalCentavos: Long? = null,
+    // Filas de la cotización, para el acta que se envía al cliente.
+    val conceptos: List<ConceptoCotizacion> = emptyList(),
     val firmaGuardada: Firma? = null,
     val trazos: List<List<Offset>> = emptyList(),
     val guardando: Boolean = false,

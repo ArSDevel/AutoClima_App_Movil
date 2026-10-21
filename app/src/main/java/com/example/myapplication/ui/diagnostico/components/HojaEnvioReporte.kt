@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -56,11 +59,12 @@ fun HojaEnvioReporte(
     telefono: String,
     cantidadFotos: Int,
     mensaje: String,
-    actaDisponible: Boolean,
+    tipos: List<TipoReporte>,
     onCambiarTipo: (TipoReporte) -> Unit,
     onCambiarReporte: (Boolean) -> Unit,
     onCambiarFotos: (Boolean) -> Unit,
     onEnviar: () -> Unit,
+    onAbrirChat: () -> Unit,
     onCerrar: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
@@ -72,7 +76,7 @@ fun HojaEnvioReporte(
         containerColor = colors.surface
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -84,28 +88,41 @@ fun HojaEnvioReporte(
                         fontWeight = FontWeight.ExtraBold)
                     Text(telefono, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant) } }
 
-            // Variante del documento: reporte completo, cotización breve o acta de entrega.
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(TipoReporte.COMPLETO to R.string.send_type_full, TipoReporte.COTIZACION to R.string.send_type_quote,
-                    TipoReporte.ACTA to R.string.send_type_delivery).forEach { (tipo, texto) ->
-                    FilterChip(
-                        selected = estado.tipo == tipo,
-                        onClick = { onCambiarTipo(tipo) },
-                        enabled = !ocupado && (tipo != TipoReporte.ACTA || actaDisponible),
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = colors.primary, selectedLabelColor = colors.onPrimary),
-                        label = { Text(stringResource(texto), style = MaterialTheme.typography.labelLarge) }) } }
+            // Solo se muestran las variantes que corresponden a la pantalla desde la que se envía.
+            if (tipos.size > 1) {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    tipos.forEach { tipo ->
+                        FilterChip(
+                            selected = estado.tipo == tipo,
+                            onClick = { onCambiarTipo(tipo) },
+                            enabled = !ocupado,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = colors.primary, selectedLabelColor = colors.onPrimary),
+                            label = { Text(stringResource(when (tipo) {
+                                TipoReporte.COMPLETO -> R.string.send_type_full
+                                TipoReporte.COTIZACION -> R.string.send_type_quote
+                                TipoReporte.ACTA -> R.string.send_type_delivery }), style = MaterialTheme.typography.labelLarge) }) } } }
 
-            Column {
-                OpcionEnvio(stringResource(when (estado.tipo) {
-                    TipoReporte.COMPLETO -> R.string.send_pdf
-                    TipoReporte.COTIZACION -> R.string.send_pdf_quote
-                    TipoReporte.ACTA -> R.string.send_pdf_delivery }), stringResource(R.string.send_pdf_tag),
-                    estado.incluirReporte, !ocupado, onCambiarReporte)
-                HorizontalDivider(color = colors.outlineVariant)
-                OpcionEnvio(stringResource(R.string.send_photos),
-                    pluralStringResource(R.plurals.send_photos_tag, cantidadFotos, cantidadFotos),
-                    estado.incluirFotos && cantidadFotos > 0, !ocupado && cantidadFotos > 0, onCambiarFotos) }
+            // El PDF siempre va; lo único que se decide es si se agregan las fotos de evidencia.
+            OpcionEnvio(stringResource(R.string.send_photos),
+                pluralStringResource(R.plurals.send_photos_tag, cantidadFotos, cantidadFotos),
+                estado.incluirFotos && cantidadFotos > 0, !ocupado && cantidadFotos > 0, onCambiarFotos)
+
+            // Resumen de lo que se va a enviar, para que quien envía sepa qué recibirá el cliente.
+            val conFotos = estado.incluirFotos && cantidadFotos > 0
+            Surface(shape = RoundedCornerShape(14.dp), color = colors.primaryContainer) {
+                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(stringResource(R.string.send_summary_title), style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold, color = colors.onPrimaryContainer)
+                    Text(stringResource(when (estado.tipo) {
+                        TipoReporte.COMPLETO -> R.string.send_desc_full
+                        TipoReporte.COTIZACION -> R.string.send_desc_quote
+                        TipoReporte.ACTA -> R.string.send_desc_delivery }), style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onPrimaryContainer)
+                    Text(if (conFotos) pluralStringResource(R.plurals.send_desc_photos, cantidadFotos, cantidadFotos)
+                        else stringResource(R.string.send_desc_no_photos), style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold, color = colors.onPrimaryContainer) } }
 
             Surface(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp),
                 color = colors.surfaceVariant) {
@@ -117,8 +134,16 @@ fun HojaEnvioReporte(
                     Text(estado.error.orEmpty(), color = colors.error, style = MaterialTheme.typography.bodyMedium) }
                 FaseEnvio.LISTO -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Top) {
                     Icon(Icons.Default.Check, contentDescription = null, tint = verde, modifier = Modifier.size(20.dp))
-                    Text(stringResource(R.string.send_ready), color = verde, style = MaterialTheme.typography.bodyMedium) }
+                    Text(stringResource(R.string.send_ready, nombreCliente), color = verde, style = MaterialTheme.typography.bodyMedium) }
                 else -> Unit }
+
+            // Para un cliente que no está en los contactos: abrir su chat primero para que aparezca entre los recientes.
+            if (!ocupado) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    TextButton(onClick = onAbrirChat) {
+                        Text(stringResource(R.string.send_open_chat), fontWeight = FontWeight.Bold) }
+                    Text(stringResource(R.string.send_open_chat_hint), style = MaterialTheme.typography.bodySmall,
+                        color = colors.onSurfaceVariant) } }
 
             if (estado.fase == FaseEnvio.LISTO) {
                 OutlinedButton(onClick = onCerrar, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),

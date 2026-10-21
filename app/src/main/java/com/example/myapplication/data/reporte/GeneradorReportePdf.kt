@@ -164,7 +164,8 @@ class GeneradorReportePdf(private val contexto: Context) {
                 listOf(R.string.pdf_vehicle to listOfNotNull(d.modelo.takeIf { it.isNotBlank() },
                     d.color?.takeIf { it.isNotBlank() }).joinToString(" · "), R.string.pdf_plate to d.placa))
             seccion(R.string.pdf_found); hallazgos()
-            seccion(R.string.pdf_quote, 70f); cotizacionTabla() }
+            seccion(R.string.pdf_quote, 70f); cotizacionTabla()
+            if (d.fotos.isNotEmpty()) { seccion(R.string.pdf_photos, 120f); fotos() } }
 
         fun acta() {
             datosDelIngreso()
@@ -174,6 +175,7 @@ class GeneradorReportePdf(private val contexto: Context) {
                     entrega.requisitos.firma) }
             if (d.conceptos.isNotEmpty()) { seccion(R.string.pdf_works); cotizacionTabla() }
             if (entrega?.nota != null) { seccion(R.string.pdf_delivery_note); cajaDeTexto(entrega.nota) }
+            if (d.fotos.isNotEmpty()) { seccion(R.string.pdf_photos, 120f); fotos() }
             seccion(R.string.pdf_client_signature, 150f); firma(contexto.getString(R.string.pdf_acta_sign_text)) }
 
         // Cierra la última página y devuelve cuántas se escribieron.

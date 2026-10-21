@@ -12,7 +12,19 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material3.OutlinedButton
+import com.example.myapplication.data.reporte.ConceptoReporte
+import com.example.myapplication.data.reporte.DatosReporte
+import com.example.myapplication.data.reporte.FotoReporte
+import com.example.myapplication.data.reporte.TipoReporte
+import com.example.myapplication.ui.camara.CamaraIngresoViewModel
+import com.example.myapplication.ui.diagnostico.EnvioReporteViewModel
+import com.example.myapplication.ui.diagnostico.components.HojaEnvioReporte
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -77,13 +89,18 @@ import java.util.Date
 @Composable
 fun FirmaScreen(
     viewModel: FirmaViewModel,
+    envioViewModel: EnvioReporteViewModel,
+    evidenciasViewModel: CamaraIngresoViewModel,
     tecnicoId: Long,
     onVolver: () -> Unit,
     onAbrirEntrega: () -> Unit
 ) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
+    val estadoEnvio by envioViewModel.uiState.collectAsStateWithLifecycle()
+    val estadoFotos by evidenciasViewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
     var confirmarSalida by rememberSaveable { mutableStateOf(false) }
+    var mostrarEnvio by rememberSaveable { mutableStateOf(false) }
 
     // Pide confirmar la salida solo si ya hay una firma dibujada sin guardar.
     val solicitarSalida: () -> Unit = {
@@ -118,11 +135,26 @@ fun FirmaScreen(
                         Text(
                             text = "  " + stringResource(if (estado.guardando) R.string.firma_saving else R.string.firma_confirm),
                             style = MaterialTheme.typography.titleMedium) } }
-            } else if (estado.estadoActual == EstadoIngreso.LISTO_PARA_ENTREGA) {
+            } else if (estado.firmaGuardada != null) {
+                // Con la firma guardada ya se puede mandar el acta al cliente.
                 BarraAccionInferior {
-                    Button(onClick = onAbrirEntrega, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-                        shape = RoundedCornerShape(16.dp)) {
-                        Text(stringResource(R.string.firma_to_delivery), style = MaterialTheme.typography.titleMedium) } } } }
+                    if (estado.estadoActual == EstadoIngreso.LISTO_PARA_ENTREGA) {
+                        OutlinedButton(
+                            onClick = { mostrarEnvio = true },
+                            modifier = Modifier.width(64.dp).height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            contentPadding = PaddingValues(0.dp)
+                        ) { Icon(Icons.AutoMirrored.Filled.Send, contentDescription = stringResource(R.string.send_button)) }
+                        Button(onClick = onAbrirEntrega, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                            shape = RoundedCornerShape(16.dp)) {
+                            Text(stringResource(R.string.firma_to_delivery), style = MaterialTheme.typography.titleMedium) }
+                    } else {
+                        Button(onClick = { mostrarEnvio = true }, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.estadoIngresoColors.listoParaFirma)
+                        ) {
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Text("  " + stringResource(R.string.send_delivery_receipt), style = MaterialTheme.typography.titleMedium) } } } } }
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             when {
@@ -170,6 +202,35 @@ fun FirmaScreen(
                                 modifier = Modifier.size(18.dp))
                             Text(stringResource(R.string.firma_next), style = MaterialTheme.typography.bodyMedium,
                                 color = colors.onSurfaceVariant) } } } } } }
+
+    // Hoja para enviar el acta de entrega por WhatsApp. Aquí solo se decide si se agregan las evidencias.
+    val ingresoEnvio = estado.ingreso
+    if (mostrarEnvio && ingresoEnvio != null) {
+        val fotosActa = estadoFotos.evidencias.sortedBy { it.id }.map { FotoReporte(File(it.rutaImagen), it.descripcion) }
+        val mensaje = stringResource(R.string.send_message_delivery, ingresoEnvio.nombreCliente, ingresoEnvio.modelo, ingresoEnvio.placa)
+        val datos = DatosReporte(
+            ingresoId = ingresoEnvio.ingresoId, placa = ingresoEnvio.placa, modelo = ingresoEnvio.modelo,
+            color = ingresoEnvio.color, serie = ingresoEnvio.numeroSerie, cliente = ingresoEnvio.nombreCliente,
+            telefono = ingresoEnvio.telefonoCliente, correo = ingresoEnvio.emailCliente,
+            fechaEntrada = ingresoEnvio.fechaEntrada, motivo = ingresoEnvio.motivoIngreso,
+            condicionInicial = ingresoEnvio.condicionInicial, hallazgos = emptyList(), checklist = emptyList(),
+            comentariosChecklist = "", observaciones = "",
+            conceptos = estado.conceptos.map { ConceptoReporte(it.descripcion, it.importeCentavos) },
+            totalCentavos = estado.totalCentavos, fotos = fotosActa, tecnicoId = null)
+        HojaEnvioReporte(
+            estado = estadoEnvio,
+            nombreCliente = ingresoEnvio.nombreCliente,
+            telefono = ingresoEnvio.telefonoCliente,
+            cantidadFotos = fotosActa.size,
+            mensaje = mensaje,
+            tipos = listOf(TipoReporte.ACTA),
+            onCambiarTipo = envioViewModel::cambiarTipo,
+            onCambiarReporte = envioViewModel::cambiarReporte,
+            onCambiarFotos = envioViewModel::cambiarFotos,
+            onEnviar = { envioViewModel.enviar(datos, mensaje, tecnicoId) },
+            onAbrirChat = { envioViewModel.abrirChat(ingresoEnvio.telefonoCliente, mensaje) },
+            onCerrar = { mostrarEnvio = false
+                envioViewModel.reiniciar() }) }
 
     // Avisa antes de perder una firma dibujada.
     if (confirmarSalida) {

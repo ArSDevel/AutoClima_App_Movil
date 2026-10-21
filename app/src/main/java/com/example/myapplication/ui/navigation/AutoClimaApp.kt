@@ -35,6 +35,7 @@ import com.example.myapplication.data.local.repository.EvidenciaRepository
 import com.example.myapplication.data.local.repository.FirmaRepository
 import com.example.myapplication.data.reporte.EnvioPorWhatsApp
 import com.example.myapplication.data.reporte.GeneradorReportePdf
+import com.example.myapplication.data.reporte.SeguimientoActividad
 import com.example.myapplication.ui.components.fabricaViewModel
 import com.example.myapplication.ui.diagnostico.EnvioReporteViewModel
 import com.example.myapplication.ui.entrega.EntregaScreen
@@ -105,7 +106,10 @@ fun AutoClimaApp() {
 
     // Para enviar con una API de mensajería, se cambia EnvioPorWhatsApp por otra implementación de EnvioReporte.
     val generadorReporte = remember(contexto) { GeneradorReportePdf(contexto) }
-    val envioReporte = remember(contexto) { EnvioPorWhatsApp(contexto) }
+    val seguimientoActividad = remember(contexto) {
+        SeguimientoActividad().also { (contexto as android.app.Application).registerActivityLifecycleCallbacks(it) } }
+    val envioReporte = remember(contexto, seguimientoActividad) {
+        EnvioPorWhatsApp(contexto) { seguimientoActividad.actual() } }
 
     val loginFactory = remember(tecnicoDao) {
         object : ViewModelProvider.Factory {
@@ -622,8 +626,28 @@ fun AutoClimaApp() {
                                         dashboardRepository = dashboardRepository,
                                         diagnosticoRepository = diagnosticoRepository) } })
 
+                        val envioFirma: EnvioReporteViewModel = viewModel(
+                            key = "envio_firma_${key.ingresoId}",
+                            factory = remember(key.ingresoId) {
+                                fabricaViewModel {
+                                    EnvioReporteViewModel(
+                                        ingresoId = key.ingresoId,
+                                        envio = envioReporte,
+                                        generador = generadorReporte,
+                                        dashboardRepository = dashboardRepository,
+                                        firmaRepository = firmaRepository,
+                                        carpetaTemporal = java.io.File(contexto.cacheDir, "reportes"),
+                                        tipoInicial = com.example.myapplication.data.reporte.TipoReporte.ACTA) } })
+
+                        val fotosFirma: CamaraIngresoViewModel = viewModel(
+                            key = "fotos_firma_${key.ingresoId}",
+                            factory = remember(key.ingresoId, evidenciaRepository) {
+                                CamaraIngresoViewModelFactory(key.ingresoId, evidenciaRepository) })
+
                         FirmaScreen(
                             viewModel = firmaViewModel,
+                            envioViewModel = envioFirma,
+                            evidenciasViewModel = fotosFirma,
                             tecnicoId = actor,
                             onVolver = { volverUnaPantalla() },
                             onAbrirEntrega = { abrirEntrega(key.ingresoId) }) }

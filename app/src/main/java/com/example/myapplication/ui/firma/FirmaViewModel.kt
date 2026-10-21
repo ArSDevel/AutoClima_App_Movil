@@ -29,12 +29,13 @@ class FirmaViewModel(
     private fun cargar() {
         viewModelScope.launch {
             try {
-                val total = diagnosticoRepository.obtenerPorIngreso(ingresoId)?.conceptos?.sumOf { it.importeCentavos }
+                val conceptos = diagnosticoRepository.obtenerPorIngreso(ingresoId)?.conceptos.orEmpty()
+                val total = if (conceptos.isEmpty()) null else conceptos.sumOf { it.importeCentavos }
                 combine(dashboardRepository.observarIngresoPorId(ingresoId),
                     firmaRepository.observarFirma(ingresoId)) { ingreso, firma -> ingreso to firma
                 }.collect { (ingreso, firma) ->
                     _uiState.update { it.copy(cargando = false, ingreso = ingreso, firmaGuardada = firma,
-                        totalCentavos = total, errorCarga = if (ingreso == null) "El ingreso ya no existe." else null) } }
+                        totalCentavos = total, conceptos = conceptos, errorCarga = if (ingreso == null) "El ingreso ya no existe." else null) } }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (_: Exception) {

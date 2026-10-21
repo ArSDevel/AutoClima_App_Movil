@@ -644,7 +644,21 @@
     <string name="send_button">Enviar por WhatsApp</string>
     <string name="send_preparing">Preparando…</string>
     <string name="send_retry">Reintentar</string>
-    <string name="send_ready">Listo en WhatsApp. Toca enviar allí para terminar.</string>
+    <string name="send_ready">Listo en WhatsApp. Elige el chat de %1$s y toca enviar.</string>
+    <string name="send_summary_title">Vas a enviar</string>
+    <string name="send_desc_full">Reporte completo en PDF: datos del ingreso, hallazgos, checklist, observaciones y cotización.</string>
+    <string name="send_desc_quote">Cotización en PDF: lo que se encontró y los conceptos con el total.</string>
+    <string name="send_desc_delivery">Acta de entrega en PDF: datos del ingreso, pasos completados, trabajos, nota y firma del cliente.</string>
+    <plurals name="send_desc_photos">
+        <item quantity="one">Incluye %1$d foto de evidencia dentro del PDF.</item>
+        <item quantity="other">Incluye %1$d fotos de evidencia dentro del PDF.</item>
+    </plurals>
+    <string name="send_desc_no_photos">Sin fotos de evidencia.</string>
+    <string name="send_message_quote">Hola %1$s, te compartimos la cotización de tu %2$s (%3$s). Total: %4$s.</string>
+    <string name="send_message_quote_no_total">Hola %1$s, te compartimos la cotización de tu %2$s (%3$s).</string>
+    <string name="send_delivery_receipt">Enviar acta</string>
+    <string name="send_open_chat">Abrir chat con el mensaje</string>
+    <string name="send_open_chat_hint">Si no está en tus contactos, o el texto no llegó junto con el PDF, abre su chat con el mensaje ya escrito.</string>
     <string name="send_close">Cerrar</string>
     <string name="detalle_event_report">Reporte enviado</string>
     <string name="historial_report">Reporte</string>

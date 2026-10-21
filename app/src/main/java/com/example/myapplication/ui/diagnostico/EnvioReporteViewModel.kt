@@ -44,9 +44,10 @@ class EnvioReporteViewModel(
     private val generador: GeneradorReportePdf,
     private val dashboardRepository: DashboardRepository,
     private val firmaRepository: FirmaRepository,
-    private val carpetaTemporal: File
+    private val carpetaTemporal: File,
+    tipoInicial: TipoReporte = TipoReporte.COMPLETO
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(EnvioReporteUiState())
+    private val _uiState = MutableStateFlow(EnvioReporteUiState(tipo = tipoInicial))
     val uiState: StateFlow<EnvioReporteUiState> = _uiState.asStateFlow()
 
     fun cambiarTipo(tipo: TipoReporte) {
@@ -66,29 +67,40 @@ class EnvioReporteViewModel(
         if (_uiState.value.fase == FaseEnvio.PREPARANDO) return
         _uiState.update { it.copy(fase = FaseEnvio.LIBRE, error = null) } }
 
+    // Abre la conversación con el cliente, aunque no esté en los contactos del teléfono.
+    fun abrirChat(telefonoCliente: String, mensaje: String = "") {
+        if (_uiState.value.fase == FaseEnvio.PREPARANDO) return
+        val telefono = FormatoReporte.telefonoWhatsApp(telefonoCliente)
+        if (telefono == null) {
+            _uiState.update { it.copy(fase = FaseEnvio.ERROR,
+                error = "El teléfono del cliente no es válido. Corrígelo desde Editar.") }
+            return }
+        viewModelScope.launch {
+            val resultado = envio.abrirChat(telefono, mensaje)
+            if (resultado is ResultadoEnvio.Error) {
+                _uiState.update { it.copy(fase = FaseEnvio.ERROR, error = resultado.mensaje) } } } }
+
     fun enviar(datos: DatosReporte, mensaje: String, tecnicoId: Long) {
         val actual = _uiState.value
-        if (!actual.puedeEnviar) return
+        if (actual.fase == FaseEnvio.PREPARANDO) return
         val telefono = FormatoReporte.telefonoWhatsApp(datos.telefono)
         if (telefono == null) {
             _uiState.update { it.copy(fase = FaseEnvio.ERROR,
                 error = "El teléfono del cliente no es válido. Corrígelo desde Editar.") }
             return }
-        val fotos = if (actual.incluirFotos) datos.fotos.map { it.archivo }.filter { it.isFile }.take(MAXIMO_FOTOS) else emptyList()
-        if (!actual.incluirReporte && fotos.isEmpty()) {
-            _uiState.update { it.copy(fase = FaseEnvio.ERROR, error = "Este ingreso no tiene fotos para enviar.") }
-            return }
+        // Con Evidencias encendido, las fotos van dentro del mismo PDF: todo se manda en un solo envío.
+        val fotos = if (actual.incluirFotos) datos.fotos.filter { it.archivo.isFile }.take(MAXIMO_FOTOS) else emptyList()
 
         _uiState.update { it.copy(fase = FaseEnvio.PREPARANDO, error = null) }
         viewModelScope.launch {
             try {
-                val archivos = prepararArchivos(completar(datos, actual.tipo), actual.tipo, actual.incluirReporte, fotos)
-                val resultado = envio.enviar(SolicitudEnvio(telefono, mensaje, archivos.first, archivos.second))
-                when (resultado) {
+                val datosPdf = completar(datos, actual.tipo).copy(fotos = fotos)
+                val pdf = prepararPdf(datosPdf, actual.tipo)
+                when (val resultado = envio.enviar(SolicitudEnvio(telefono, mensaje, pdf, emptyList()))) {
                     is ResultadoEnvio.Listo -> {
-                        val detalle = detalleHistorial(actual.tipo, actual.incluirReporte, archivos.second.size)
                         // El historial es un registro auxiliar: si falla, el envío ya se abrió.
-                        try { dashboardRepository.registrarEnvioReporte(ingresoId, detalle, tecnicoId)
+                        try { dashboardRepository.registrarEnvioReporte(ingresoId,
+                            detalleHistorial(actual.tipo, fotos.size), tecnicoId)
                         } catch (cancelacion: CancellationException) { throw cancelacion
                         } catch (_: Exception) { }
                         _uiState.update { it.copy(fase = FaseEnvio.LISTO) } }
@@ -111,31 +123,20 @@ class EnvioReporteViewModel(
         val nombre = tecnico?.let { dashboardRepository.obtenerNombreTecnico(it) }
         return datos.copy(firma = firma, entrega = entrega, tecnicoNombre = nombre) }
 
-    // Deja en la carpeta temporal el PDF y copias de las fotos.
-    private suspend fun prepararArchivos(
-        datos: DatosReporte,
-        tipo: TipoReporte,
-        incluirReporte: Boolean,
-        fotos: List<File>
-    ): Pair<File?, List<File>> = withContext(Dispatchers.IO) {
+    // Deja el PDF en la carpeta temporal, vaciada de envíos anteriores.
+    private suspend fun prepararPdf(datos: DatosReporte, tipo: TipoReporte): File = withContext(Dispatchers.IO) {
         carpetaTemporal.deleteRecursively()
         carpetaTemporal.mkdirs()
-        val pdf = if (incluirReporte) {
-            val prefijo = when (tipo) { TipoReporte.COMPLETO -> "reporte"; TipoReporte.COTIZACION -> "cotizacion"; TipoReporte.ACTA -> "acta" }
-            generador.generar(datos, tipo, File(carpetaTemporal, "${prefijo}_${datos.placa}.pdf"))
-        } else null
-        val copias = fotos.mapIndexed { indice, foto ->
-            foto.copyTo(File(carpetaTemporal, "foto_${indice + 1}.jpg"), overwrite = true) }
-        pdf to copias }
+        val prefijo = when (tipo) { TipoReporte.COMPLETO -> "reporte"; TipoReporte.COTIZACION -> "cotizacion"; TipoReporte.ACTA -> "acta" }
+        generador.generar(datos, tipo, File(carpetaTemporal, "${prefijo}_${datos.placa}.pdf")) }
 
-    private fun detalleHistorial(tipo: TipoReporte, conReporte: Boolean, fotos: Int): String {
-        val partes = buildList {
-            if (conReporte) add(when (tipo) {
-                TipoReporte.COMPLETO -> "reporte en PDF"
-                TipoReporte.COTIZACION -> "cotización en PDF"
-                TipoReporte.ACTA -> "acta de entrega en PDF" })
-            if (fotos > 0) add(if (fotos == 1) "1 foto" else "$fotos fotos") }
-        return "Se abrió WhatsApp para enviar: ${partes.joinToString(" y ")}." }
+    private fun detalleHistorial(tipo: TipoReporte, fotos: Int): String {
+        val documento = when (tipo) {
+            TipoReporte.COMPLETO -> "reporte en PDF"
+            TipoReporte.COTIZACION -> "cotización en PDF"
+            TipoReporte.ACTA -> "acta de entrega en PDF" }
+        val conFotos = when (fotos) { 0 -> ""; 1 -> " con 1 foto de evidencia"; else -> " con $fotos fotos de evidencia" }
+        return "Se abrió WhatsApp para enviar: $documento$conFotos." }
 
     private companion object {
         const val MAXIMO_FOTOS = 10 } }
