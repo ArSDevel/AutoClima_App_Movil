@@ -12,7 +12,6 @@ import androidx.compose.material.icons.outlined.Draw
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -75,7 +74,6 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 
 // Menú compartido por dashboard y registro.
 // Las pantallas principales delegan la navegación mediante callbacks.
-// Los módulos pendientes se muestran sin interacción.
 @Composable
 fun DashboardDrawer(
     opcionSeleccionada: DashboardMenuOption,
@@ -156,7 +154,6 @@ fun DashboardDrawer(
                     Text(text = stringResource(R.string.dashboard_logout), style = typography.labelLarge) } } } } }
 
 // Acceso del menú: icono y nombre. El seleccionado lleva fondo azul claro.
-// Firma sigue en desarrollo, por eso se muestra atenuada y sin acción.
 @Composable
 private fun OpcionPrincipalDrawer(
     opcion: DashboardMenuOption,
@@ -164,13 +161,12 @@ private fun OpcionPrincipalDrawer(
     onClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    val disponible = opcion != DashboardMenuOption.FIRMA
     val color = if (seleccionada) colors.primary else colors.onSurface
     Row(
         modifier = Modifier.fillMaxWidth().height(56.dp)
             .clip(RoundedCornerShape(14.dp))
             .background(if (seleccionada) colors.primaryContainer else Color.Transparent)
-            .clickable(enabled = disponible, role = androidx.compose.ui.semantics.Role.Button, onClick = onClick)
+            .clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -178,17 +174,12 @@ private fun OpcionPrincipalDrawer(
         Icon(
             imageVector = iconoDrawer(opcion), contentDescription = null,
             tint = if (seleccionada) colors.primary else colors.onSurfaceVariant,
-            modifier = Modifier.size(24.dp).alpha(if (disponible) 1f else 0.5f))
+            modifier = Modifier.size(24.dp))
         Text(
             text = stringResource(etiquetaDrawer(opcion)),
             style = MaterialTheme.typography.titleSmall.copy(fontSize = 16.sp),
-            color = color.copy(alpha = if (disponible) 1f else 0.5f),
-            modifier = Modifier.weight(1f))
-        if (!disponible) {
-            Text(
-                text = stringResource(R.string.in_development),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant) } } }
+            color = color,
+            modifier = Modifier.weight(1f)) } }
 
 // Elemento informativo sin acción de navegación.
 // También se identifica como no disponible para accesibilidad.

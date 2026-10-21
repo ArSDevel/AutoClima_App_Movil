@@ -101,6 +101,11 @@ class RegistroRepository(
                             vehiculoExistente.numeroSerie.orEmpty() == serieLimpia.orEmpty()) {
                     "La placa ya existe con otros datos del vehículo. Corrige su ficha antes de registrar otra visita." } }
 
+            // Un mismo vehículo no puede tener dos ingresos abiertos al mismo tiempo.
+            if (vehiculoExistente != null) {
+                require(ingresoDao.contarAbiertosDelVehiculo(vehiculoExistente.vehiculoId) == 0) {
+                    "Esta placa ya tiene un ingreso abierto. Entrégalo o cancélalo antes de registrar otro." } }
+
             val clienteId = clienteExistente?.clienteId
                 ?: clienteDao.insertar(Cliente(nombre = nombreLimpio, telefono = telefonoLimpio,
                     email = emailLimpio))

@@ -73,6 +73,15 @@ interface IngresoDao {
     @Insert
     suspend fun insertarEvento(evento: EventoIngreso): Long
 
+    // Último cambio de estado hacia un estado dado, por ejemplo la entrega.
+    @Query("""SELECT * FROM evento_ingreso WHERE ingresoId = :id AND accion = 'ESTADO'
+        AND estadoNuevo = :estado ORDER BY fecha DESC, eventoId DESC LIMIT 1""")
+    suspend fun ultimoCambioHacia(id: Long, estado: String): EventoIngreso?
+
+    // Cuenta los ingresos de un vehículo que todavía no se entregan ni se cancelan.
+    @Query("SELECT COUNT(*) FROM ingreso WHERE vehiculoId = :vehiculoId AND estado NOT IN ('ENTREGADO', 'CANCELADO')")
+    suspend fun contarAbiertosDelVehiculo(vehiculoId: Long): Int
+
     // Observa el historial, mostrando primero lo más reciente.
     @Query("SELECT * FROM evento_ingreso WHERE ingresoId = :id ORDER BY fecha DESC, eventoId DESC")
     fun observarEventos(id: Long): Flow<List<EventoIngreso>>

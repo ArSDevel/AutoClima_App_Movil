@@ -79,3 +79,20 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
             CREATE INDEX IF NOT EXISTS index_concepto_cotizacion_diagnosticoId
             ON concepto_cotizacion (diagnosticoId)
             """.trimIndent()) } }
+
+// Versión 9 → 10: incorpora la firma del cliente. Conserva todos los datos existentes.
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""CREATE TABLE IF NOT EXISTS firma (
+                firmaId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                ingresoId INTEGER NOT NULL,
+                rutaImagen TEXT NOT NULL,
+                tecnicoId INTEGER NOT NULL,
+                fecha INTEGER NOT NULL,
+                FOREIGN KEY (ingresoId)
+                    REFERENCES ingreso (ingresoId)
+                    ON UPDATE NO ACTION
+                    ON DELETE CASCADE
+            )""".trimIndent())
+        db.execSQL("""CREATE UNIQUE INDEX IF NOT EXISTS index_firma_ingresoId
+            ON firma (ingresoId)""".trimIndent()) } }

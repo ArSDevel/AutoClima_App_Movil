@@ -48,6 +48,14 @@ object ReglasIngreso {
     fun devolverAReparacion(estado: EstadoIngreso): Boolean {
         return estado == EstadoIngreso.LISTO_PARA_FIRMA }
 
+    // La firma del cliente se registra cuando el ingreso está listo para firma.
+    fun firmar(estado: EstadoIngreso): Boolean {
+        return estado == EstadoIngreso.LISTO_PARA_FIRMA }
+
+    // La entrega se confirma cuando el ingreso ya está firmado.
+    fun entregar(estado: EstadoIngreso): Boolean {
+        return estado == EstadoIngreso.LISTO_PARA_ENTREGA }
+
     // Un ingreso con estado desconocido se puede regularizar.
     fun regularizarEstado(estado: EstadoIngreso): Boolean {
         return estado == EstadoIngreso.NO_DISPONIBLE }
@@ -59,7 +67,8 @@ object ReglasIngreso {
             EstadoIngreso.CANCELADO) }
 
     // Cambios de estado que se confirman con un motivo.
-    // Firma y entrega se incorporarán cuando sus módulos estén desarrollados.
+    // Pasar a listo para entrega y a entregado exige además la firma guardada,
+    // que el repositorio comprueba antes de cambiar el estado.
     fun puedeCambiarEstado(origen: EstadoIngreso, destino: EstadoIngreso): Boolean {
         return when (destino) {
             EstadoIngreso.CANCELADO -> cancelar(origen)
@@ -67,13 +76,13 @@ object ReglasIngreso {
             EstadoIngreso.REGISTRADO -> regularizarEstado(origen)
             EstadoIngreso.EN_REPARACION -> devolverAReparacion(origen) || iniciarReparacion(origen)
             EstadoIngreso.LISTO_PARA_FIRMA -> enviarAFirma(origen)
-            EstadoIngreso.LISTO_PARA_ENTREGA,
-            EstadoIngreso.ENTREGADO,
+            EstadoIngreso.LISTO_PARA_ENTREGA -> firmar(origen)
+            EstadoIngreso.ENTREGADO -> entregar(origen)
             EstadoIngreso.NO_DISPONIBLE -> false } }
 
     // Detiene la operación si el cambio no está permitido o no se proporcionó un motivo
     fun validarTransicion(origen: EstadoIngreso, destino: EstadoIngreso, motivo: String) {
         require(puedeCambiarEstado(origen, destino)) {
             "El cambio de estado no está permitido o requiere " +
-                    "completar los módulos técnicos correspondientes." }
+                    "completar el paso anterior." }
         require(motivo.isNotBlank()) { "Escribe un motivo para registrar el cambio." } } }

@@ -2,6 +2,8 @@ package com.example.myapplication.data.local.model
 
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
+import com.example.myapplication.data.reporte.FormatoReporte
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -21,30 +23,85 @@ data class FormularioIngreso(
 ) {
     // Devuelve los errores identificados por nombre de campo.
     // En edición de contacto únicamente valida teléfono y correo.
-    fun errores(soloContacto: Boolean = false): Map<String, String> {
+    // ahora permite comprobar que la fecha de entrada no sea futura.
+    fun errores(soloContacto: Boolean = false, ahora: Long = System.currentTimeMillis()): Map<String, String> {
         val errores = mutableMapOf<String, String>()
         if (!soloContacto) {
             if (placa.isBlank()) { errores["placa"] = "Escribe la placa." }
             else if (!placaValida(placa)) { errores["placa"] = MENSAJE_PLACA }
-            if (modelo.isBlank()) { errores["modelo"] = "Escribe el modelo." }
-            if (nombre.isBlank()) { errores["nombre"] = "Escribe el nombre del cliente." }
-            if (interpretarFecha(fecha) == null) { errores["fecha"] = "Escribe una fecha válida con formato dd/MM/aaaa." } }
 
-        val telefonoLimpio = telefono.trim()
-        val cantidadDigitos = telefonoLimpio.count { it in '0'..'9' }
-        val caracteresValidos = telefonoLimpio.all { it in '0'..'9' || it in "+ -()" }
-        val signoMasValido = telefonoLimpio.count { it == '+' } <= 1 &&
-                ('+' !in telefonoLimpio || telefonoLimpio.startsWith("+"))
+            val modeloLimpio = modelo.trim()
+            if (modeloLimpio.isEmpty()) { errores["modelo"] = "Escribe el modelo." }
+            else if (modeloLimpio.length > MAXIMO_MODELO) { errores["modelo"] = "El modelo admite hasta $MAXIMO_MODELO caracteres." }
 
-        if (cantidadDigitos !in 7..15 || !caracteresValidos || !signoMasValido) {
-            errores["telefono"] = "Escribe un teléfono de 7 a 15 dígitos." }
+            if (color.trim().length > MAXIMO_COLOR) { errores["color"] = "El color admite hasta $MAXIMO_COLOR caracteres." }
+
+            val serieLimpia = numeroSerie.trim()
+            if (serieLimpia.isNotEmpty() && !serieValida(serieLimpia)) { errores["numeroSerie"] = MENSAJE_SERIE }
+
+            val nombreLimpio = nombre.trim()
+            if (nombreLimpio.isEmpty()) { errores["nombre"] = "Escribe el nombre del cliente." }
+            else if (nombreLimpio.length < 2 || nombreLimpio.none { it.isLetter() }) {
+                errores["nombre"] = "Escribe un nombre válido, con letras." }
+            else if (nombreLimpio.length > MAXIMO_NOMBRE) { errores["nombre"] = "El nombre admite hasta $MAXIMO_NOMBRE caracteres." }
+
+            val fechaEntrada = interpretarFecha(fecha)
+            if (fechaEntrada == null) { errores["fecha"] = "Escribe una fecha válida con formato dd/MM/aaaa." }
+            else if (esPosteriorAHoy(fechaEntrada, ahora)) { errores["fecha"] = "La fecha de entrada no puede ser posterior a hoy." }
+
+            val motivoLimpio = motivo.trim()
+            if (motivoLimpio.isEmpty()) { errores["motivo"] = "Escribe el motivo del ingreso." }
+            else if (motivoLimpio.length > MAXIMO_MOTIVO) { errores["motivo"] = "El motivo admite hasta $MAXIMO_MOTIVO caracteres." }
+
+            if (condicion.trim().length > MAXIMO_CONDICION) {
+                errores["condicion"] = "La condición admite hasta $MAXIMO_CONDICION caracteres." } }
+
+        errorTelefono(telefono)?.let { errores["telefono"] = it }
 
         val emailLimpio = email.trim()
-        if (emailLimpio.isNotEmpty() && !patronCorreo.matches(emailLimpio)) {
+        if (emailLimpio.isNotEmpty() && (!patronCorreo.matches(emailLimpio) || emailLimpio.length > MAXIMO_EMAIL)) {
             errores["email"] = "Revisa el correo electrónico." }
         return errores }
 
     companion object {
+        const val MAXIMO_NOMBRE = 80
+        const val MAXIMO_MODELO = 60
+        const val MAXIMO_COLOR = 30
+        const val MAXIMO_MOTIVO = 200
+        const val MAXIMO_CONDICION = 300
+        const val MAXIMO_EMAIL = 100
+        const val MAXIMO_TELEFONO = 20
+        const val LONGITUD_SERIE = 17
+        const val MENSAJE_SERIE = "La serie tiene 17 letras y números (sin I, O ni Q)."
+        private val patronSerie = Regex("^[A-HJ-NPR-Z0-9]{17}$")
+
+        // Número de identificación vehicular: 17 letras y números, sin I, O ni Q.
+        fun serieValida(valor: String): Boolean = patronSerie.matches(valor.trim().uppercase(Locale.ROOT))
+
+        // Pasa a mayúsculas y quita lo que una serie no admite mientras se escribe.
+        fun normalizarSerie(valor: String): String {
+            return valor.uppercase(Locale.ROOT).filter { it in 'A'..'Z' || it in '0'..'9' }.take(LONGITUD_SERIE) }
+
+        // Explica qué le falta al teléfono; null si sirve para llamar y para enviar por WhatsApp.
+        fun errorTelefono(texto: String): String? {
+            val limpio = texto.trim()
+            if (limpio.isEmpty()) return "Escribe el teléfono del cliente."
+            val caracteresValidos = limpio.all { it in '0'..'9' || it in "+ -()" }
+            val signoMasValido = limpio.count { it == '+' } <= 1 && ('+' !in limpio || limpio.startsWith("+"))
+            if (!caracteresValidos || !signoMasValido) return "Usa solo números, espacios, guiones o un + al inicio."
+            if (FormatoReporte.telefonoWhatsApp(limpio) != null) return null
+            val digitos = limpio.count { it in '0'..'9' }
+            return if (!limpio.startsWith("+") && digitos < 10) "Faltan dígitos: son 10."
+            else "Revisa el teléfono: son 10 dígitos, o con lada de país (+52...)." }
+
+        // Una fecha es futura si cae después del final de hoy, en la zona horaria del dispositivo.
+        private fun esPosteriorAHoy(fecha: Date, ahora: Long): Boolean {
+            val inicioManana = Calendar.getInstance().apply {
+                timeInMillis = ahora
+                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                add(Calendar.DAY_OF_MONTH, 1) }
+            return fecha.time >= inicioManana.timeInMillis }
+
         const val MENSAJE_PLACA = "Revisa la placa. Ejemplos: ABC-123-D, A12-BCD, 123-ABC."
         private val patronPlaca = Regex("^[A-Z0-9]+(-[A-Z0-9]+){0,2}$")
 

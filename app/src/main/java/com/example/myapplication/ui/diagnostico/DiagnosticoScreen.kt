@@ -77,6 +77,14 @@ import com.example.myapplication.R
 import com.example.myapplication.ui.diagnostico.components.CotizacionDiagnostico
 import com.example.myapplication.ui.diagnostico.components.DatosIngresoDiagnostico
 import com.example.myapplication.ui.diagnostico.components.HallazgosDiagnostico
+import com.example.myapplication.ui.diagnostico.components.HojaEnvioReporte
+import com.example.myapplication.data.reporte.ConceptoReporte
+import com.example.myapplication.data.reporte.DatosReporte
+import com.example.myapplication.data.reporte.FotoReporte
+import com.example.myapplication.data.reporte.HallazgoReporte
+import com.example.myapplication.data.reporte.ItemChecklistReporte
+import com.example.myapplication.data.reporte.TipoReporte
+import com.example.myapplication.data.reporte.FormatoReporte
 import com.example.myapplication.ui.diagnostico.components.SeccionDiagnostico
 import com.example.myapplication.ui.theme.AutoClimasGradients
 
@@ -87,6 +95,7 @@ import com.example.myapplication.ui.theme.AutoClimasGradients
 fun DiagnosticoScreen(
     viewModel: DiagnosticoViewModel,
     evidenciasViewModel: CamaraIngresoViewModel,
+    envioViewModel: EnvioReporteViewModel,
     tecnicoId: Long,
     onVolver: () -> Unit,
     onAbrirChecklist: () -> Unit = {},
@@ -94,7 +103,9 @@ fun DiagnosticoScreen(
 ) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val estadoFotos by evidenciasViewModel.uiState.collectAsStateWithLifecycle()
+    val estadoEnvio by envioViewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
+    var mostrarEnvio by rememberSaveable { mutableStateOf(false) }
 
     var confirmarSalida by rememberSaveable {
         mutableStateOf(false) }
@@ -121,16 +132,17 @@ fun DiagnosticoScreen(
         bottomBar = {
             if (estado.reporteDisponible) {
                 BarraAccionInferior {
-                    // El envío por WhatsApp lo desarrollará otro equipo.
+                    // Solo se envía lo que ya está guardado.
                     OutlinedButton(
-                        onClick = {},
-                        enabled = false,
+                        onClick = { mostrarEnvio = true },
+                        enabled = estado.diagnosticoId != null && !estado.tieneCambiosSinGuardar &&
+                                !estado.guardando && !estadoFotos.guardando,
                         modifier = Modifier.width(64.dp).height(56.dp),
                         shape = RoundedCornerShape(16.dp),
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Icon(Icons.AutoMirrored.Filled.Send,
-                            contentDescription = stringResource(R.string.whatsapp_pending)) }
+                            contentDescription = stringResource(R.string.send_button)) }
                     if (estado.permiteEdicion) {
                         Button(
                             onClick = { viewModel.guardar(tecnicoId) },
@@ -294,6 +306,44 @@ fun DiagnosticoScreen(
                                     Text(text = mensaje, style = MaterialTheme.typography.bodyMedium,
                                         color = colors.error) } } } } } } } }
 
+    // Hoja para enviar el reporte guardado por WhatsApp.
+    val ingresoEnvio = estado.ingreso
+    if (mostrarEnvio && ingresoEnvio != null) {
+        val textoHallazgos = estado.hallazgos.map { HallazgoReporte(stringResource(descripcionHallazgo(it)), it.esFalla()) }
+        val revision = estado.checklist?.let { itemsRevision(it) }.orEmpty()
+        val fotosReporte = estadoFotos.evidencias.sortedBy { it.id }.map { FotoReporte(java.io.File(it.rutaImagen), it.descripcion) }
+        val total = estado.totalCentavos
+        val mensaje = when {
+            estadoEnvio.tipo == TipoReporte.ACTA ->
+                stringResource(R.string.send_message_delivery, ingresoEnvio.nombreCliente, ingresoEnvio.modelo, ingresoEnvio.placa)
+            total != null && estado.conceptos.isNotEmpty() ->
+                stringResource(R.string.send_message, ingresoEnvio.nombreCliente, ingresoEnvio.modelo,
+                    ingresoEnvio.placa, FormatoReporte.pesos(total))
+            else -> stringResource(R.string.send_message_no_total, ingresoEnvio.nombreCliente, ingresoEnvio.modelo,
+                ingresoEnvio.placa) }
+        val datos = DatosReporte(
+            ingresoId = ingresoEnvio.ingresoId, placa = ingresoEnvio.placa, modelo = ingresoEnvio.modelo,
+            color = ingresoEnvio.color, serie = ingresoEnvio.numeroSerie, cliente = ingresoEnvio.nombreCliente,
+            telefono = ingresoEnvio.telefonoCliente, correo = ingresoEnvio.emailCliente,
+            fechaEntrada = ingresoEnvio.fechaEntrada, motivo = ingresoEnvio.motivoIngreso,
+            condicionInicial = ingresoEnvio.condicionInicial, hallazgos = textoHallazgos, checklist = revision,
+            comentariosChecklist = estado.comentariosChecklist, observaciones = estado.observaciones.trim(),
+            conceptos = estado.conceptos.map { ConceptoReporte(it.descripcion.trim(), it.importeEnCentavos() ?: 0L) },
+            totalCentavos = total, fotos = fotosReporte, tecnicoId = estado.tecnicoUltimoGuardadoId)
+        HojaEnvioReporte(
+            estado = estadoEnvio,
+            nombreCliente = ingresoEnvio.nombreCliente,
+            telefono = ingresoEnvio.telefonoCliente,
+            cantidadFotos = fotosReporte.size,
+            mensaje = mensaje,
+            actaDisponible = estado.estadoActual == EstadoIngreso.ENTREGADO,
+            onCambiarTipo = envioViewModel::cambiarTipo,
+            onCambiarReporte = envioViewModel::cambiarReporte,
+            onCambiarFotos = envioViewModel::cambiarFotos,
+            onEnviar = { envioViewModel.enviar(datos, mensaje, tecnicoId) },
+            onCerrar = { mostrarEnvio = false
+                envioViewModel.reiniciar() }) }
+
     // Advierte antes de descartar notas o cambios en la cotización.
     if (confirmarSalida) {
         DialogoAviso(
@@ -426,3 +476,24 @@ private fun FilaHallazgo(icono: androidx.compose.ui.graphics.vector.ImageVector,
     Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
         Icon(icono, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
         Text(text = texto, style = MaterialTheme.typography.titleSmall) } }
+
+// Los hallazgos graves son fallas; el resto solo pide atención.
+private fun HallazgoDiagnostico.esFalla(): Boolean = when (this) {
+    HallazgoDiagnostico.BANDA_DESGASTADA,
+    HallazgoDiagnostico.FILTRO_OBSTRUIDO,
+    HallazgoDiagnostico.CONDENSADOR_OBSTRUIDO -> false
+    else -> true }
+
+// Cada punto del checklist con su resultado, redactado en positivo para el reporte.
+@Composable
+private fun itemsRevision(c: com.example.myapplication.data.local.entity.ChecklistDiagnostico): List<ItemChecklistReporte> {
+    return listOf(
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_gas), !c.faltaGasRefrigerante),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_hoses), !c.fugaVisibleMangueras),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_uv), !c.fugasDetectadasLuzUV),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_clutch), c.compresorEmbragaAlEncender),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_compressor), !c.compresorDanadoOAmarrado),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_belt), !c.bandaCompresorDesgastada),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_fans), c.funcionanAbanicosRadiador),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_filter), !c.filtroCabinaSucioUObstruido),
+        ItemChecklistReporte(stringResource(R.string.pdf_chk_condenser), !c.condensadorObstruido)) }

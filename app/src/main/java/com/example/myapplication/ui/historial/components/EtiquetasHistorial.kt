@@ -6,7 +6,7 @@ import com.example.myapplication.ui.historial.PeriodoHistorial
 
 val accionesHistorial = listOf(
     "FOTOS", "CREADO", "EDITADO", "ESTADO", "CHECKLIST", "DIAGNOSTICO",
-    "EVIDENCIA", "FOTO_PRINCIPAL", "EVIDENCIA_ELIMINADA")
+    "EVIDENCIA", "FOTO_PRINCIPAL", "EVIDENCIA_ELIMINADA", "REPORTE")
 
 // Texto de cada tipo de actividad.
 @StringRes
@@ -17,6 +17,7 @@ fun etiquetaAccionHistorial(accion: String?): Int = when (accion) {
     "ESTADO" -> R.string.historial_state
     "CHECKLIST" -> R.string.historial_checklist
     "DIAGNOSTICO" -> R.string.historial_diagnosis
+    "REPORTE" -> R.string.historial_report
     "FOTOS" -> R.string.historial_photos
     "EVIDENCIA" -> R.string.historial_photo
     "FOTO_PRINCIPAL" -> R.string.historial_main_photo

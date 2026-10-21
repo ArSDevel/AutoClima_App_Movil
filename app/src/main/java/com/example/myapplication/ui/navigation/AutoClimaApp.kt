@@ -32,6 +32,16 @@ import com.example.myapplication.data.local.AppDatabase
 import com.example.myapplication.data.local.repository.DashboardRepository
 import com.example.myapplication.data.local.repository.DiagnosticoRepository
 import com.example.myapplication.data.local.repository.EvidenciaRepository
+import com.example.myapplication.data.local.repository.FirmaRepository
+import com.example.myapplication.data.reporte.EnvioPorWhatsApp
+import com.example.myapplication.data.reporte.GeneradorReportePdf
+import com.example.myapplication.ui.components.fabricaViewModel
+import com.example.myapplication.ui.diagnostico.EnvioReporteViewModel
+import com.example.myapplication.ui.entrega.EntregaScreen
+import com.example.myapplication.ui.entrega.EntregaViewModel
+import com.example.myapplication.ui.firma.FirmaScreen
+import com.example.myapplication.ui.firma.FirmaViewModel
+import com.example.myapplication.ui.firma.SeleccionIngresoFirmaScreen
 import com.example.myapplication.data.repository.ChecklistRepository
 import com.example.myapplication.data.repository.RegistroRepository
 import com.example.myapplication.ui.camara.CamaraIngresoViewModel
@@ -87,6 +97,15 @@ fun AutoClimaApp() {
         EvidenciaRepository(
             baseDeDatos = baseDeDatos,
             directorioArchivos = contexto.filesDir) }
+
+    val firmaRepository = remember(baseDeDatos, contexto) {
+        FirmaRepository(
+            baseDeDatos = baseDeDatos,
+            directorioArchivos = contexto.filesDir) }
+
+    // Para enviar con una API de mensajería, se cambia EnvioPorWhatsApp por otra implementación de EnvioReporte.
+    val generadorReporte = remember(contexto) { GeneradorReportePdf(contexto) }
+    val envioReporte = remember(contexto) { EnvioPorWhatsApp(contexto) }
 
     val loginFactory = remember(tecnicoDao) {
         object : ViewModelProvider.Factory {
@@ -233,6 +252,31 @@ fun AutoClimaApp() {
         if (backStack.lastOrNull() != destino) {
             backStack.add(destino) } }
 
+    // Abre la firma del cliente.
+    fun abrirFirma(ingresoId: Long) {
+        if (!sesionValida || ingresoId <= 0) return
+
+        val destino = FirmaRoute(
+            userId = uiState.id,
+            ingresoId = ingresoId)
+
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino) } }
+
+    // Abre la entrega. Si se viene de la firma, la reemplaza para que atrás regrese al detalle.
+    fun abrirEntrega(ingresoId: Long) {
+        if (!sesionValida || ingresoId <= 0) return
+
+        if (backStack.lastOrNull() is FirmaRoute) {
+            backStack.removeAt(backStack.lastIndex) }
+
+        val destino = EntregaRoute(
+            userId = uiState.id,
+            ingresoId = ingresoId)
+
+        if (backStack.lastOrNull() != destino) {
+            backStack.add(destino) } }
+
     // Abre las fotos de un ingreso.
     fun abrirEvidencias(ingresoId: Long) {
         if (!sesionValida || ingresoId <= 0) return
@@ -266,9 +310,12 @@ fun AutoClimaApp() {
                     SeleccionIngresoEvidenciasRoute(
                         userId = uiState.id)) }
 
-            DashboardMenuOption.HISTORIAL -> abrirSelector(HistorialRoute(uiState.id))
+            DashboardMenuOption.FIRMA -> {
+                abrirSelector(
+                    SeleccionIngresoFirmaRoute(
+                        userId = uiState.id)) }
 
-            else -> Unit } }
+            DashboardMenuOption.HISTORIAL -> abrirSelector(HistorialRoute(uiState.id)) } }
 
     androidx.compose.runtime.CompositionLocalProvider(
         com.example.myapplication.ui.components.LocalNombreTecnico provides uiState.nombreTecnico
@@ -293,6 +340,9 @@ fun AutoClimaApp() {
                     is SeleccionIngresoChecklistRoute -> key.userId
                     is SeleccionIngresoDiagnosticoRoute -> key.userId
                     is SeleccionIngresoEvidenciasRoute -> key.userId
+                    is SeleccionIngresoFirmaRoute -> key.userId
+                    is FirmaRoute -> key.userId
+                    is EntregaRoute -> key.userId
                     else -> null }
 
                 if (
@@ -436,7 +486,9 @@ fun AutoClimaApp() {
                             onEditar = { abrirRegistro(it) },
                             onAbrirChecklist = { abrirChecklist(it) },
                             onAbrirDiagnostico = { abrirDiagnostico(it) },
-                            onAbrirEvidencias = { abrirEvidencias(it) }) }
+                            onAbrirEvidencias = { abrirEvidencias(it) },
+                            onAbrirFirma = { abrirFirma(it) },
+                            onAbrirEntrega = { abrirEntrega(it) }) }
 
                     is ChecklistRoute -> {
                         val actor = tecnicoId ?: return@NavEntry
@@ -500,9 +552,21 @@ fun AutoClimaApp() {
                             CamaraIngresoViewModelFactory(key.ingresoId, evidenciaRepository) }
                         val fotosDiagnostico: CamaraIngresoViewModel = viewModel(factory = fotosFactory)
 
+                        val envioViewModel: EnvioReporteViewModel = viewModel(
+                            factory = remember(key.ingresoId) {
+                                fabricaViewModel {
+                                    EnvioReporteViewModel(
+                                        ingresoId = key.ingresoId,
+                                        envio = envioReporte,
+                                        generador = generadorReporte,
+                                        dashboardRepository = dashboardRepository,
+                                        firmaRepository = firmaRepository,
+                                        carpetaTemporal = java.io.File(contexto.cacheDir, "reportes")) } })
+
                         DiagnosticoScreen(
                             viewModel = diagnosticoViewModel,
                             evidenciasViewModel = fotosDiagnostico,
+                            envioViewModel = envioViewModel,
                             tecnicoId = actor,
                             onVolver = { volverUnaPantalla() },
                             onAbrirChecklist = { abrirChecklist(key.ingresoId) },
@@ -535,6 +599,50 @@ fun AutoClimaApp() {
                             onVolver = { volverUnaPantalla() },
                             onSeleccionarIngreso = {
                                 abrirEvidencias(it) }) }
+
+                    is SeleccionIngresoFirmaRoute -> {
+                        val selectorViewModel: DashboardViewModel =
+                            viewModel(factory = dashboardFactory)
+
+                        SeleccionIngresoFirmaScreen(
+                            viewModel = selectorViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onFirmar = { abrirFirma(it) },
+                            onEntregar = { abrirEntrega(it) }) }
+
+                    is FirmaRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val firmaViewModel: FirmaViewModel = viewModel(
+                            factory = remember(key.ingresoId) {
+                                fabricaViewModel {
+                                    FirmaViewModel(
+                                        ingresoId = key.ingresoId,
+                                        firmaRepository = firmaRepository,
+                                        dashboardRepository = dashboardRepository,
+                                        diagnosticoRepository = diagnosticoRepository) } })
+
+                        FirmaScreen(
+                            viewModel = firmaViewModel,
+                            tecnicoId = actor,
+                            onVolver = { volverUnaPantalla() },
+                            onAbrirEntrega = { abrirEntrega(key.ingresoId) }) }
+
+                    is EntregaRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val entregaViewModel: EntregaViewModel = viewModel(
+                            factory = remember(key.ingresoId) {
+                                fabricaViewModel {
+                                    EntregaViewModel(
+                                        ingresoId = key.ingresoId,
+                                        repository = dashboardRepository) } })
+
+                        EntregaScreen(
+                            viewModel = entregaViewModel,
+                            tecnicoId = actor,
+                            onVolver = { volverUnaPantalla() },
+                            onIrAIngresos = { volverAlDashboard() }) }
 
                     is EvidenciasIngresoRoute -> {
                         val actor = tecnicoId ?: return@NavEntry

@@ -462,12 +462,13 @@ private fun RegistroContent(
                                         visible = datosCompletosHabilitados,
                                         onSeleccionar = { onCampoChange(CampoRegistro.MODELO, it) })
                                     CampoRegistroTexto(etiqueta = R.string.dashboard_color,
-                                        valor = uiState.color,
+                                        valor = uiState.color, error = uiState.erroresCampos["color"],
                                         habilitado = datosCompletosHabilitados,
                                         onCambio = { onCampoChange(CampoRegistro.COLOR, it) })
                                     CampoRegistroTexto(
                                         etiqueta = R.string.dashboard_serial_number,
-                                        valor = uiState.numeroSerie, habilitado = datosCompletosHabilitados,
+                                        valor = uiState.numeroSerie, error = uiState.erroresCampos["numeroSerie"],
+                                        habilitado = datosCompletosHabilitados,
                                         onCambio = { onCampoChange(CampoRegistro.SERIE, it) }) }
                                 else -> {
                                     FechaRegistro(valor = uiState.fechaEntrada,
@@ -476,12 +477,13 @@ private fun RegistroContent(
                                         onCambio = { onCampoChange(CampoRegistro.FECHA, it) })
                                     CampoRegistroTexto(
                                         etiqueta = R.string.registro_reason,
-                                        valor = uiState.motivoIngreso,
+                                        obligatorio = true, valor = uiState.motivoIngreso,
+                                        error = uiState.erroresCampos["motivo"],
                                         habilitado = datosCompletosHabilitados,
                                         onCambio = { onCampoChange(CampoRegistro.MOTIVO, it) })
                                     CampoRegistroTexto(
                                         etiqueta = R.string.registro_initial_condition,
-                                        valor = uiState.condicionInicial,
+                                        valor = uiState.condicionInicial, error = uiState.erroresCampos["condicion"],
                                         habilitado = datosCompletosHabilitados,
                                         multilinea = true,
                                         onCambio = { onCampoChange(CampoRegistro.CONDICION, it) })
@@ -587,20 +589,21 @@ private fun ContenidoEdicion(
                 visible = datosCompletosHabilitados,
                 onSeleccionar = { onCampoChange(CampoRegistro.MODELO, it) })
             CampoRegistroTexto(etiqueta = R.string.dashboard_color,
-                valor = uiState.color, habilitado = datosCompletosHabilitados,
+                valor = uiState.color, error = uiState.erroresCampos["color"], habilitado = datosCompletosHabilitados,
                 onCambio = { onCampoChange(CampoRegistro.COLOR, it) })
             CampoRegistroTexto(etiqueta = R.string.dashboard_serial_number,
-                valor = uiState.numeroSerie, habilitado = datosCompletosHabilitados,
+                valor = uiState.numeroSerie, error = uiState.erroresCampos["numeroSerie"],
+                habilitado = datosCompletosHabilitados,
                 onCambio = { onCampoChange(CampoRegistro.SERIE, it) })
             FechaRegistro(valor = uiState.fechaEntrada, error = uiState.erroresCampos["fecha"],
                 habilitado = datosCompletosHabilitados,
                 onCambio = { onCampoChange(CampoRegistro.FECHA, it) })
-            CampoRegistroTexto(etiqueta = R.string.registro_reason, valor = uiState.motivoIngreso,
-                habilitado = datosCompletosHabilitados,
+            CampoRegistroTexto(etiqueta = R.string.registro_reason, obligatorio = true, valor = uiState.motivoIngreso,
+                error = uiState.erroresCampos["motivo"], habilitado = datosCompletosHabilitados,
                 onCambio = { onCampoChange(CampoRegistro.MOTIVO, it) })
             CampoRegistroTexto(etiqueta = R.string.registro_initial_condition,
-                valor = uiState.condicionInicial, habilitado = datosCompletosHabilitados,
-                multilinea = true,
+                valor = uiState.condicionInicial, error = uiState.erroresCampos["condicion"],
+                habilitado = datosCompletosHabilitados, multilinea = true,
                 onCambio = { onCampoChange(CampoRegistro.CONDICION, it) })
             OutlinedButton(
                 onClick = onTomarFotoClick,

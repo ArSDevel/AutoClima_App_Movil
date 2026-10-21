@@ -10,6 +10,7 @@ import com.example.myapplication.data.local.dao.ChecklistDao
 import com.example.myapplication.data.local.dao.ClienteDao
 import com.example.myapplication.data.local.dao.DiagnosticoDao
 import com.example.myapplication.data.local.dao.EvidenciaDao
+import com.example.myapplication.data.local.dao.FirmaDao
 import com.example.myapplication.data.local.dao.IngresoDao
 import com.example.myapplication.data.local.dao.TecnicoDao
 import com.example.myapplication.data.local.dao.VehiculoDao
@@ -19,6 +20,7 @@ import com.example.myapplication.data.local.entity.ConceptoCotizacion
 import com.example.myapplication.data.local.entity.Diagnostico
 import com.example.myapplication.data.local.entity.EventoIngreso
 import com.example.myapplication.data.local.entity.Evidencia
+import com.example.myapplication.data.local.entity.Firma
 import com.example.myapplication.data.local.entity.Ingreso
 import com.example.myapplication.data.local.entity.Tecnico
 import com.example.myapplication.data.local.entity.Vehiculo
@@ -37,8 +39,9 @@ import kotlinx.coroutines.launch
         EventoIngreso::class,
         Diagnostico::class,
         ConceptoCotizacion::class,
-        Evidencia::class],
-    version = 9,
+        Evidencia::class,
+        Firma::class],
+    version = 10,
     exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tecnicoDao(): TecnicoDao
@@ -48,6 +51,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun checklistDao(): ChecklistDao
     abstract fun diagnosticoDao(): DiagnosticoDao
     abstract fun evidenciaDao(): EvidenciaDao
+    abstract fun firmaDao(): FirmaDao
 
     companion object {
         @Volatile
@@ -62,12 +66,14 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "autoclima_diag.db")
                     // Rutas disponibles:
-                    // versión 5 → 6 → 9
-                    // versión 6 → 9
-                    // versión 8 → 9
+                    // versión 5 → 6 → 9 → 10
+                    // versión 6 → 9 → 10
+                    // versión 8 → 9 → 10
+                    // versión 9 → 10
                     .addMigrations(MIGRATION_5_6,
                         MIGRATION_6_9,
-                        MIGRATION_8_9)
+                        MIGRATION_8_9,
+                        MIGRATION_9_10)
                     .addCallback(object : Callback() {
                         // Solo se ejecuta al crear una base nueva.
                         // Una actualización conserva los técnicos existentes.

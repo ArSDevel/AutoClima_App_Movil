@@ -7,7 +7,9 @@ import com.example.myapplication.data.local.entity.Ingreso
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.FormularioIngreso
 import com.example.myapplication.data.local.model.IngresoResumen
+import com.example.myapplication.data.local.model.DatosEntrega
 import com.example.myapplication.data.local.model.ReglasIngreso
+import com.example.myapplication.data.local.model.RequisitosEntrega
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import java.util.Locale
@@ -22,6 +24,7 @@ class DashboardRepository(
     private val vehiculoDao = baseDeDatos.vehiculoDao()
     private val checklistDao = baseDeDatos.checklistDao()
     private val diagnosticoDao = baseDeDatos.diagnosticoDao()
+    private val firmaDao = baseDeDatos.firmaDao()
 
     // Observa el listado con búsqueda, estado, fechas y ordenamiento.
     fun observarIngresos(
@@ -159,6 +162,9 @@ class DashboardRepository(
             if (destino == EstadoIngreso.LISTO_PARA_FIRMA) {
                 requireNotNull(diagnosticoDao.obtenerPorIngreso(ingresoId)) {
                     "Guarda primero el diagnóstico para pasar a firma." } }
+            if (destino == EstadoIngreso.LISTO_PARA_ENTREGA || destino == EstadoIngreso.ENTREGADO) {
+                requireNotNull(firmaDao.obtenerPorIngreso(ingresoId)) {
+                    "Falta la firma del cliente." } }
             val filasActualizadas = ingresoDao.actualizar(ingreso.copy(estado = destino.name))
             check(filasActualizadas == 1) { "No fue posible actualizar el ingreso." }
 
@@ -167,6 +173,36 @@ class DashboardRepository(
                     fecha = System.currentTimeMillis(), tecnicoId = tecnicoId,
                     accion = "ESTADO", estadoAnterior = ingreso.estado,
                     estadoNuevo = destino.name, motivo = motivoLimpio)) } }
+
+    // Indica qué pasos previos a la entrega ya están guardados.
+    suspend fun obtenerRequisitosEntrega(ingresoId: Long): RequisitosEntrega {
+        require(ingresoId > 0) { "El identificador del ingreso no es válido." }
+        return RequisitosEntrega(
+            checklist = checklistDao.obtenerPorIngreso(ingresoId) != null,
+            diagnostico = diagnosticoDao.obtenerPorIngreso(ingresoId) != null,
+            firma = firmaDao.obtenerPorIngreso(ingresoId) != null) }
+
+    // Nombre del técnico para firmar el reporte; null si ya no existe.
+    suspend fun obtenerNombreTecnico(tecnicoId: Long): String? {
+        return if (tecnicoId > 0) tecnicoDao.obtener(tecnicoId)?.nombre else null }
+
+    // Datos del cierre de un ingreso entregado; null si todavía no se entrega.
+    suspend fun obtenerEntrega(ingresoId: Long): DatosEntrega? {
+        require(ingresoId > 0) { "El identificador del ingreso no es válido." }
+        val evento = ingresoDao.ultimoCambioHacia(ingresoId, EstadoIngreso.ENTREGADO.name) ?: return null
+        val nota = evento.motivo.trim().takeIf { it.isNotEmpty() && it != NOTA_ENTREGA_PREDETERMINADA }
+        return DatosEntrega(fecha = evento.fecha, tecnicoId = evento.tecnicoId, nota = nota,
+            requisitos = obtenerRequisitosEntrega(ingresoId)) }
+
+    // Anota en el historial que el reporte se abrió en WhatsApp para enviarlo al cliente.
+    suspend fun registrarEnvioReporte(ingresoId: Long, detalle: String, tecnicoId: Long) {
+        baseDeDatos.withTransaction {
+            validarTecnico(tecnicoId)
+            val ingreso = obtenerIngresoExistente(ingresoId)
+            ingresoDao.insertarEvento(
+                EventoIngreso(ingresoId = ingreso.ingresoId, fecha = System.currentTimeMillis(),
+                    tecnicoId = tecnicoId, accion = "REPORTE", estadoAnterior = ingreso.estado,
+                    estadoNuevo = ingreso.estado, motivo = detalle.trim())) } }
 
     // Cancela conservando el expediente y el motivo.
     suspend fun cancelar(ingresoId: Long, motivo: String, tecnicoId: Long
@@ -217,4 +253,8 @@ class DashboardRepository(
     // Comprueba que el técnico de la sesión siga existiendo.
     private suspend fun validarTecnico(tecnicoId: Long) {
         require(tecnicoId > 0) { "Inicia sesión nuevamente para continuar." }
-        requireNotNull(tecnicoDao.obtener(tecnicoId)) { "El técnico ya no existe. Inicia sesión nuevamente." } } }
+        requireNotNull(tecnicoDao.obtener(tecnicoId)) { "El técnico ya no existe. Inicia sesión nuevamente." } }
+
+    companion object {
+        // Motivo que se guarda cuando la entrega no lleva nota.
+        const val NOTA_ENTREGA_PREDETERMINADA = "Vehículo entregado al cliente." } }

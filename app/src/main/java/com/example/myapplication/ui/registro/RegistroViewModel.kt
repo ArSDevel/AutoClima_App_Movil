@@ -107,7 +107,7 @@ class RegistroViewModel(
     // Paso del formulario al que pertenece cada campo: 0 cliente, 1 vehículo, 2 recepción.
     private fun pasoDeCampo(campo: String): Int = when (campo) {
         "nombre", "telefono", "email" -> 0
-        "placa", "modelo", "color", "serie" -> 1
+        "placa", "modelo", "color", "numeroSerie" -> 1
         else -> 2 }
 
     // Comprueba solo los campos del paso indicado. Si hay errores los marca y devuelve false.
@@ -183,27 +183,27 @@ class RegistroViewModel(
 
     // Actualiza el modelo del vehículo.
     fun onModeloChange(valor: String) {
-        cambiarCampo("modelo") { it.copy(modelo = valor) } }
+        cambiarCampo("modelo") { it.copy(modelo = valor.take(FormularioIngreso.MAXIMO_MODELO)) } }
 
     // Actualiza el color del vehículo.
     fun onColorChange(valor: String) {
-        cambiarCampo("color") { it.copy(color = valor) } }
+        cambiarCampo("color") { it.copy(color = valor.take(FormularioIngreso.MAXIMO_COLOR)) } }
 
     // Actualiza el número de serie.
     fun onNumeroSerieChange(valor: String) {
-        cambiarCampo("numeroSerie") { it.copy(numeroSerie = valor) } }
+        cambiarCampo("numeroSerie") { it.copy(numeroSerie = FormularioIngreso.normalizarSerie(valor)) } }
 
     // Actualiza el nombre del cliente.
     fun onNombreClienteChange(valor: String) {
-        cambiarCampo("nombre") { it.copy(nombreCliente = valor) } }
+        cambiarCampo("nombre") { it.copy(nombreCliente = valor.take(FormularioIngreso.MAXIMO_NOMBRE)) } }
 
     // Actualiza el teléfono del cliente.
     fun onTelefonoClienteChange(valor: String) {
-        cambiarCampo("telefono") { it.copy(telefonoCliente = valor) } }
+        cambiarCampo("telefono") { it.copy(telefonoCliente = valor.take(FormularioIngreso.MAXIMO_TELEFONO)) } }
 
     // Actualiza el correo del cliente.
     fun onEmailClienteChange(valor: String) {
-        cambiarCampo("email") { it.copy(emailCliente = valor) } }
+        cambiarCampo("email") { it.copy(emailCliente = valor.take(FormularioIngreso.MAXIMO_EMAIL)) } }
 
     // Actualiza la fecha de entrada.
     fun onFechaEntradaChange(valor: String) {
@@ -211,11 +211,11 @@ class RegistroViewModel(
 
     // Actualiza el motivo del ingreso.
     fun onMotivoIngresoChange(valor: String) {
-        cambiarCampo("motivo") { it.copy(motivoIngreso = valor) } }
+        cambiarCampo("motivo") { it.copy(motivoIngreso = valor.take(FormularioIngreso.MAXIMO_MOTIVO)) } }
 
     // Actualiza la condición inicial del vehículo.
     fun onCondicionInicialChange(valor: String) {
-        cambiarCampo("condicion") { it.copy(condicionInicial = valor) } }
+        cambiarCampo("condicion") { it.copy(condicionInicial = valor.take(FormularioIngreso.MAXIMO_CONDICION)) } }
 
     // La fotografía respeta las mismas restricciones que los datos del vehículo.
     fun onFotoTomada(path: String) {

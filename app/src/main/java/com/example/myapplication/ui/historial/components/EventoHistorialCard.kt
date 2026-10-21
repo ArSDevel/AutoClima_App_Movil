@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.ChevronRight
@@ -63,6 +64,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
         "CHECKLIST" -> Icons.Default.Checklist to estados.registrado
         "DIAGNOSTICO" -> Icons.Default.Description to estados.enReparacion
         "EDITADO" -> Icons.Default.Edit to estados.registrado
+        "REPORTE" -> Icons.AutoMirrored.Filled.Send to estados.listoParaFirma
         else -> Icons.Default.History to estados.registrado }
     // Un cambio de estado se titula con el cambio mismo: "Revisión → Reparación".
     val titulo = if (evento.accion == "ESTADO" && evento.estadoNuevo.isNotBlank() && evento.estadoAnterior.isNotBlank()) {

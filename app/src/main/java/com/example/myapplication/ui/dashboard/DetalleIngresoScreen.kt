@@ -113,7 +113,9 @@ fun DetalleIngresoScreen(
     onEditar: (Long) -> Unit,
     onAbrirChecklist: (Long) -> Unit,
     onAbrirDiagnostico: (Long) -> Unit,
-    onAbrirEvidencias: (Long) -> Unit = {}
+    onAbrirEvidencias: (Long) -> Unit = {},
+    onAbrirFirma: (Long) -> Unit = {},
+    onAbrirEntrega: (Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DetalleIngresoContent(
@@ -126,6 +128,8 @@ fun DetalleIngresoScreen(
         onAbrirDiagnostico = onAbrirDiagnostico,
         onAbrirChecklist = onAbrirChecklist,
         onAbrirEvidencias = onAbrirEvidencias,
+        onAbrirFirma = onAbrirFirma,
+        onAbrirEntrega = onAbrirEntrega,
         onConfirmar = { accion, motivo, destino ->
             when (accion) {
                 IngresoAccion.INICIAR_REVISION -> viewModel.iniciarRevision(tecnicoId)
@@ -153,7 +157,9 @@ private fun DetalleIngresoContent(
     onConfirmar: (IngresoAccion, String, EstadoIngreso) -> Unit,
     onAbrirChecklist: (Long) -> Unit,
     onAbrirDiagnostico: (Long) -> Unit,
-    onAbrirEvidencias: (Long) -> Unit = {}
+    onAbrirEvidencias: (Long) -> Unit = {},
+    onAbrirFirma: (Long) -> Unit = {},
+    onAbrirEntrega: (Long) -> Unit = {}
 ) {
     val colors = MaterialTheme.colorScheme
     val ingreso = uiState.ingreso
@@ -209,15 +215,13 @@ private fun DetalleIngresoContent(
         puedeIniciarRevision -> IngresoAccion.INICIAR_REVISION
         ReglasIngreso.iniciarReparacion(estadoActual) -> IngresoAccion.INICIAR_REPARACION
         ReglasIngreso.enviarAFirma(estadoActual) -> IngresoAccion.ENVIAR_A_FIRMA
-        // Firma y entrega las desarrollará otro equipo.
-        estadoActual == EstadoIngreso.LISTO_PARA_FIRMA -> IngresoAccion.FIRMAR
-        estadoActual == EstadoIngreso.LISTO_PARA_ENTREGA -> IngresoAccion.ENTREGAR
+        ReglasIngreso.firmar(estadoActual) -> IngresoAccion.FIRMAR
+        ReglasIngreso.entregar(estadoActual) -> IngresoAccion.ENTREGAR
         puedeRegularizar -> IngresoAccion.REGULARIZAR_ESTADO
         else -> null }
     val requisitoFaltante: Int? = when {
         accionPrincipal == IngresoAccion.INICIAR_REPARACION && !tieneChecklist -> R.string.detalle_missing_checklist
         accionPrincipal == IngresoAccion.ENVIAR_A_FIRMA && !tieneDiagnostico -> R.string.detalle_missing_diagnosis
-        accionPrincipal == IngresoAccion.FIRMAR || accionPrincipal == IngresoAccion.ENTREGAR -> R.string.in_development
         else -> null }
     val hayMasOpciones = puedeEditar || puedeDevolver || puedeCancelar || puedeEliminar
 
@@ -273,7 +277,11 @@ private fun DetalleIngresoContent(
                                 color = colors.onSurfaceVariant) }
                         Button(
                             onClick = {
-                                solicitarAccion(accionPrincipal) },
+                                // Firma y entrega tienen su propia pantalla; el resto se confirma aquí.
+                                when (accionPrincipal) {
+                                    IngresoAccion.FIRMAR -> onAbrirFirma(ingreso.ingresoId)
+                                    IngresoAccion.ENTREGAR -> onAbrirEntrega(ingreso.ingresoId)
+                                    else -> solicitarAccion(accionPrincipal) } },
                             enabled = accionesHabilitadas && requisitoFaltante == null,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                             shape = RoundedCornerShape(16.dp)
@@ -347,14 +355,19 @@ private fun DetalleIngresoContent(
                                     habilitada = accionesHabilitadas,
                                     onClick = { onAbrirDiagnostico(ingreso.ingresoId) },
                                     modifier = Modifier.weight(1f))
-                                // La firma se consulta desde que el ingreso queda listo para firma.
+                                // La firma se abre desde que el ingreso queda listo para firma.
+                                val firmaDisponible = estado == EstadoIngreso.LISTO_PARA_FIRMA ||
+                                        estado == EstadoIngreso.LISTO_PARA_ENTREGA || estado == EstadoIngreso.ENTREGADO
                                 HerramientaIngreso(
                                     titulo = stringResource(R.string.dashboard_action_sign),
                                     icono = Icons.Default.Draw,
                                     color = MaterialTheme.estadoIngresoColors.listoParaFirma,
-                                    habilitada = false,
-                                    nota = stringResource(R.string.in_development),
-                                    onClick = {},
+                                    habilitada = accionesHabilitadas && firmaDisponible,
+                                    nota = stringResource(when (estado) {
+                                        EstadoIngreso.LISTO_PARA_FIRMA -> R.string.firma_tile_pending
+                                        EstadoIngreso.LISTO_PARA_ENTREGA, EstadoIngreso.ENTREGADO -> R.string.firma_tile_done
+                                        else -> R.string.firma_tile_later }),
+                                    onClick = { onAbrirFirma(ingreso.ingresoId) },
                                     modifier = Modifier.weight(1f)) } } }
                     item {
                         Surface(
@@ -542,6 +555,7 @@ private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
             "FOTO_PRINCIPAL" -> R.string.fotos_event_main
             "EVIDENCIA_ELIMINADA" -> R.string.fotos_event_deleted
             "DIAGNOSTICO" -> R.string.detalle_event_diagnosis
+            "REPORTE" -> R.string.detalle_event_report
             else -> R.string.detalle_event_other })
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
