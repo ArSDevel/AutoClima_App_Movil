@@ -11,21 +11,20 @@ import androidx.room.PrimaryKey
     tableName = "evento_ingreso",
     foreignKeys = [ForeignKey(entity = Ingreso::class, parentColumns = ["ingresoId"], childColumns = ["ingresoId"],
             onDelete = ForeignKey.CASCADE)],
-    indices = [Index(value = ["ingresoId"])]
-)
+    indices = [Index(value = ["ingresoId"])])
 data class EventoIngreso(
     @PrimaryKey(autoGenerate = true)
     val eventoId: Long = 0,
     val ingresoId: Long,
-    // Fecha y hora en milisegundos
+    // Fecha y hora en milisegundos.
     val fecha: Long,
-    // Técnico que realizó la operación
+    // Técnico que realizó la operación.
     val tecnicoId: Long,
-    // Valores previstos: CREADO, EDITADO y ESTADO
+    // Tipo de operación: CREADO, EDITADO, ESTADO, CHECKLIST, DIAGNOSTICO, REPORTE, EVIDENCIA, FOTO_PRINCIPAL y
+    // EVIDENCIA_ELIMINADA
     val accion: String,
-    // En la creación no hay estado anterior: se guardará ""
+    // En la creación no hay estado anterior: se guarda ""; en los eventos que no cambian el estado se repite el vigente.
     val estadoAnterior: String,
     val estadoNuevo: String,
     // Descripción de la operación o motivo del cambio
-    val motivo: String
-)
+    val motivo: String)

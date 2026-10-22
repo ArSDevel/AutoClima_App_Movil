@@ -6,15 +6,15 @@ import java.io.File
 data class SolicitudEnvio(
     val telefono: String,
     val mensaje: String,
+    // Al menos uno de pdf o fotos debe existir.
     val pdf: File?,
-    val fotos: List<File>
-)
+    val fotos: List<File>)
 
+// Resultado de preparar el envío.
 sealed interface ResultadoEnvio {
     // El reporte quedó listo en el destino. No confirma que el cliente lo haya recibido.
     data object Listo : ResultadoEnvio
-    data class Error(val mensaje: String) : ResultadoEnvio
-}
+    data class Error(val mensaje: String) : ResultadoEnvio }
 
 // Punto de unión para enviar reportes. La pantalla solo conoce esta interfaz:
 // para usar una API de mensajería se crea otra implementación y se cambia en AutoClimaApp.
@@ -23,5 +23,4 @@ interface EnvioReporte {
 
     // Abre la conversación con el cliente, con el mensaje escrito si se indica.
     // También sirve cuando el cliente no está en los contactos.
-    suspend fun abrirChat(telefono: String, mensaje: String = ""): ResultadoEnvio
-}
+    suspend fun abrirChat(telefono: String, mensaje: String = ""): ResultadoEnvio }

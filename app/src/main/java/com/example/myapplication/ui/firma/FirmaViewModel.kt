@@ -30,6 +30,7 @@ class FirmaViewModel(
         viewModelScope.launch {
             try {
                 val conceptos = diagnosticoRepository.obtenerPorIngreso(ingresoId)?.conceptos.orEmpty()
+                // El total se calcula una vez al abrir: la cotización ya no cambia cuando el ingreso llega a la firma.
                 val total = if (conceptos.isEmpty()) null else conceptos.sumOf { it.importeCentavos }
                 combine(dashboardRepository.observarIngresoPorId(ingresoId),
                     firmaRepository.observarFirma(ingresoId)) { ingreso, firma -> ingreso to firma
@@ -59,8 +60,6 @@ class FirmaViewModel(
     fun borrar() {
         if (_uiState.value.guardando) return
         _uiState.update { it.copy(trazos = emptyList(), error = null) } }
-
-    fun limpiarError() { _uiState.update { it.copy(error = null) } }
 
     // La imagen se genera en la pantalla porque depende del tamaño del recuadro.
     fun confirmar(imagenPng: ByteArray, tecnicoId: Long) {

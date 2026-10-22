@@ -5,8 +5,6 @@
     <string name="app_name">Autoclimas</string>
 
     <!-- Inicio de sesión -->
-    <string name="login_title">Iniciar sesión</string>
-    <string name="login_description">Ingresa tus credenciales para continuar</string>
     <string name="login_username_label">Usuario</string>
     <string name="login_username_placeholder">Ingresa tu usuario</string>
     <string name="login_password_label">Contraseña</string>
@@ -19,16 +17,12 @@
 
     <!-- Dashboard: encabezado y navegación -->
     <string name="dashboard_title">AutoClimas</string>
-    <string name="dashboard_section_title">Ingresos al taller</string>
-    <string name="dashboard_overview_description">Consulta los ingresos y da seguimiento a los vehículos del taller.</string>
     <string name="dashboard_open_menu">Abrir menú</string>
     <string name="dashboard_logout">Cerrar sesión</string>
     <string name="dashboard_logo_description">Logotipo de AutoClimas</string>
 
     <!-- Dashboard: búsqueda -->
-    <string name="dashboard_search_label">Buscar ingreso</string>
     <string name="dashboard_search_placeholder">Placa o cliente</string>
-    <string name="dashboard_no_results_description">Revisa los datos de búsqueda e intenta nuevamente.</string>
     <string name="dashboard_clear_search">Limpiar búsqueda</string>
 
     <!-- Dashboard: carga, errores y resultados vacíos -->
@@ -38,7 +32,6 @@
     <string name="dashboard_no_results_title">No se encontraron coincidencias</string>
     <string name="dashboard_load_error">No fue posible cargar los ingresos.</string>
     <string name="dashboard_retry">Reintentar</string>
-    <string name="dashboard_results_count">Resultados: %1$d</string>
 
     <!-- Dashboard: datos del ingreso -->
     <string name="dashboard_plate">Placa</string>
@@ -49,20 +42,14 @@
     <string name="dashboard_phone">Teléfono</string>
     <string name="dashboard_email">Correo electrónico</string>
     <string name="dashboard_entry_date">Fecha de entrada</string>
-    <string name="dashboard_not_registered">No registrado</string>
 
     <!-- Dashboard: tarjeta -->
     <string name="dashboard_card_view_detail">Ver detalle</string>
-    <string name="dashboard_card_more_data">Más datos</string>
-    <string name="dashboard_card_less_data">Menos datos</string>
 
     <!-- Dashboard: filtros -->
-    <string name="dashboard_filters_title">Buscar y filtrar ingresos</string>
     <string name="dashboard_clear_filters">Limpiar filtros</string>
     <string name="dashboard_filter_all">Todos</string>
-    <string name="dashboard_filter_description">Filtrar por estado. Actual: %1$s</string>
     <string name="dashboard_filter_no_results_description">Prueba otra búsqueda, ajusta el estado o la fecha de entrada, o limpia los filtros.</string>
-    <string name="dashboard_selector_value">%1$s: %2$s</string>
 
     <!-- Dashboard: filtro por fecha de entrada -->
     <string name="dashboard_date_filter_label">Entrada</string>
@@ -87,9 +74,6 @@
     <string name="dashboard_status_cancelled">Cancelado</string>
     <string name="dashboard_status_unknown">Estado no disponible</string>
 
-    <!-- Acciones: consulta -->
-    <string name="dashboard_action_pdf">Ver PDF</string>
-
     <!-- Acciones: trabajo técnico -->
     <string name="dashboard_action_start_review">Iniciar revisión</string>
     <string name="dashboard_action_checklist">Checklist</string>
@@ -108,7 +92,6 @@
     <string name="dashboard_action_regularize">Regularizar estado</string>
 
     <!-- Menú lateral: secciones -->
-    <string name="dashboard_menu_title">Menú</string>
     <string name="dashboard_menu_home">Ingresos</string>
     <string name="dashboard_menu_registration">Registro</string>
     <string name="dashboard_menu_checklist">Checklist</string>
@@ -118,10 +101,6 @@
     <string name="dashboard_menu_history">Historial</string>
 
     <!-- Menú lateral: presentación y disponibilidad -->
-    <string name="dashboard_drawer_description">Gestión de ingresos y seguimiento del taller.</string>
-    <string name="dashboard_drawer_main">Principal</string>
-    <string name="dashboard_drawer_coming_soon">Próximamente</string>
-    <string name="dashboard_drawer_pending_description">Estas secciones todavía no están disponibles. Los movimientos de cada ingreso se pueden consultar desde su detalle.</string>
     <string name="dashboard_section_pending">Esta sección está pendiente de integración.</string>
 
     <!-- Registro y edición: encabezado -->
@@ -129,14 +108,7 @@
     <string name="registro_title_edit">Editar</string>
 
     <!-- Registro y edición: campos -->
-    <string name="registro_required_hint">Los campos con * son obligatorios.</string>
-    <string name="registro_required_label">%1$s *</string>
     <string name="registro_clear_field">Limpiar %1$s</string>
-
-    <!-- Registro y edición: secciones -->
-    <string name="registro_section_vehicle">1. Datos del vehículo</string>
-    <string name="registro_section_customer">2. Datos del cliente</string>
-    <string name="registro_section_reception">3. Recepción del vehículo</string>
 
     <!-- Registro y edición: recepción -->
     <string name="registro_reason">Motivo del ingreso</string>
@@ -150,7 +122,6 @@
 
     <!-- Registro y edición: evidencia -->
     <string name="registro_evidence_title">Evidencia fotográfica</string>
-    <string name="registro_evidence_pending">La captura de fotografías está pendiente de integración. Puedes guardar los datos del ingreso sin adjuntar imágenes.</string>
 
     <!-- Registro y edición: guardado -->
     <string name="registro_save_new">Registrar ingreso</string>
@@ -171,8 +142,6 @@
     <string name="registro_keep_editing">Seguir</string>
 
     <!-- Preparación del formulario y sesión -->
-    <string name="navigation_loading_technician">Preparando el registro…</string>
-    <string name="navigation_technician_error">No fue posible obtener el técnico de la sesión. Reintenta o vuelve a iniciar sesión.</string>
     <string name="navigation_loading_form">Preparando el formulario…</string>
     <string name="navigation_ingreso_not_found">El ingreso solicitado ya no existe.</string>
     <string name="navigation_form_error">No fue posible preparar el formulario. Intenta nuevamente.</string>
@@ -185,28 +154,20 @@
     <string name="detalle_processing">Procesando operación…</string>
 
     <!-- Detalle del ingreso: secciones -->
-    <string name="detalle_vehicle">Vehículo</string>
-    <string name="detalle_customer">Cliente y contacto</string>
-    <string name="detalle_reception">Recepción</string>
-    <string name="detalle_actions">Acciones del ingreso</string>
     <string name="detalle_edit_contact">Editar contacto</string>
 
     <!-- Detalle del ingreso: disponibilidad -->
-    <string name="detalle_unknown_help">Este ingreso no tiene un estado reconocido. Revisa su situación antes de regularizarlo.</string>
     <string name="detalle_closed">Este expediente está cerrado y solo permite consulta.</string>
 
     <!-- Detalle del ingreso: confirmaciones -->
-    <string name="detalle_confirmation_target">Ingreso n.º %1$d · Placa: %2$s</string>
     <string name="detalle_delete_warning">Se borran el ingreso y su historial. El cliente y el vehículo se conservan. No se puede deshacer.</string>
     <string name="detalle_cancel_warning">El ingreso queda cancelado y se conserva su expediente.</string>
     <string name="detalle_change_warning">Se guarda con fecha, hora y tu usuario.</string>
-    <string name="detalle_select_state">Selecciona el estado que corresponde:</string>
     <string name="detalle_reason">Motivo obligatorio</string>
     <string name="detalle_confirm">Confirmar</string>
 
     <!-- Detalle del ingreso: historial -->
     <string name="detalle_history">Historial del ingreso</string>
-    <string name="detalle_history_description">Operaciones registradas desde el ingreso.</string>
     <string name="detalle_history_empty">Todavía no hay eventos registrados.</string>
     <string name="detalle_event_created">Ingreso creado</string>
     <string name="detalle_event_edited">Datos actualizados</string>
@@ -214,17 +175,6 @@
     <string name="detalle_event_other">Actividad registrada</string>
     <string name="detalle_event_author">Técnico n.º %1$d</string>
     <string name="detalle_event_transition">%1$s → %2$s</string>
-
-    <!-- Detalle del ingreso: módulos pendientes -->
-    <string name="detalle_pending_title">Módulos pendientes de integración</string>
-    <string name="detalle_pending_action">%1$s · Pendiente</string>
-    <string name="detalle_pending_description">Estas funciones se habilitarán cuando sus módulos puedan registrar y comprobar los requisitos del proceso.</string>
-    <string name="dashboard_card_identifier">Ingreso n.º %1$d</string>
-    <string name="dashboard_card_additional">Información complementaria</string>
-    <!-- Descripciones de las secciones del formulario -->
-    <string name="registro_vehicle_description">Identifica el vehículo y sus características.</string>
-    <string name="registro_customer_description">Registra al cliente y sus medios de contacto.</string>
-    <string name="registro_reception_description">Indica cuándo ingresó y cómo se recibió el vehículo.</string>
 
     <!-- Respuestas del checklist -->
     <string name="checklist_answer_yes">Sí</string>
@@ -245,7 +195,6 @@
 
     <!-- Pantalla de checklist -->
     <string name="checklist_title">Checklist de revisión</string>
-    <string name="checklist_back">Volver</string>
     <string name="checklist_retry">Reintentar</string>
     <string name="checklist_not_found">El ingreso ya no existe.</string>
     <string name="checklist_ingreso_number">Ingreso n.º %1$d</string>
@@ -265,7 +214,6 @@
 
     <!-- Observaciones y guardado -->
     <string name="checklist_comments">Comentarios del técnico</string>
-    <string name="checklist_comments_help">Opcional. Describe hallazgos y observaciones de la revisión.</string>
     <string name="checklist_save">Guardar checklist</string>
     <string name="checklist_save_changes">Guardar cambios</string>
     <string name="checklist_saving">Guardando…</string>
@@ -283,41 +231,22 @@
     <string name="checklist_discard">Salir</string>
     <string name="checklist_keep_editing">Seguir</string>
 
-    <string name="checklist_view">Consultar checklist</string>
     <string name="detalle_event_checklist">Checklist de revisión</string>
 
     <!-- Selección de ingreso para checklist -->
     <string name="checklist_selector_title">Seleccionar ingreso</string>
-    <string name="checklist_selector_description">Busca el vehículo y selecciona el ingreso cuyo checklist deseas abrir.</string>
-    <string name="checklist_selector_search">Placa, serie, modelo o cliente</string>
     <string name="checklist_selector_error">No fue posible cargar los ingresos.</string>
     <string name="checklist_selector_empty">Todavía no hay ingresos registrados.</string>
     <string name="checklist_selector_no_results">No hay ingresos que coincidan con la búsqueda.</string>
-    <string name="checklist_selector_edit_help">Permite capturar o actualizar las respuestas del checklist.</string>
-    <string name="checklist_selector_consult_help">Solo consulta. Si todavía no tiene un checklist, las respuestas aparecerán pendientes. Para capturarlo, el ingreso debe estar en revisión o reparación.</string>
-    <string name="checklist_selector_open">Abrir checklist</string>
 
     <!-- Conceptos de cotización -->
-    <string name="diagnostico_concept_number">Concepto %1$d</string>
     <string name="diagnostico_concept_remove">Quitar concepto %1$d</string>
-    <string name="diagnostico_concept_description">Descripción</string>
-    <string name="diagnostico_concept_description_hint">Ej. Refrigerante o mano de obra</string>
-    <string name="diagnostico_concept_amount">Importe</string>
-    <string name="diagnostico_concept_amount_hint">0.00</string>
-    <string name="diagnostico_concept_amount_help">Importe de este concepto, sin separadores de miles.</string>
     <string name="diagnostico_currency_symbol">$</string>
-    <string name="diagnostico_currency_code">MXN</string>
 
     <!-- Hallazgos del diagnóstico -->
     <string name="diagnostico_findings_title">Hallazgos</string>
-    <string name="diagnostico_findings_description">Hallazgos registrados durante la revisión del vehículo.</string>
-    <string name="diagnostico_findings_count">Hallazgos registrados: %1$d</string>
 
     <string name="diagnostico_checklist_pending">Falta guardar el checklist.</string>
-    <string name="diagnostico_findings_empty">Sin problemas en la revisión.</string>
-
-    <string name="diagnostico_checklist_comments_title">Comentarios de la revisión</string>
-    <string name="diagnostico_checklist_comments_empty">Sin comentarios adicionales en el checklist.</string>
 
     <string name="diagnostico_finding_refrigerant">Falta de gas refrigerante.</string>
     <string name="diagnostico_finding_hoses">Fugas visibles en las mangueras de alta o baja presión.</string>
@@ -331,36 +260,10 @@
 
     <!-- Sección de cotización -->
     <string name="diagnostico_quote_title">Cotización</string>
-    <string name="diagnostico_quote_description">Conceptos e importes definidos por el mecánico.</string>
     <string name="diagnostico_quote_pending">Sin conceptos todavía.</string>
     <string name="diagnostico_quote_add">Agregar concepto</string>
     <string name="diagnostico_quote_total">Total</string>
-    <string name="diagnostico_quote_total_amount">%1$s MXN</string>
     <string name="diagnostico_quote_invalid_total">Completa los importes para ver el total.</string>
-    <string name="diagnostico_quote_total_help">Suma de los importes capturados. No se agregan cargos automáticamente.</string>
-
-    <!-- Datos del ingreso en el diagnóstico -->
-    <string name="diagnostico_data_title">Datos del ingreso</string>
-    <string name="diagnostico_data_description">Información del vehículo, cliente y recepción.</string>
-    <string name="diagnostico_data_ingreso">Ingreso n.º %1$d</string>
-    <string name="diagnostico_data_status">Estado: %1$s</string>
-
-    <string name="diagnostico_data_vehicle">Vehículo</string>
-    <string name="diagnostico_data_plate">Placa</string>
-    <string name="diagnostico_data_model">Marca y modelo</string>
-    <string name="diagnostico_data_color">Color</string>
-    <string name="diagnostico_data_serial">Número de serie</string>
-
-    <string name="diagnostico_data_customer">Cliente</string>
-    <string name="diagnostico_data_name">Nombre</string>
-    <string name="diagnostico_data_phone">Teléfono</string>
-    <string name="diagnostico_data_email">Correo electrónico</string>
-
-    <string name="diagnostico_data_reception">Recepción</string>
-    <string name="diagnostico_data_entry_date">Fecha de entrada</string>
-    <string name="diagnostico_data_reason">Motivo del ingreso</string>
-    <string name="diagnostico_data_initial_condition">Condición inicial</string>
-    <string name="diagnostico_data_not_provided">No registrado</string>
 
     <!-- Pantalla de diagnóstico -->
     <string name="diagnostico_title">Diagnóstico</string>
@@ -377,20 +280,11 @@
 
     <!-- Notas del mecánico -->
     <string name="diagnostico_notes_title">Diagnóstico</string>
-    <string name="diagnostico_notes_description">Notas adicionales para explicar al cliente los resultados y el trabajo propuesto.</string>
-    <string name="diagnostico_notes_label">Observaciones adicionales</string>
-    <string name="diagnostico_notes_hint">Describe los hallazgos y las recomendaciones para este vehículo.</string>
-
-    <!-- Evidencias pendientes -->
-    <string name="diagnostico_evidence_title">Evidencias fotográficas</string>
-    <string name="diagnostico_evidence_pending">Las fotografías estarán disponibles cuando se integre el módulo de evidencias.</string>
 
     <!-- Guardado y envío -->
     <string name="diagnostico_save">Guardar diagnóstico</string>
     <string name="diagnostico_save_changes">Guardar cambios</string>
     <string name="diagnostico_saving">Guardando…</string>
-    <string name="diagnostico_send">Enviar al cliente</string>
-    <string name="diagnostico_send_pending">El envío aún no está disponible. Guardar conserva las notas y la cotización en la aplicación.</string>
     <string name="diagnostico_unsaved_changes">Hay cambios sin guardar.</string>
     <string name="diagnostico_saved_record">Notas y cotización guardadas, sin cambios pendientes.</string>
     <string name="diagnostico_new_record">Diagnóstico todavía sin guardar.</string>
@@ -404,23 +298,13 @@
     <string name="diagnostico_discard">Salir</string>
     <string name="diagnostico_keep_editing">Seguir</string>
 
-    <string name="diagnostico_view">Consultar diagnóstico</string>
     <string name="detalle_event_diagnosis">Diagnóstico y cotización</string>
 
     <!-- Selección de ingreso para diagnóstico -->
     <string name="diagnostico_selector_title">Seleccionar ingreso</string>
-    <string name="diagnostico_selector_description">Selecciona el ingreso para consultar su reporte o preparar la cotización. Para guardar cambios debe estar en revisión o reparación y tener un checklist guardado.</string>
-    <string name="diagnostico_selector_search">Placa, serie, modelo o cliente</string>
     <string name="diagnostico_selector_error">No fue posible cargar los ingresos.</string>
     <string name="diagnostico_selector_empty">Todavía no hay ingresos registrados.</string>
     <string name="diagnostico_selector_no_results">No hay ingresos que coincidan con la búsqueda.</string>
-    <string name="diagnostico_selector_open">Abrir diagnóstico</string>
-
-    <!-- Motivos de bloqueo de la cotización -->
-    <string name="diagnostico_quote_blocked_registered">Para capturar la cotización, inicia la revisión desde el detalle del ingreso y guarda el checklist.</string>
-    <string name="diagnostico_quote_blocked_checklist">Guarda primero el checklist de este ingreso para habilitar las notas y la cotización.</string>
-    <string name="diagnostico_quote_blocked_closed">Este ingreso está cerrado. La cotización solo está disponible para consulta.</string>
-    <string name="diagnostico_quote_blocked_stage">En esta etapa la cotización es de consulta. Solo puede modificarse durante la revisión o la reparación.</string>
 
     <!-- Cámara -->
     <string name="camera_screen_title">Cámara</string>
@@ -441,7 +325,6 @@
     <string name="evidence_screen_title">Evidencias</string>
     <string name="evidence_loading">Cargando evidencias…</string>
     <string name="evidence_missing_ingreso">El ingreso ya no existe.</string>
-    <string name="evidence_ingreso_number">Ingreso n.º %1$d</string>
     <string name="evidence_take_photo">Tomar fotografía</string>
     <string name="evidence_read_only">Solo consulta. Puedes agregar fotos durante el registro, la revisión o la reparación.</string>
     <string name="evidence_review_photo">Revisar fotografía</string>
@@ -463,8 +346,6 @@
 
     <!-- Selección de ingreso para evidencias -->
     <string name="evidence_selector_title">Seleccionar ingreso</string>
-    <string name="evidence_selector_description">Selecciona el vehículo para consultar o agregar fotografías.</string>
-    <string name="evidence_selector_search">Placa, serie, modelo o cliente</string>
     <string name="evidence_selector_error">No se pudieron cargar los ingresos.</string>
     <string name="evidence_selector_empty">Todavía no hay ingresos registrados.</string>
     <string name="evidence_selector_no_results">No se encontraron ingresos con esa búsqueda.</string>
@@ -472,7 +353,6 @@
     <!-- Cámara desde un registro nuevo -->
     <string name="evidence_registration_gallery_title">Ingreso sin guardar</string>
     <string name="evidence_registration_gallery_message">Guarda el ingreso para consultar sus fotos. Mientras tanto, puedes tomar fotos y revisarlas en el formulario.</string>
-
 
     <!-- Fotografías múltiples y selección de principal -->
     <string name="fotos_open_options">Ver fotografía y opciones</string>
@@ -492,10 +372,7 @@
 
     <!-- Historial de actividad y flash -->
     <string name="historial_title">Historial</string>
-    <string name="historial_back">Volver</string>
-    <string name="historial_intro">Consulta qué se hizo, cuándo y quién lo realizó.</string>
     <string name="historial_search">Placa, cliente o técnico</string>
-    <string name="historial_clear_search">Borrar búsqueda</string>
     <string name="historial_all_actions">Toda actividad</string>
     <string name="historial_created">Ingreso registrado</string>
     <string name="historial_edited">Datos editados</string>
@@ -506,29 +383,16 @@
     <string name="historial_main_photo">Foto principal cambiada</string>
     <string name="historial_deleted_photo">Foto eliminada</string>
     <string name="historial_other">Otra actividad</string>
-    <string name="historial_all_dates">Todas las fechas</string>
     <string name="historial_today">Hoy</string>
-    <string name="historial_week">Últimos 7 días</string>
-    <string name="historial_month">Últimos 30 días</string>
-    <string name="historial_clear_filters">Limpiar filtros</string>
-    <string name="historial_scope">Actividad de todos los técnicos, ordenada de más reciente a más antigua.</string>
     <string name="historial_loading">Cargando actividad…</string>
     <string name="historial_error">No se pudo cargar el historial.</string>
     <string name="historial_retry">Reintentar</string>
     <string name="historial_no_results">No hay actividades con estos filtros.</string>
     <string name="historial_empty">Todavía no hay actividades registradas.</string>
-    <string name="historial_count">Actividades mostradas: %1$d</string>
     <string name="historial_more">Cargar más actividades</string>
-    <string name="historial_vehicle">%1$s · Ingreso n.º %2$d</string>
-    <string name="historial_actor">Por: %1$s</string>
     <string name="historial_actor_unknown">Técnico n.º %1$d</string>
-    <string name="historial_customer">Cliente: %1$s</string>
-    <string name="historial_previous">Antes: %1$s</string>
-    <string name="historial_next">Después: %1$s</string>
-    <string name="historial_no_note">Sin observaciones.</string>
     <string name="historial_less">Ocultar detalles</string>
     <string name="historial_details">Ver detalles</string>
-    <string name="historial_open_record">Abrir expediente</string>
     <string name="historial_registered">Registrado</string>
     <string name="historial_review">En revisión</string>
     <string name="historial_repair">En reparación</string>
@@ -563,7 +427,6 @@
     <string name="dashboard_action_to_signature">Pasar a firma</string>
     <string name="detalle_missing_checklist">Falta guardar el checklist</string>
     <string name="detalle_missing_diagnosis">Falta guardar el diagnóstico</string>
-    <string name="scanner_pending">Escanear placa · En desarrollo</string>
     <string name="registro_step_customer">Cliente</string>
     <string name="registro_step_vehicle">Vehículo</string>
     <string name="registro_step_reception">Recepción</string>
@@ -632,8 +495,6 @@
 
     <!-- Envío del reporte por WhatsApp -->
     <string name="send_title">Enviar a %1$s</string>
-    <string name="send_pdf">Diagnóstico y cotización</string>
-    <string name="send_pdf_tag">PDF</string>
     <string name="send_photos">Evidencias</string>
     <plurals name="send_photos_tag">
         <item quantity="one">%1$d foto</item>
@@ -718,7 +579,5 @@
     <string name="send_type_full">Completo</string>
     <string name="send_type_quote">Cotización</string>
     <string name="send_type_delivery">Acta</string>
-    <string name="send_pdf_quote">Cotización</string>
-    <string name="send_pdf_delivery">Acta de entrega</string>
     <string name="send_message_delivery">Hola %1$s, te compartimos el acta de entrega de tu %2$s (%3$s).</string>
 </resources>

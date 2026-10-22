@@ -32,10 +32,10 @@ fun FotoIngresoCard(
     ruta: String?,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    tamano: androidx.compose.ui.unit.Dp = 84.dp
-) {
+    tamano: androidx.compose.ui.unit.Dp = 84.dp) {
     val colors = MaterialTheme.colorScheme
     val tieneFoto = !ruta.isNullOrBlank()
+    // Indicadores de carga y de error de la imagen; se reinician al cambiar la ruta.
     var cargando by remember(ruta) { mutableStateOf(tieneFoto) }
     var errorImagen by remember(ruta) { mutableStateOf(false) }
 
@@ -45,12 +45,10 @@ fun FotoIngresoCard(
         ) else modifier,
         shape = MaterialTheme.shapes.medium,
         color = colors.primaryContainer,
-        contentColor = colors.onPrimaryContainer
-    ) {
+        contentColor = colors.onPrimaryContainer) {
         Box(
             modifier = Modifier.size(tamano),
-            contentAlignment = Alignment.Center
-        ) {
+            contentAlignment = Alignment.Center) {
             if (tieneFoto) {
                 AsyncImage(
                     model = File(requireNotNull(ruta)),

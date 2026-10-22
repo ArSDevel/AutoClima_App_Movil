@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.dashboard
 
+// Opciones del menú lateral; cada pantalla las traduce a una ruta de navegación.
 enum class DashboardMenuOption {
     DASHBOARD,
     REGISTRO,
@@ -7,5 +8,4 @@ enum class DashboardMenuOption {
     EVIDENCIAS,
     DIAGNOSTICO,
     FIRMA,
-    HISTORIAL
-}
+    HISTORIAL }

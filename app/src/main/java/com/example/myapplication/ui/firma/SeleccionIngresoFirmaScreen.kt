@@ -36,8 +36,7 @@ fun SeleccionIngresoFirmaScreen(
     viewModel: DashboardViewModel,
     onVolver: () -> Unit,
     onFirmar: (Long) -> Unit,
-    onEntregar: (Long) -> Unit
-) {
+    onEntregar: (Long) -> Unit) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val pendientes = estado.ingresos.filter {
         EstadoIngreso.desdeValor(it.estado).let { e -> e == EstadoIngreso.LISTO_PARA_FIRMA || e == EstadoIngreso.LISTO_PARA_ENTREGA } }
@@ -49,8 +48,7 @@ fun SeleccionIngresoFirmaScreen(
         Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
             Column(
                 modifier = Modifier.widthIn(max = 840.dp).fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+                verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 BuscadorIngreso(textoBusqueda = estado.textoBusqueda, onBusquedaChange = viewModel::cambiarBusqueda)
                 when {
                     estado.cargando -> Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
@@ -66,8 +64,7 @@ fun SeleccionIngresoFirmaScreen(
                     else -> LazyColumn(
                         modifier = Modifier.weight(1f),
                         contentPadding = PaddingValues(bottom = 24.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(items = pendientes, key = { it.ingresoId }) { ingreso ->
                             TarjetaSeleccionIngreso(
                                 ingreso = ingreso,

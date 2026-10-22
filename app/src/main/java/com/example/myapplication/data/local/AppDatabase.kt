@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+// Base de datos local; exportSchema guarda el esquema de cada versión para validar las migraciones.
 @Database(entities = [
         Tecnico::class,
         Cliente::class,
@@ -54,22 +55,24 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun firmaDao(): FirmaDao
 
     companion object {
+        // Instancia única compartida; @Volatile hace visible su asignación a todos los hilos.
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         fun getInstance(context: Context): AppDatabase {
             val contextoAplicacion = context.applicationContext
 
+            // Doble comprobación: evita bloquear si ya existe y evita crear dos bases si dos hilos llegan a la vez.
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(
                     contextoAplicacion,
                     AppDatabase::class.java,
                     "autoclima_diag.db")
                     // Rutas disponibles:
-                    // versión 5 → 6 → 9 → 10
-                    // versión 6 → 9 → 10
-                    // versión 8 → 9 → 10
-                    // versión 9 → 10
+                    // versión 5 a 10, pasando por la 6 y la 9
+                    // versión 6 a 10, pasando por la 9
+                    // versión 8 a 10, pasando por la 9
+                    // versión 9 a 10
                     .addMigrations(MIGRATION_5_6,
                         MIGRATION_6_9,
                         MIGRATION_8_9,
@@ -84,7 +87,8 @@ abstract class AppDatabase : RoomDatabase() {
                             sembrarUsuarioInicial(contextoAplicacion) } })
                     .build()
                     .also { INSTANCE = it } } }
-        // Conserva el técnico de prueba para instalaciones nuevas.
+        // Conserva el técnico de prueba para instalaciones nuevas; la inserción corre en segundo plano para no
+        // bloquear la creación de la base.
         private fun sembrarUsuarioInicial(
             context: Context
         ) { CoroutineScope(Dispatchers.IO).launch {

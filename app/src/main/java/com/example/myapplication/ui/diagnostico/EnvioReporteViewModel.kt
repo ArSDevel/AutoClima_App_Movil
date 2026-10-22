@@ -31,8 +31,7 @@ data class EnvioReporteUiState(
     val incluirReporte: Boolean = true,
     val incluirFotos: Boolean = true,
     val fase: FaseEnvio = FaseEnvio.LIBRE,
-    val error: String? = null
-) {
+    val error: String? = null) {
     // Hace falta elegir al menos un contenido y no estar ocupado.
     val puedeEnviar: Boolean
         get() = (incluirReporte || incluirFotos) && fase != FaseEnvio.PREPARANDO }
@@ -80,6 +79,8 @@ class EnvioReporteViewModel(
             if (resultado is ResultadoEnvio.Error) {
                 _uiState.update { it.copy(fase = FaseEnvio.ERROR, error = resultado.mensaje) } } } }
 
+    // Genera el PDF, lo entrega al servicio de envío y registra el envío en el historial; LISTO no confirma que el
+    // cliente lo reciba.
     fun enviar(datos: DatosReporte, mensaje: String, tecnicoId: Long) {
         val actual = _uiState.value
         if (actual.fase == FaseEnvio.PREPARANDO) return
@@ -139,4 +140,5 @@ class EnvioReporteViewModel(
         return "Se abrió WhatsApp para enviar: $documento$conFotos." }
 
     private companion object {
+        // Tope de fotos que se pasan al PDF; el generador dibuja como máximo nueve.
         const val MAXIMO_FOTOS = 10 } }

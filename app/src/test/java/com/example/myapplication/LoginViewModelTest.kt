@@ -18,29 +18,25 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
+// TecnicoDao en memoria: permite probar el inicio de sesión sin Room.
 class FakeTecnicoDao : TecnicoDao {
     private val tecnicos = mutableListOf<Tecnico>()
 
     override suspend fun buscarPorUsuario(usuario: String): Tecnico? {
-        return tecnicos.find { it.usuario == usuario }
-    }
+        return tecnicos.find { it.usuario == usuario } }
 
     override suspend fun login(usuario: String, passwordHash: String): Tecnico? {
         return tecnicos.find {
-            it.usuario == usuario && it.passwordHash == passwordHash
-        }
-    }
+            it.usuario == usuario && it.passwordHash == passwordHash } }
 
     override suspend fun insertar(tecnico: Tecnico): Long {
         tecnicos.add(tecnico)
-        return tecnico.tecnicoId
-    }
+        return tecnico.tecnicoId }
 
     override suspend fun obtener(id: Long): Tecnico? {
-        return tecnicos.find { it.tecnicoId == id }
-    }
-}
+        return tecnicos.find { it.tecnicoId == id } } }
 
+// Pruebas del inicio de sesión; el dispatcher de pruebas reemplaza al principal para controlar las corrutinas del ViewModel.
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
 
@@ -52,13 +48,11 @@ class LoginViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         fakeTecnicoDao = FakeTecnicoDao()
-        viewModel = LoginViewModel(fakeTecnicoDao)
-    }
+        viewModel = LoginViewModel(fakeTecnicoDao) }
 
     @After
     fun tearDown() {
-        Dispatchers.resetMain()
-    }
+        Dispatchers.resetMain() }
 
     @Test
     fun initialUiState_isDefaultEmpty() {
@@ -67,9 +61,9 @@ class LoginViewModelTest {
         assertEquals("", state.password)
         assertNull(state.idError)
         assertNull(state.passwordError)
-        assertFalse(state.isLoggedIn)
-    }
+        assertFalse(state.isLoggedIn) }
 
+    // El mensaje esperado de ID ya no coincide con el del ViewModel (El usuario no puede estar vacío).
     @Test
     fun login_withEmptyFields_showsErrorMessages() {
         viewModel.login()
@@ -77,8 +71,7 @@ class LoginViewModelTest {
         val state = viewModel.uiState.value
         assertEquals("El ID no puede estar vacío", state.idError)
         assertEquals("La contraseña no puede estar vacía", state.passwordError)
-        assertFalse(state.isLoggedIn)
-    }
+        assertFalse(state.isLoggedIn) }
 
     @Test
     fun login_withValidInput_succeeds() = runTest {
@@ -88,9 +81,7 @@ class LoginViewModelTest {
                 tecnicoId = 1,
                 nombre = "Técnico Test",
                 usuario = "01",
-                passwordHash = passHash
-            )
-        )
+                passwordHash = passHash))
 
         viewModel.onIdChanged("01")
         viewModel.onPasswordChanged("password123")
@@ -102,8 +93,7 @@ class LoginViewModelTest {
         assertNull(state.idError)
         assertNull(state.passwordError)
         assertTrue(state.isLoggedIn)
-        assertEquals("01", state.id)
-    }
+        assertEquals("01", state.id) }
 
     @Test
     fun resetLoginState_resetsLoggedInToFalse() = runTest {
@@ -113,9 +103,7 @@ class LoginViewModelTest {
                 tecnicoId = 1,
                 nombre = "Técnico Test",
                 usuario = "01",
-                passwordHash = passHash
-            )
-        )
+                passwordHash = passHash))
 
         viewModel.onIdChanged("01")
         viewModel.onPasswordChanged("password123")
@@ -125,6 +113,4 @@ class LoginViewModelTest {
         assertTrue(viewModel.uiState.value.isLoggedIn)
 
         viewModel.resetLoginState()
-        assertFalse(viewModel.uiState.value.isLoggedIn)
-    }
-}
+        assertFalse(viewModel.uiState.value.isLoggedIn) } }

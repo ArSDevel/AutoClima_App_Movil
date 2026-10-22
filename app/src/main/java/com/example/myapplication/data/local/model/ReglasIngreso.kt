@@ -1,10 +1,10 @@
 package com.example.myapplication.data.local.model
 
 /* Reglas del proceso de un ingreso. No depende de Compose ni de los botones de la interfaz.
-El repositorio debe comprobar estas reglas antes de guardaruna modificación en la base de datos.*/
+El repositorio debe comprobar estas reglas antes de guardar una modificación en la base de datos.*/
 object ReglasIngreso {
 
-    // Permite modificar vehículo, cliente y datos de recepción
+    // Permite modificar vehículo, cliente y datos de recepción.
     fun edicionCompleta(estado: EstadoIngreso): Boolean {
         return estado in setOf(
             EstadoIngreso.REGISTRADO,
@@ -80,7 +80,7 @@ object ReglasIngreso {
             EstadoIngreso.ENTREGADO -> entregar(origen)
             EstadoIngreso.NO_DISPONIBLE -> false } }
 
-    // Detiene la operación si el cambio no está permitido o no se proporcionó un motivo
+    // Detiene la operación si el cambio no está permitido o no se proporcionó un motivo.
     fun validarTransicion(origen: EstadoIngreso, destino: EstadoIngreso, motivo: String) {
         require(puedeCambiarEstado(origen, destino)) {
             "El cambio de estado no está permitido o requiere " +

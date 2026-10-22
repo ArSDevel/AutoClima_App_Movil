@@ -19,11 +19,10 @@ data class FormularioIngreso(
     val email: String = "",
     val fecha: String = fechaActual(),
     val motivo: String = "",
-    val condicion: String = ""
-) {
+    val condicion: String = "") {
     // Devuelve los errores identificados por nombre de campo.
     // En edición de contacto únicamente valida teléfono y correo.
-    // ahora permite comprobar que la fecha de entrada no sea futura.
+    // ahora es el instante de referencia para comprobar que la fecha de entrada no sea futura.
     fun errores(soloContacto: Boolean = false, ahora: Long = System.currentTimeMillis()): Map<String, String> {
         val errores = mutableMapOf<String, String>()
         if (!soloContacto) {
@@ -64,6 +63,7 @@ data class FormularioIngreso(
         return errores }
 
     companion object {
+        // Longitudes máximas de cada campo, aplicadas en el formulario y de nuevo en el repositorio.
         const val MAXIMO_NOMBRE = 80
         const val MAXIMO_MODELO = 60
         const val MAXIMO_COLOR = 30
@@ -120,9 +120,12 @@ data class FormularioIngreso(
             return valor.uppercase(Locale.ROOT).filter { it in 'A'..'Z' || it in '0'..'9' || it == '-' }.take(9) }
 
         private const val PATRON_FECHA = "dd/MM/yyyy"
+        // Exige dos dígitos de día y mes y cuatro de año antes de interpretar la fecha.
         private val patronFecha = Regex("[0-9]{2}/[0-9]{2}/[0-9]{4}")
         // Validación básica de formato, no comprueba que el correo exista.
         private val patronCorreo = Regex("""^[^\s@]+@[^\s@]+\.[^\s@]+$""")
+        // SimpleDateFormat no es seguro entre hilos, por eso se crea uno nuevo en cada uso; isLenient en false
+        // rechaza fechas inexistentes.
         private fun crearFormatoFecha(): SimpleDateFormat {
             return SimpleDateFormat(PATRON_FECHA, Locale.ROOT).apply { isLenient = false } }
         fun fechaActual(): String { return formatearFecha(System.currentTimeMillis()) }
@@ -130,7 +133,7 @@ data class FormularioIngreso(
             return crearFormatoFecha().format(Date(milisegundos)) }
 
         // Interpreta una fecha en la zona horaria del dispositivo.
-        // Devuelve null si el texto está incompleto o si la fecha o existe, por ejemplo 31/02/2026.
+        // Devuelve null si el texto está incompleto o si la fecha no existe, por ejemplo 31/02/2026.
         fun interpretarFecha(texto: String): Date? {
             val valor = texto.trim()
             if (!patronFecha.matches(valor)) { return null }

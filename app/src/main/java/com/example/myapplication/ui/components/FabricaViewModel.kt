@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 inline fun <reified T : ViewModel> fabricaViewModel(crossinline crear: () -> T): ViewModelProvider.Factory {
     return object : ViewModelProvider.Factory {
         override fun <V : ViewModel> create(modelClass: Class<V>): V {
+            // Rechaza clases distintas de T para no entregar un ViewModel equivocado.
             require(modelClass.isAssignableFrom(T::class.java)) { "ViewModel desconocido: ${modelClass.name}" }
             @Suppress("UNCHECKED_CAST")
             return crear() as V } } }

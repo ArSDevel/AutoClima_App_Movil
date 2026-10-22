@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.registro
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,21 +20,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Assignment
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -43,9 +33,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,9 +43,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,21 +55,14 @@ import com.example.myapplication.data.local.model.ReglasIngreso
 import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.dashboard.components.DashboardDrawer
 import com.example.myapplication.ui.registro.components.CampoRegistroTexto
-import com.example.myapplication.ui.registro.components.CamposAdaptables
 import com.example.myapplication.ui.registro.components.CargaInicialRegistro
 import com.example.myapplication.ui.registro.components.ErrorCargaRegistro
 import com.example.myapplication.ui.registro.components.FechaRegistro
 import com.example.myapplication.ui.registro.components.ResultadoRegistro
-import com.example.myapplication.ui.registro.components.SeccionRegistro
-import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.launch
 import androidx.compose.ui.draw.clip
-import coil.compose.AsyncImage
 import com.example.myapplication.ui.camara.components.GaleriaFotografias
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -97,7 +74,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.layout
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.text.font.FontWeight
 import com.example.myapplication.data.catalogo.CatalogoVehiculos
 import com.example.myapplication.ui.components.BarraAccionInferior
@@ -108,7 +84,6 @@ import com.example.myapplication.ui.components.CampoBloqueado
 import androidx.compose.material.icons.filled.Lock
 import com.example.myapplication.ui.components.DialogoAviso
 import com.example.myapplication.ui.components.TipoAviso
-import java.io.File
 
 // Conecta el estado y las acciones del ViewModel con la interfaz.
 @Composable
@@ -120,8 +95,7 @@ fun RegistroScreen(
     onTomarFotoClick: () -> Unit,
     modifier: Modifier = Modifier,
     onVerIngreso: ((Long) -> Unit)? = null,
-    onVolver: () -> Unit = {}
-) {
+    onVolver: () -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     RegistroContent(
         uiState = uiState,
@@ -163,6 +137,7 @@ private enum class SalidaRegistro {
     CHECKLIST,
     DIAGNOSTICO,
     EVIDENCIAS,
+    FIRMA,
     HISTORIAL,
     CERRAR_SESION }
 
@@ -184,8 +159,7 @@ private fun RegistroContent(
     onQuitarFoto: (String) -> Unit = {},
     onPasoChange: (Int) -> Unit = {},
     onValidarPaso: (Int) -> Boolean = { true },
-    onVolver: () -> Unit = {}
-) {
+    onVolver: () -> Unit = {}) {
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val snackbar = remember { SnackbarHostState() }
@@ -195,6 +169,7 @@ private fun RegistroContent(
     val paso = uiState.paso
     val mensajePendiente = stringResource(R.string.dashboard_section_pending)
 
+    // editable: el estado permite cambios; soloContacto: solo se corrigen teléfono y correo.
     val editable = !uiState.esEdicion || ReglasIngreso.editar(uiState.estadoIngreso)
     val soloContacto = uiState.esEdicion && ReglasIngreso.soloContacto(uiState.estadoIngreso)
     // El formulario solo admite cambios cuando terminó la carga.
@@ -206,10 +181,6 @@ private fun RegistroContent(
         if (uiState.registroExitoso) onPasoChange(0) }
 
     val mostrandoFormulario = !uiState.cargandoIngreso && uiState.errorCarga == null && !uiState.registroExitoso
-    val puedeAvanzar = when (paso) {
-        0 -> uiState.nombreCliente.isNotBlank() && uiState.telefonoCliente.isNotBlank()
-        1 -> FormularioIngreso.placaValida(uiState.placa) && uiState.modelo.isNotBlank()
-        else -> true }
 
     // Realiza la salida elegida.
     fun ejecutarSalida(destino: SalidaRegistro) {
@@ -223,6 +194,8 @@ private fun RegistroContent(
                 onMenuSeleccionado(DashboardMenuOption.DIAGNOSTICO) }
             SalidaRegistro.EVIDENCIAS -> {
                 onMenuSeleccionado(DashboardMenuOption.EVIDENCIAS) }
+            SalidaRegistro.FIRMA -> {
+                onMenuSeleccionado(DashboardMenuOption.FIRMA) }
             SalidaRegistro.HISTORIAL -> {
                 onMenuSeleccionado(DashboardMenuOption.HISTORIAL) }
             SalidaRegistro.CERRAR_SESION -> {
@@ -256,13 +229,14 @@ private fun RegistroContent(
                                     solicitarSalida(SalidaRegistro.DIAGNOSTICO) }
                                 DashboardMenuOption.EVIDENCIAS -> {
                                     solicitarSalida(SalidaRegistro.EVIDENCIAS) }
+                                DashboardMenuOption.FIRMA -> {
+                                    solicitarSalida(SalidaRegistro.FIRMA) }
                                 DashboardMenuOption.HISTORIAL -> {
                                     solicitarSalida(SalidaRegistro.HISTORIAL) }
                                 else -> snackbar.showSnackbar(mensajePendiente) } } } },
                 onLogout = {
                     scope.launch { drawerState.close()
-                        solicitarSalida(SalidaRegistro.CERRAR_SESION) } }) }
-    ) {
+                        solicitarSalida(SalidaRegistro.CERRAR_SESION) } }) }) {
         // También protege la salida mediante el botón Atrás de Android.
         BackHandler {
             if (drawerState.isOpen) { scope.launch { drawerState.close() } }
@@ -308,8 +282,7 @@ private fun RegistroContent(
                             onClick = onGuardar,
                             enabled = camposHabilitados,
                             modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
+                            shape = RoundedCornerShape(16.dp)) {
                             if (uiState.cargando) {
                                 CircularProgressIndicator(modifier = Modifier.size(20.dp),
                                     color = colors.onPrimary, strokeWidth = 2.dp)
@@ -333,8 +306,7 @@ private fun RegistroContent(
                                 if (paso < 2) { if (onValidarPaso(paso)) onPasoChange(paso + 1) } else { onGuardar() } },
                             enabled = camposHabilitados || (paso < 2 && !uiState.cargando),
                             modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
+                            shape = RoundedCornerShape(16.dp)) {
                             if (uiState.cargando) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(20.dp),
@@ -357,13 +329,11 @@ private fun RegistroContent(
         ) { padding ->
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
-                contentAlignment = Alignment.TopCenter
-            ) {
+                contentAlignment = Alignment.TopCenter) {
                 Column(modifier = Modifier
                     .widthIn(max = 640.dp).fillMaxWidth()
                     .verticalScroll(rememberScrollState()).padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     when {
                         // No mostramos campos vacíos mientras
                         // se está preparando una edición.
@@ -431,19 +401,18 @@ private fun RegistroContent(
                                             } else null,
                                         habilitado = datosCompletosHabilitados,
                                         destacado = true,
-                                        // El escáner de placa lo desarrollará otro equipo.
+                                        // Botón de escaneo de placa inactivo (semitransparente): la lectura de la
+                                        // placa todavía no está disponible.
                                         contenidoFinal = {
                                             Surface(
                                                 modifier = Modifier.padding(end = 8.dp).alpha(0.5f),
                                                 shape = RoundedCornerShape(12.dp),
                                                 color = colors.primaryContainer,
-                                                contentColor = colors.onPrimaryContainer
-                                            ) {
+                                                contentColor = colors.onPrimaryContainer) {
                                                 Row(
                                                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
                                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
+                                                    verticalAlignment = Alignment.CenterVertically) {
                                                     Icon(Icons.Default.PhotoCamera, contentDescription = null,
                                                         modifier = Modifier.size(20.dp))
                                                     Text(stringResource(R.string.registro_scan),
@@ -498,8 +467,7 @@ private fun RegistroContent(
                                         border = androidx.compose.foundation.BorderStroke(2.dp, colors.primary),
                                         colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
                                             containerColor = colors.primaryContainer,
-                                            contentColor = colors.primary)
-                                    ) {
+                                            contentColor = colors.primary)) {
                                         Icon(Icons.Default.PhotoCamera, contentDescription = null)
                                         Spacer(Modifier.width(8.dp))
                                         Text(stringResource(R.string.fotos_add)) }
@@ -540,8 +508,7 @@ private fun ContenidoEdicion(
     onCampoChange: (CampoRegistro, String) -> Unit,
     onTomarFotoClick: () -> Unit,
     onSeleccionarFoto: (String) -> Unit,
-    onQuitarFoto: (String) -> Unit
-) {
+    onQuitarFoto: (String) -> Unit) {
     val colors = MaterialTheme.colorScheme
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (!editable) {
@@ -612,8 +579,7 @@ private fun ContenidoEdicion(
                 shape = RoundedCornerShape(14.dp),
                 border = androidx.compose.foundation.BorderStroke(2.dp, colors.primary),
                 colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                    containerColor = colors.primaryContainer, contentColor = colors.primary)
-            ) {
+                    containerColor = colors.primaryContainer, contentColor = colors.primary)) {
                 Icon(Icons.Default.PhotoCamera, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.fotos_add)) }
@@ -636,13 +602,11 @@ private fun AvisoRegistro(texto: String, icono: androidx.compose.ui.graphics.vec
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.primaryContainer,
-        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-    ) {
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Icon(icono, contentDescription = null, modifier = Modifier.size(20.dp))
             Text(text = texto, style = MaterialTheme.typography.bodyMedium) } } }
 
@@ -652,14 +616,12 @@ private fun AvisoRegistro(texto: String, icono: androidx.compose.ui.graphics.vec
 private fun SugerenciasModelo(
     texto: String,
     visible: Boolean,
-    onSeleccionar: (String) -> Unit
-) {
+    onSeleccionar: (String) -> Unit) {
     val sugerencias = remember(texto) { CatalogoVehiculos.sugerencias(texto, limite = 8) }
     if (!visible || sugerencias.isEmpty()) return
     androidx.compose.foundation.lazy.LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+        modifier = Modifier.fillMaxWidth()) {
         items(sugerencias.size) { indice ->
             val sugerencia = sugerencias[indice]
             androidx.compose.material3.SuggestionChip(
@@ -681,8 +643,7 @@ private fun PasosRegistro(paso: Int) {
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        shadowElevation = 10.dp
-    ) {
+        shadowElevation = 10.dp) {
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 16.dp)) {
             pasos.forEachIndexed { indice, texto ->
                 val hecho = indice < paso
@@ -690,16 +651,14 @@ private fun PasosRegistro(paso: Int) {
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Box(
                         modifier = Modifier.size(44.dp).clip(CircleShape)
                             .background(if (hecho) colors.primary else colors.surface)
                             .border(width = if (hecho) 0.dp else 3.dp,
                                 color = if (actual) colors.primary else colors.outlineVariant,
                                 shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
+                        contentAlignment = Alignment.Center) {
                         if (hecho) {
                             Icon(imageVector = Icons.Default.Check, contentDescription = null,
                                 modifier = Modifier.size(24.dp), tint = colors.onPrimary)

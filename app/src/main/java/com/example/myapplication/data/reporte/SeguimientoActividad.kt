@@ -8,6 +8,7 @@ import java.lang.ref.WeakReference
 // Recuerda cuál es la pantalla abierta para lanzar WhatsApp desde ella.
 // Así WhatsApp se abre dentro de la misma tarea y el botón atrás regresa a AutoClima.
 class SeguimientoActividad : Application.ActivityLifecycleCallbacks {
+    // WeakReference evita retener la pantalla en memoria cuando se destruye.
     private var referencia: WeakReference<Activity>? = null
 
     // La pantalla visible ahora, o null si la app no está al frente.
@@ -15,6 +16,7 @@ class SeguimientoActividad : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityResumed(activity: Activity) { referencia = WeakReference(activity) }
     override fun onActivityPaused(activity: Activity) { if (referencia?.get() === activity) referencia = null }
+    // Los demás eventos del ciclo de vida no se usan.
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {}
     override fun onActivityStarted(activity: Activity) {}
     override fun onActivityStopped(activity: Activity) {}

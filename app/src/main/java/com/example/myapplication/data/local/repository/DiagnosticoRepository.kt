@@ -11,9 +11,9 @@ import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.FormularioDiagnostico
 import java.math.BigDecimal
 
+// Lee y guarda las notas y la cotización de un ingreso y deja constancia en el historial.
 class DiagnosticoRepository(
-    private val baseDeDatos: AppDatabase
-) {
+    private val baseDeDatos: AppDatabase) {
     private val diagnosticoDao = baseDeDatos.diagnosticoDao()
     private val ingresoDao = baseDeDatos.ingresoDao()
     private val checklistDao = baseDeDatos.checklistDao()
@@ -25,13 +25,11 @@ class DiagnosticoRepository(
         ingresoId: Long
     ): DiagnosticoConConceptos? {
         require(ingresoId > 0) {
-            "El identificador del ingreso no es válido."
-        }
+            "El identificador del ingreso no es válido." }
 
         return baseDeDatos.withTransaction {
             requireNotNull(ingresoDao.obtener(ingresoId)) {
-                "El ingreso ya no existe."
-            }
+                "El ingreso ya no existe." }
 
             val diagnostico = diagnosticoDao.obtenerPorIngreso(ingresoId)
                 ?: return@withTransaction null
@@ -39,11 +37,7 @@ class DiagnosticoRepository(
             DiagnosticoConConceptos(
                 diagnostico = diagnostico,
                 conceptos = diagnosticoDao.obtenerConceptos(
-                    diagnostico.diagnosticoId
-                )
-            )
-        }
-    }
+                    diagnostico.diagnosticoId)) } }
 
     // Guarda las notas, la cotización y el evento del historial.
     // Si alguna operación falla, se revierten todos los cambios.
@@ -53,30 +47,25 @@ class DiagnosticoRepository(
         tecnicoId: Long
     ): Long {
         require(ingresoId > 0) {
-            "El identificador del ingreso no es válido."
-        }
+            "El identificador del ingreso no es válido." }
 
         require(tecnicoId > 0) {
-            "Inicia sesión nuevamente para continuar."
-        }
+            "Inicia sesión nuevamente para continuar." }
 
         val errores = formulario.errores()
 
         require(errores.isEmpty()) {
             errores.values.firstOrNull()
-                ?: "Revisa los datos de la cotización."
-        }
+                ?: "Revisa los datos de la cotización." }
 
         val normalizado = formulario.normalizado()
 
         return baseDeDatos.withTransaction {
             requireNotNull(tecnicoDao.obtener(tecnicoId)) {
-                "El técnico ya no existe. Inicia sesión nuevamente."
-            }
+                "El técnico ya no existe. Inicia sesión nuevamente." }
 
             val ingreso = requireNotNull(ingresoDao.obtener(ingresoId)) {
-                "El ingreso ya no existe."
-            }
+                "El ingreso ya no existe." }
 
             // Comprueba el estado actual de la base de datos,
             // aunque la pantalla se haya abierto en otra etapa.
@@ -84,20 +73,17 @@ class DiagnosticoRepository(
 
             require(puedeEditar(estadoActual)) {
                 "Solo puedes guardar el diagnóstico cuando el ingreso " +
-                        "está en revisión o en reparación."
-            }
+                        "está en revisión o en reparación." }
 
             requireNotNull(checklistDao.obtenerPorIngreso(ingresoId)) {
-                "Guarda primero el checklist para elaborar el diagnóstico."
-            }
+                "Guarda primero el checklist para elaborar el diagnóstico." }
 
             val existente = diagnosticoDao.obtenerPorIngreso(ingresoId)
 
             val conceptosExistentes = if (existente != null) {
                 diagnosticoDao.obtenerConceptos(existente.diagnosticoId)
             } else {
-                emptyList()
-            }
+                emptyList() }
 
             // Convierte los datos guardados al mismo formato
             // del formulario para comparar su contenido.
@@ -109,16 +95,13 @@ class DiagnosticoRepository(
                         importe = BigDecimal.valueOf(
                             concepto.importeCentavos,
                             2
-                        ).toPlainString()
-                    )
-                }
+                        ).toPlainString()) }
             ).normalizado()
 
             // No modifica fechas ni genera eventos por guardar
             // nuevamente el mismo contenido.
             if (existente != null && normalizado == formularioAnterior) {
-                return@withTransaction existente.diagnosticoId
-            }
+                return@withTransaction existente.diagnosticoId }
 
             val ahora = System.currentTimeMillis()
 
@@ -129,22 +112,17 @@ class DiagnosticoRepository(
                         observaciones = normalizado.observaciones,
                         tecnicoId = tecnicoId,
                         fechaCreacion = ahora,
-                        fechaActualizacion = ahora
-                    )
-                )
+                        fechaActualizacion = ahora))
             } else {
                 val actualizado = existente.copy(
                     observaciones = normalizado.observaciones,
                     tecnicoId = tecnicoId,
-                    fechaActualizacion = ahora
-                )
+                    fechaActualizacion = ahora)
 
                 check(diagnosticoDao.actualizar(actualizado) == 1) {
-                    "No fue posible actualizar el diagnóstico."
-                }
+                    "No fue posible actualizar el diagnóstico." }
 
-                existente.diagnosticoId
-            }
+                existente.diagnosticoId }
 
             // Solo reemplaza las filas cuando cambia la cotización.
             // Editar únicamente las notas conserva los conceptos existentes.
@@ -160,18 +138,12 @@ class DiagnosticoRepository(
                         diagnosticoId = diagnosticoId,
                         descripcion = concepto.descripcion,
                         importeCentavos = requireNotNull(
-                            concepto.importeEnCentavos()
-                        ) {
-                            "El importe de un concepto no es válido."
-                        },
-                        orden = indice
-                    )
-                }
+                            concepto.importeEnCentavos()) {
+                            "El importe de un concepto no es válido." },
+                        orden = indice) }
 
                 if (nuevosConceptos.isNotEmpty()) {
-                    diagnosticoDao.insertarConceptos(nuevosConceptos)
-                }
-            }
+                    diagnosticoDao.insertarConceptos(nuevosConceptos) } }
 
             // Registra la operación sin cambiar el estado del ingreso.
             ingresoDao.insertarEvento(
@@ -186,25 +158,16 @@ class DiagnosticoRepository(
                         if (normalizado.tieneCotizacion) {
                             "Se guardó el diagnóstico con su cotización."
                         } else {
-                            "Se guardó el diagnóstico con cotización pendiente."
-                        }
+                            "Se guardó el diagnóstico con cotización pendiente." }
                     } else {
                         "Se actualizaron las notas del diagnóstico " +
-                                "o los conceptos de cotización."
-                    }
-                )
-            )
+                                "o los conceptos de cotización." }))
 
-            diagnosticoId
-        }
-    }
+            diagnosticoId } }
 
     companion object {
         // La interfaz consulta esta condición para habilitar los campos.
         // El repositorio vuelve a comprobarla al guardar.
         fun puedeEditar(estado: EstadoIngreso): Boolean {
             return estado == EstadoIngreso.EN_REVISION ||
-                    estado == EstadoIngreso.EN_REPARACION
-        }
-    }
-}
+                    estado == EstadoIngreso.EN_REPARACION } } }

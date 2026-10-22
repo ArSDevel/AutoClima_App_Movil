@@ -16,8 +16,7 @@ import java.util.Locale
 
 // Acceso a los ingresos para el listado, el detalle y los cambios de estado.
 class DashboardRepository(
-    private val baseDeDatos: AppDatabase
-) {
+    private val baseDeDatos: AppDatabase) {
     private val ingresoDao = baseDeDatos.ingresoDao()
     private val tecnicoDao = baseDeDatos.tecnicoDao()
     private val clienteDao = baseDeDatos.clienteDao()
@@ -162,6 +161,7 @@ class DashboardRepository(
             if (destino == EstadoIngreso.LISTO_PARA_FIRMA) {
                 requireNotNull(diagnosticoDao.obtenerPorIngreso(ingresoId)) {
                     "Guarda primero el diagnóstico para pasar a firma." } }
+            // La firma es obligatoria para quedar listo para entrega y para entregar.
             if (destino == EstadoIngreso.LISTO_PARA_ENTREGA || destino == EstadoIngreso.ENTREGADO) {
                 requireNotNull(firmaDao.obtenerPorIngreso(ingresoId)) {
                     "Falta la firma del cliente." } }
@@ -210,8 +210,7 @@ class DashboardRepository(
             motivo = motivo, tecnicoId = tecnicoId) }
 
     // Elimina únicamente una captura registrada sin actividad posterior.
-    suspend fun eliminar(ingresoId: Long, tecnicoId: Long
-    ) {
+    suspend fun eliminar(ingresoId: Long, tecnicoId: Long) {
         baseDeDatos.withTransaction {
             validarTecnico(tecnicoId)
 

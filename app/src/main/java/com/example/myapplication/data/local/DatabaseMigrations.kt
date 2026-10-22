@@ -3,14 +3,16 @@ package com.example.myapplication.data.local
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-// Versión 2 → 3: incorpora el estado del ingreso.  Conservamos la migración existente.
+// Versión 2 a 3: incorpora el estado del ingreso.
+// No se registra en AppDatabase: las bases anteriores a la versión 5 ya no se actualizan.
 val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("""ALTER TABLE ingreso
             ADD COLUMN estado TEXT NOT NULL DEFAULT 'NO_DISPONIBLE'
             """.trimIndent()) } }
 
-// Versión 3 → 4:  incorpora el historial de operaciones de los ingresos.
+// Versión 3 a 4: incorpora el historial de operaciones de los ingresos.
+// No se registra en AppDatabase: las bases anteriores a la versión 5 ya no se actualizan.
 val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("""CREATE TABLE IF NOT EXISTS evento_ingreso (
@@ -30,7 +32,7 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
         db.execSQL("""CREATE INDEX IF NOT EXISTS index_evento_ingreso_ingresoId
             ON evento_ingreso (ingresoId)""".trimIndent()) } }
 
-// Versión 5 → 6: incorpora el diagnóstico y su cotización.
+// Versión 5 a 6: incorpora el diagnóstico y su cotización.
 // Conserva las tablas y los datos existentes.
 val MIGRATION_5_6 = object : Migration(5, 6) {
     override fun migrate(db: SupportSQLiteDatabase) {
@@ -80,7 +82,7 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
             ON concepto_cotizacion (diagnosticoId)
             """.trimIndent()) } }
 
-// Versión 9 → 10: incorpora la firma del cliente. Conserva todos los datos existentes.
+// Versión 9 a 10: incorpora la firma del cliente. Conserva todos los datos existentes.
 val MIGRATION_9_10 = object : Migration(9, 10) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("""CREATE TABLE IF NOT EXISTS firma (
@@ -94,5 +96,6 @@ val MIGRATION_9_10 = object : Migration(9, 10) {
                     ON UPDATE NO ACTION
                     ON DELETE CASCADE
             )""".trimIndent())
+        // El índice único garantiza una sola firma vigente por ingreso.
         db.execSQL("""CREATE UNIQUE INDEX IF NOT EXISTS index_firma_ingresoId
             ON firma (ingresoId)""".trimIndent()) } }

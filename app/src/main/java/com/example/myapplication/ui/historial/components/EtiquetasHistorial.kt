@@ -2,11 +2,6 @@ package com.example.myapplication.ui.historial.components
 
 import androidx.annotation.StringRes
 import com.example.myapplication.R
-import com.example.myapplication.ui.historial.PeriodoHistorial
-
-val accionesHistorial = listOf(
-    "FOTOS", "CREADO", "EDITADO", "ESTADO", "CHECKLIST", "DIAGNOSTICO",
-    "EVIDENCIA", "FOTO_PRINCIPAL", "EVIDENCIA_ELIMINADA", "REPORTE")
 
 // Texto de cada tipo de actividad.
 @StringRes
@@ -23,14 +18,6 @@ fun etiquetaAccionHistorial(accion: String?): Int = when (accion) {
     "FOTO_PRINCIPAL" -> R.string.historial_main_photo
     "EVIDENCIA_ELIMINADA" -> R.string.historial_deleted_photo
     else -> R.string.historial_other }
-
-// Texto de cada periodo de fechas.
-@StringRes
-fun etiquetaPeriodoHistorial(periodo: PeriodoHistorial): Int = when (periodo) {
-    PeriodoHistorial.TODOS -> R.string.historial_all_dates
-    PeriodoHistorial.HOY -> R.string.historial_today
-    PeriodoHistorial.SIETE_DIAS -> R.string.historial_week
-    PeriodoHistorial.TREINTA_DIAS -> R.string.historial_month }
 
 // Texto de cada estado guardado en un evento.
 @StringRes

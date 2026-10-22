@@ -14,16 +14,6 @@ interface EvidenciaDao {
     @Insert
     suspend fun insertarEvidencia(evidencia: Evidencia): Long
 
-    // Conservamos esta consulta para la galería actual
-    // mientras completamos su integración por ingreso.
-    @Query(
-        """
-        SELECT *
-        FROM tabla_evidencias
-        ORDER BY fecha DESC, id DESC
-        """)
-    fun obtenerTodas(): Flow<List<Evidencia>>
-
     // Observa las fotografías del ingreso seleccionado.
     @Query(
         """
@@ -35,16 +25,6 @@ interface EvidenciaDao {
     fun observarPorIngreso(
         ingresoId: Long
     ): Flow<List<Evidencia>>
-
-    // Fotografías antiguas sin ingreso asociado.
-    @Query(
-        """
-        SELECT *
-        FROM tabla_evidencias
-        WHERE ingresoId IS NULL
-        ORDER BY id DESC
-        """)
-    fun observarSinAsignar(): Flow<List<Evidencia>>
 
     // Obtiene una evidencia por su identificador.
     @Query(
@@ -66,7 +46,7 @@ interface EvidenciaDao {
         """)
     suspend fun buscarPorRuta(ruta: String): Evidencia?
 
-    // Comprueba si el ingreso tiene fotografías asociadas.
+    // Cuenta las fotografías del ingreso; sirve para impedir que se elimine la última.
     @Query(
         """
         SELECT COUNT(*)

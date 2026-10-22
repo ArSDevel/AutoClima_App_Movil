@@ -51,8 +51,7 @@ fun EntregaScreen(
     viewModel: EntregaViewModel,
     tecnicoId: Long,
     onVolver: () -> Unit,
-    onIrAIngresos: () -> Unit
-) {
+    onIrAIngresos: () -> Unit) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
     val yaEntregado = estado.estadoActual == EstadoIngreso.ENTREGADO
@@ -79,8 +78,7 @@ fun EntregaScreen(
                             enabled = estado.puedeEntregar,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.estadoIngresoColors.listoParaFirma)
-                        ) {
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.estadoIngresoColors.listoParaFirma)) {
                             if (estado.guardando) {
                                 CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp,
                                     color = colors.onPrimary)
@@ -96,8 +94,7 @@ fun EntregaScreen(
                 else -> Column(
                     modifier = Modifier.widthIn(max = 640.dp).fillMaxSize().verticalScroll(rememberScrollState())
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Surface(shape = MaterialTheme.shapes.large, color = colors.surface, shadowElevation = 1.dp) {
                         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)) {
                             FilaRequisito(stringResource(R.string.entrega_checklist), estado.requisitos.checklist)

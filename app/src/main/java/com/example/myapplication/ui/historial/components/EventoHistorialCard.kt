@@ -30,14 +30,11 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -66,7 +63,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
         "EDITADO" -> Icons.Default.Edit to estados.registrado
         "REPORTE" -> Icons.AutoMirrored.Filled.Send to estados.listoParaFirma
         else -> Icons.Default.History to estados.registrado }
-    // Un cambio de estado se titula con el cambio mismo: "Revisión → Reparación".
+    // Un cambio de estado se titula con el cambio mismo: "Revisión a Reparación".
     val titulo = if (evento.accion == "ESTADO" && evento.estadoNuevo.isNotBlank() && evento.estadoAnterior.isNotBlank()) {
         stringResource(R.string.detalle_event_transition,
             stringResource(etiquetaEstadoHistorial(evento.estadoAnterior)),
@@ -77,19 +74,16 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        shadowElevation = 1.dp
-    ) {
+        shadowElevation = 1.dp) {
         Column(modifier = Modifier.fillMaxWidth().clickable { expandido = !expandido }.padding(14.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier.size(48.dp).clip(RoundedCornerShape(12.dp))
                         .background(color.copy(alpha = 0.18f)),
-                    contentAlignment = Alignment.Center
-                ) {
+                    contentAlignment = Alignment.Center) {
                     Icon(icono, contentDescription = null, tint = color) }
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text(text = titulo, style = MaterialTheme.typography.titleSmall,
@@ -114,8 +108,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                    verticalAlignment = Alignment.CenterVertically) {
                     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Person, contentDescription = null, modifier = Modifier.size(16.dp),
                             tint = colors.onSurfaceVariant)
@@ -124,7 +117,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
                         Text(stringResource(R.string.historial_open_short), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                         Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(18.dp)) } } } } } }
 
-// "Jesús Martínez Pérez" → "Jesús M."
+// "Jesús Martínez Pérez" queda como "Jesús M."
 private fun nombreCorto(nombre: String?): String? {
     val partes = nombre?.trim()?.split(" ")?.filter { it.isNotBlank() } ?: return null
     if (partes.isEmpty()) return null
@@ -136,6 +129,7 @@ private fun fechaRelativa(milisegundos: Long): String {
     val ahora = Calendar.getInstance()
     val evento = Calendar.getInstance().apply { timeInMillis = milisegundos }
     val hora = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(milisegundos))
+    // Cuenta los días con año por 366 más día del año; al cruzar de año, Ayer se muestra como fecha corta.
     val dias = (ahora.get(Calendar.YEAR) * 366 + ahora.get(Calendar.DAY_OF_YEAR)) -
             (evento.get(Calendar.YEAR) * 366 + evento.get(Calendar.DAY_OF_YEAR))
     return when (dias) {

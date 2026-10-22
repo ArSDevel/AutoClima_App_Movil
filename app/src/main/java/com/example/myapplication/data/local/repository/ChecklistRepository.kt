@@ -6,9 +6,9 @@ import com.example.myapplication.data.local.entity.ChecklistDiagnostico
 import com.example.myapplication.data.local.entity.EventoIngreso
 import com.example.myapplication.data.local.model.EstadoIngreso
 
+// Lee y guarda el checklist de revisión de un ingreso y deja constancia en el historial.
 class ChecklistRepository(
-    private val baseDeDatos: AppDatabase
-) {
+    private val baseDeDatos: AppDatabase) {
     private val checklistDao = baseDeDatos.checklistDao()
     private val ingresoDao = baseDeDatos.ingresoDao()
     private val tecnicoDao = baseDeDatos.tecnicoDao()
@@ -19,17 +19,13 @@ class ChecklistRepository(
         ingresoId: Long
     ): ChecklistDiagnostico? {
         require(ingresoId > 0) {
-            "El identificador del ingreso no es válido."
-        }
+            "El identificador del ingreso no es válido." }
 
         return baseDeDatos.withTransaction {
             requireNotNull(ingresoDao.obtener(ingresoId)) {
-                "El ingreso ya no existe."
-            }
+                "El ingreso ya no existe." }
 
-            checklistDao.obtenerPorIngreso(ingresoId)
-        }
-    }
+            checklistDao.obtenerPorIngreso(ingresoId) } }
 
     // Guarda o actualiza el checklist y registra el evento.
     // Toda la operación se revierte si alguna parte falla.
@@ -49,21 +45,17 @@ class ChecklistRepository(
         tecnicoId: Long
     ): Long {
         require(ingresoId > 0) {
-            "El identificador del ingreso no es válido."
-        }
+            "El identificador del ingreso no es válido." }
 
         require(tecnicoId > 0) {
-            "Inicia sesión nuevamente para continuar."
-        }
+            "Inicia sesión nuevamente para continuar." }
 
         return baseDeDatos.withTransaction {
             requireNotNull(tecnicoDao.obtener(tecnicoId)) {
-                "El técnico ya no existe. Inicia sesión nuevamente."
-            }
+                "El técnico ya no existe. Inicia sesión nuevamente." }
 
             val ingreso = requireNotNull(ingresoDao.obtener(ingresoId)) {
-                "El ingreso ya no existe."
-            }
+                "El ingreso ya no existe." }
 
             // Consulta el estado real al guardar.
             // Evita modificar un checklist si el ingreso cambió
@@ -72,8 +64,7 @@ class ChecklistRepository(
 
             require(puedeEditar(estado)) {
                 "Solo puedes guardar el checklist cuando el ingreso " +
-                        "está en revisión o en reparación."
-            }
+                        "está en revisión o en reparación." }
 
             val existente = checklistDao.obtenerPorIngreso(ingresoId)
             val ahora = System.currentTimeMillis()
@@ -93,14 +84,12 @@ class ChecklistRepository(
                 filtroCabinaSucioUObstruido = filtroCabinaSucioUObstruido,
                 condensadorObstruido = condensadorObstruido,
                 comentarios = comentarios?.trim()?.ifEmpty { null },
-                fecha = existente?.fecha ?: ahora
-            )
+                fecha = existente?.fecha ?: ahora)
 
             // Guardar las mismas respuestas no modifica la fecha
             // ni agrega eventos repetidos al historial.
             if (existente != null && candidato == existente) {
-                return@withTransaction existente.checklistId
-            }
+                return@withTransaction existente.checklistId }
 
             // La fecha representa el último guardado con cambios.
             val checklist = candidato.copy(fecha = ahora)
@@ -109,11 +98,9 @@ class ChecklistRepository(
                 checklistDao.insertar(checklist)
             } else {
                 check(checklistDao.actualizar(checklist) == 1) {
-                    "No fue posible actualizar el checklist."
-                }
+                    "No fue posible actualizar el checklist." }
 
-                existente.checklistId
-            }
+                existente.checklistId }
 
             // El checklist no cambia el estado del ingreso.
             // Su guardado sí cuenta como actividad posterior a la creación.
@@ -128,21 +115,13 @@ class ChecklistRepository(
                     motivo = if (existente == null) {
                         "Se guardó el checklist de revisión."
                     } else {
-                        "Se actualizaron las respuestas o comentarios del checklist."
-                    }
-                )
-            )
+                        "Se actualizaron las respuestas o comentarios del checklist." }))
 
-            checklistId
-        }
-    }
+            checklistId } }
 
     companion object {
         // La pantalla puede consultar esta condición para habilitar
         // la edición. El repositorio también la valida al guardar.
         fun puedeEditar(estado: EstadoIngreso): Boolean {
             return estado == EstadoIngreso.EN_REVISION ||
-                    estado == EstadoIngreso.EN_REPARACION
-        }
-    }
-}
+                    estado == EstadoIngreso.EN_REPARACION } } }

@@ -11,6 +11,7 @@ import java.util.Calendar
 // Pruebas de las validaciones del formulario de ingreso.
 class FormularioIngresoTest {
 
+    // Formulario con los datos mínimos válidos; cada prueba cambia solo el campo que verifica.
     private fun valido() = FormularioIngreso(
         placa = "KLM-482-B", modelo = "Nissan Versa", nombre = "Marta Ruiz", telefono = "55 1234 5678",
         motivo = "No enfría el aire")
@@ -48,6 +49,7 @@ class FormularioIngresoTest {
 
     @Test
     fun fecha_noPuedeSerFutura() {
+        // Fija la fecha actual para que la prueba no dependa del día en que se ejecuta.
         val hoy = Calendar.getInstance().apply { set(2026, Calendar.OCTOBER, 21, 12, 0, 0) }.timeInMillis
         assertTrue(valido().copy(fecha = "21/10/2026").errores(ahora = hoy).isEmpty())
         assertTrue(valido().copy(fecha = "20/10/2026").errores(ahora = hoy).isEmpty())

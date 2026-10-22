@@ -23,8 +23,7 @@ data class EntregaUiState(
     val nota: String = "",
     val guardando: Boolean = false,
     val error: String? = null,
-    val entregado: Boolean = false
-) {
+    val entregado: Boolean = false) {
     val estadoActual: EstadoIngreso?
         get() = ingreso?.let { EstadoIngreso.desdeValor(it.estado) }
 
@@ -46,6 +45,7 @@ class EntregaViewModel(
     private fun cargar() {
         viewModelScope.launch {
             try {
+                // Los requisitos se consultan una vez al abrir; el estado del ingreso sí se observa.
                 val requisitos = repository.obtenerRequisitosEntrega(ingresoId)
                 repository.observarIngresoPorId(ingresoId).collect { ingreso ->
                     _uiState.update { it.copy(cargando = false, ingreso = ingreso, requisitos = requisitos,

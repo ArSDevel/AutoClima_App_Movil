@@ -14,8 +14,7 @@ import java.io.File
 // Guarda la firma del cliente y pasa el ingreso a listo para entrega.
 class FirmaRepository(
     private val baseDeDatos: AppDatabase,
-    private val directorioArchivos: File
-) {
+    private val directorioArchivos: File) {
     private val firmaDao = baseDeDatos.firmaDao()
     private val ingresoDao = baseDeDatos.ingresoDao()
     private val tecnicoDao = baseDeDatos.tecnicoDao()

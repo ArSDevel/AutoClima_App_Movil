@@ -2,7 +2,6 @@ package com.example.myapplication.ui.dashboard
 
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -12,22 +11,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import com.example.myapplication.data.repository.ChecklistRepository
 import androidx.compose.foundation.layout.fillMaxWidth
-import com.example.myapplication.data.local.repository.DiagnosticoRepository
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -35,8 +30,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -85,9 +78,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -97,7 +88,6 @@ import com.example.myapplication.data.local.entity.EventoIngreso
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.model.ReglasIngreso
-import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.ui.theme.estadoIngresoColors
 import java.text.DateFormat
@@ -115,8 +105,7 @@ fun DetalleIngresoScreen(
     onAbrirDiagnostico: (Long) -> Unit,
     onAbrirEvidencias: (Long) -> Unit = {},
     onAbrirFirma: (Long) -> Unit = {},
-    onAbrirEntrega: (Long) -> Unit = {}
-) {
+    onAbrirEntrega: (Long) -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     DetalleIngresoContent(
         uiState = uiState,
@@ -159,8 +148,7 @@ private fun DetalleIngresoContent(
     onAbrirDiagnostico: (Long) -> Unit,
     onAbrirEvidencias: (Long) -> Unit = {},
     onAbrirFirma: (Long) -> Unit = {},
-    onAbrirEntrega: (Long) -> Unit = {}
-) {
+    onAbrirEntrega: (Long) -> Unit = {}) {
     val colors = MaterialTheme.colorScheme
     val ingreso = uiState.ingreso
     var menuAbierto by rememberSaveable { mutableStateOf(false) }
@@ -169,6 +157,7 @@ private fun DetalleIngresoContent(
     var motivo by rememberSaveable { mutableStateOf("") }
     var destinoRegularizacion by rememberSaveable { mutableStateOf(EstadoIngreso.REGISTRADO) }
 
+    // Las acciones se bloquean mientras carga, procesa una operación o falta el expediente.
     val accionesHabilitadas = !uiState.cargando && !uiState.procesando && !uiState.operacionExitosa &&
             !uiState.eliminado && uiState.errorCarga == null && ingreso != null
 
@@ -188,10 +177,10 @@ private fun DetalleIngresoContent(
         onLimpiarError() }
 
     // Evita abandonar la pantalla mientras se guarda una operación.
-    BackHandler(enabled = uiState.procesando) {
-        // Esperar a que finalice la operación.
-    }
+    // Se espera a que finalice la operación.
+    BackHandler(enabled = uiState.procesando) { }
 
+    // Al terminar una operación cierra la confirmación; si el ingreso se eliminó, sale de la pantalla.
     LaunchedEffect(uiState.operacionExitosa, uiState.eliminado, uiState.procesando) {
         if (!uiState.procesando) {
             if (uiState.eliminado) { onVolver() } else if (uiState.operacionExitosa) {
@@ -207,6 +196,7 @@ private fun DetalleIngresoContent(
         estado = estadoActual, tieneActividadPosterior = uiState.tieneActividadPosterior)
     val puedeRegularizar = estadoActual != null && ReglasIngreso.regularizarEstado(estadoActual)
     val puedeIniciarRevision = estadoActual != null && ReglasIngreso.iniciarRevision(estadoActual)
+    // El checklist y el diagnóstico se deducen del historial, porque cada guardado deja su evento.
     val tieneChecklist = uiState.historial.any { it.accion == "CHECKLIST" }
     val tieneDiagnostico = uiState.historial.any { it.accion == "DIAGNOSTICO" }
     // Una sola acción principal según el estado actual.
@@ -219,10 +209,12 @@ private fun DetalleIngresoContent(
         ReglasIngreso.entregar(estadoActual) -> IngresoAccion.ENTREGAR
         puedeRegularizar -> IngresoAccion.REGULARIZAR_ESTADO
         else -> null }
+    // Texto que explica por qué el botón principal está desactivado.
     val requisitoFaltante: Int? = when {
         accionPrincipal == IngresoAccion.INICIAR_REPARACION && !tieneChecklist -> R.string.detalle_missing_checklist
         accionPrincipal == IngresoAccion.ENVIAR_A_FIRMA && !tieneDiagnostico -> R.string.detalle_missing_diagnosis
         else -> null }
+    // El menú de tres puntos solo aparece si tiene alguna opción disponible.
     val hayMasOpciones = puedeEditar || puedeDevolver || puedeCancelar || puedeEliminar
 
     Scaffold(
@@ -284,8 +276,7 @@ private fun DetalleIngresoContent(
                                     else -> solicitarAccion(accionPrincipal) } },
                             enabled = accionesHabilitadas && requisitoFaltante == null,
                             modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
+                            shape = RoundedCornerShape(16.dp)) {
                             Text(
                                 text = stringResource(when (accionPrincipal) {
                                     IngresoAccion.INICIAR_REVISION -> R.string.dashboard_action_start_review
@@ -299,8 +290,7 @@ private fun DetalleIngresoContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             when {
                 uiState.cargando || uiState.eliminado -> {
                     item { PanelDetalle(titulo = stringResource(R.string.detalle_loading)) {
@@ -374,8 +364,7 @@ private fun DetalleIngresoContent(
                             modifier = Modifier.fillMaxWidth(),
                             shape = MaterialTheme.shapes.large,
                             color = colors.surface,
-                            shadowElevation = 1.dp
-                        ) {
+                            shadowElevation = 1.dp) {
                             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                                 FilaDato(Icons.Default.Person, ingreso.nombreCliente, conDivisor = false)
                                 FilaDato(Icons.Default.Phone, ingreso.telefonoCliente)
@@ -407,8 +396,7 @@ private fun DetalleIngresoContent(
                     Box(
                         modifier = Modifier.size(56.dp).clip(CircleShape)
                             .background(colors.errorContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
+                        contentAlignment = Alignment.Center) {
                         Icon(Icons.Default.Delete, contentDescription = null,
                             tint = colors.error, modifier = Modifier.size(28.dp)) } },
                 title = { Text(stringResource(R.string.detalle_delete_title, ingreso.placa)) },
@@ -431,17 +419,14 @@ private fun DetalleIngresoContent(
             ModalBottomSheet(
                 onDismissRequest = { cerrarConfirmacion() },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = colors.surface
-            ) {
+                containerColor = colors.surface) {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(14.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(14.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                        verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = stringResource(tituloConfirmacion(accion)),
                             style = MaterialTheme.typography.titleLarge,
@@ -489,8 +474,7 @@ private fun DetalleIngresoContent(
                             shape = RoundedCornerShape(16.dp),
                             colors = if (accion == IngresoAccion.CANCELAR) ButtonDefaults.buttonColors(
                                 containerColor = colors.error, contentColor = colors.onError
-                            ) else ButtonDefaults.buttonColors()
-                        ) {
+                            ) else ButtonDefaults.buttonColors()) {
                             Text(text = stringResource(R.string.detalle_confirm),
                                 style = MaterialTheme.typography.titleMedium) } } } } } } }
 
@@ -498,8 +482,7 @@ private fun DetalleIngresoContent(
 @Composable
 private fun PanelDetalle(
     titulo: String,
-    contenido: @Composable ColumnScope.() -> Unit
-) {
+    contenido: @Composable ColumnScope.() -> Unit) {
     Surface(modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface) {
         Column(modifier = Modifier.padding(20.dp),
@@ -592,6 +575,7 @@ private fun PasosIngreso(estado: EstadoIngreso) {
         EstadoIngreso.EN_REPARACION -> 2
         EstadoIngreso.LISTO_PARA_FIRMA -> 3
         EstadoIngreso.LISTO_PARA_ENTREGA -> 4
+        // Entregado completa los cinco pasos.
         else -> 5 }
     val pasos = listOf(
         R.string.detalle_step_registered,
@@ -604,8 +588,7 @@ private fun PasosIngreso(estado: EstadoIngreso) {
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        shadowElevation = 1.dp
-    ) {
+        shadowElevation = 1.dp) {
         Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 14.dp)) {
             pasos.forEachIndexed { indice, texto ->
                 val hecho = indice < actual
@@ -613,15 +596,13 @@ private fun PasosIngreso(estado: EstadoIngreso) {
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Box(
                         modifier = Modifier.size(26.dp).clip(CircleShape)
                             .background(when { hecho -> colors.primary; enCurso -> colors.surface
                                 else -> colors.surfaceVariant })
                             .then(if (enCurso) Modifier.border(3.dp, colorActual, CircleShape) else Modifier),
-                        contentAlignment = Alignment.Center
-                    ) {
+                        contentAlignment = Alignment.Center) {
                         if (hecho) {
                             Icon(imageVector = Icons.Default.Check, contentDescription = null,
                                 modifier = Modifier.size(16.dp), tint = colors.onPrimary) } }
@@ -644,25 +625,21 @@ private fun HerramientaIngreso(
     habilitada: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    nota: String? = null
-) {
+    nota: String? = null) {
     Surface(
         onClick = onClick,
         enabled = habilitada,
         modifier = modifier.alpha(if (habilitada) 1f else 0.5f),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 1.dp
-    ) {
+        shadowElevation = 1.dp) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Box(
                 modifier = Modifier.size(44.dp).clip(MaterialTheme.shapes.small)
                     .background(color.copy(alpha = 0.14f)),
-                contentAlignment = Alignment.Center
-            ) {
+                contentAlignment = Alignment.Center) {
                 Icon(imageVector = icono, contentDescription = null, tint = color) }
             Column {
                 Text(text = titulo, style = MaterialTheme.typography.titleMedium)
@@ -678,8 +655,7 @@ private fun FilaDato(icono: ImageVector, valor: String?, conDivisor: Boolean = t
     Row(
         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically) {
         Icon(imageVector = icono, contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(text = valor, style = MaterialTheme.typography.bodyLarge) } }

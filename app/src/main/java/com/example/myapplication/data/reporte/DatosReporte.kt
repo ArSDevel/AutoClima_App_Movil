@@ -46,5 +46,4 @@ data class DatosReporte(
     val tecnicoId: Long?,
     val tecnicoNombre: String? = null,
     val firma: FirmaReporte? = null,
-    val entrega: DatosEntrega? = null
-)
+    val entrega: DatosEntrega? = null)

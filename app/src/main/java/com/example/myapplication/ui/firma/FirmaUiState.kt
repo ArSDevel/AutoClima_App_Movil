@@ -21,8 +21,7 @@ data class FirmaUiState(
     val trazos: List<List<Offset>> = emptyList(),
     val guardando: Boolean = false,
     val error: String? = null,
-    val firmaConfirmada: Boolean = false
-) {
+    val firmaConfirmada: Boolean = false) {
     val estadoActual: EstadoIngreso?
         get() = ingreso?.let { EstadoIngreso.desdeValor(it.estado) }
 

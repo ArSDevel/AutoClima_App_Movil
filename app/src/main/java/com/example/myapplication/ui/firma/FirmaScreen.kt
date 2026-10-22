@@ -49,7 +49,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -93,8 +92,7 @@ fun FirmaScreen(
     evidenciasViewModel: CamaraIngresoViewModel,
     tecnicoId: Long,
     onVolver: () -> Unit,
-    onAbrirEntrega: () -> Unit
-) {
+    onAbrirEntrega: () -> Unit) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val estadoEnvio by envioViewModel.uiState.collectAsStateWithLifecycle()
     val estadoFotos by evidenciasViewModel.uiState.collectAsStateWithLifecycle()
@@ -125,8 +123,7 @@ fun FirmaScreen(
                         enabled = estado.puedeConfirmar,
                         modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.estadoIngresoColors.listoParaFirma)
-                    ) {
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.estadoIngresoColors.listoParaFirma)) {
                         if (estado.guardando) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp,
                                 color = colors.onPrimary)
@@ -151,8 +148,7 @@ fun FirmaScreen(
                     } else {
                         Button(onClick = { mostrarEnvio = true }, modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.estadoIngresoColors.listoParaFirma)
-                        ) {
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.estadoIngresoColors.listoParaFirma)) {
                             Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(20.dp))
                             Text("  " + stringResource(R.string.send_delivery_receipt), style = MaterialTheme.typography.titleMedium) } } } } }
     ) { padding ->
@@ -164,16 +160,14 @@ fun FirmaScreen(
                 else -> Column(
                     modifier = Modifier.widthIn(max = 640.dp).fillMaxSize().verticalScroll(rememberScrollState())
                         .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     ResumenFirma(nombre = estado.ingreso?.nombreCliente.orEmpty(), total = estado.totalCentavos)
                     Surface(shape = MaterialTheme.shapes.large, color = colors.surface, shadowElevation = 1.dp) {
                         Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
+                                verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = stringResource(R.string.firma_customer_signature).uppercase(),
                                     style = MaterialTheme.typography.labelLarge,
@@ -206,6 +200,7 @@ fun FirmaScreen(
     // Hoja para enviar el acta de entrega por WhatsApp. Aquí solo se decide si se agregan las evidencias.
     val ingresoEnvio = estado.ingreso
     if (mostrarEnvio && ingresoEnvio != null) {
+        // Las fotos del acta son las evidencias del ingreso; el técnico decide en la hoja si se incluyen.
         val fotosActa = estadoFotos.evidencias.sortedBy { it.id }.map { FotoReporte(File(it.rutaImagen), it.descripcion) }
         val mensaje = stringResource(R.string.send_message_delivery, ingresoEnvio.nombreCliente, ingresoEnvio.modelo, ingresoEnvio.placa)
         val datos = DatosReporte(
@@ -283,8 +278,7 @@ private fun RecuadroFirma(
     trazos: List<List<Offset>>,
     habilitado: Boolean,
     onInicio: (Offset) -> Unit,
-    onPunto: (Offset) -> Unit
-) {
+    onPunto: (Offset) -> Unit) {
     val colors = MaterialTheme.colorScheme
     val tinta = colors.onSurface
     val linea = colors.onSurfaceVariant
@@ -301,8 +295,7 @@ private fun RecuadroFirma(
                     onDragStart = { punto -> onInicio(Offset(punto.x / size.width, punto.y / size.height)) },
                     onDrag = { cambio, _ ->
                         cambio.consume()
-                        onPunto(Offset(cambio.position.x / size.width, cambio.position.y / size.height)) }) }
-    ) {
+                        onPunto(Offset(cambio.position.x / size.width, cambio.position.y / size.height)) }) }) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             // Línea guía y marca de la firma.
             drawLine(color = linea, start = Offset(24.dp.toPx(), size.height - 48.dp.toPx()),

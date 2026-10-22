@@ -13,17 +13,12 @@ import androidx.compose.material.icons.filled.Lock
 import com.example.myapplication.ui.components.DialogoAviso
 import com.example.myapplication.ui.components.TipoAviso
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.example.myapplication.ui.components.BarraAccionInferior
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.activity.compose.BackHandler
 import com.example.myapplication.ui.camara.CamaraIngresoViewModel
-import com.example.myapplication.ui.camara.components.GaleriaIngresoConectada
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,22 +31,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import com.example.myapplication.data.local.model.EstadoIngreso
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -59,8 +47,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,14 +55,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
 import com.example.myapplication.ui.diagnostico.components.CotizacionDiagnostico
-import com.example.myapplication.ui.diagnostico.components.DatosIngresoDiagnostico
-import com.example.myapplication.ui.diagnostico.components.HallazgosDiagnostico
 import com.example.myapplication.ui.diagnostico.components.HojaEnvioReporte
 import com.example.myapplication.data.reporte.ConceptoReporte
 import com.example.myapplication.data.reporte.DatosReporte
@@ -85,8 +68,6 @@ import com.example.myapplication.data.reporte.HallazgoReporte
 import com.example.myapplication.data.reporte.ItemChecklistReporte
 import com.example.myapplication.data.reporte.TipoReporte
 import com.example.myapplication.data.reporte.FormatoReporte
-import com.example.myapplication.ui.diagnostico.components.SeccionDiagnostico
-import com.example.myapplication.ui.theme.AutoClimasGradients
 
 // Conecta el reporte con su ViewModel.
 // El técnico debe provenir de la sesión autenticada.
@@ -99,8 +80,7 @@ fun DiagnosticoScreen(
     tecnicoId: Long,
     onVolver: () -> Unit,
     onAbrirChecklist: () -> Unit = {},
-    onAbrirEvidencias: () -> Unit = {}
-) {
+    onAbrirEvidencias: () -> Unit = {}) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val estadoFotos by evidenciasViewModel.uiState.collectAsStateWithLifecycle()
     val estadoEnvio by envioViewModel.uiState.collectAsStateWithLifecycle()
@@ -139,8 +119,7 @@ fun DiagnosticoScreen(
                                 !estado.guardando && !estadoFotos.guardando,
                         modifier = Modifier.width(64.dp).height(56.dp),
                         shape = RoundedCornerShape(16.dp),
-                        contentPadding = PaddingValues(0.dp)
-                    ) {
+                        contentPadding = PaddingValues(0.dp)) {
                         Icon(Icons.AutoMirrored.Filled.Send,
                             contentDescription = stringResource(R.string.send_button)) }
                     if (estado.permiteEdicion) {
@@ -148,8 +127,7 @@ fun DiagnosticoScreen(
                             onClick = { viewModel.guardar(tecnicoId) },
                             enabled = estado.puedeGuardar && !estadoFotos.guardando,
                             modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
+                            shape = RoundedCornerShape(16.dp)) {
                             if (estado.guardando) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(20.dp),
@@ -171,8 +149,7 @@ fun DiagnosticoScreen(
                 .padding(padding)
                 .consumeWindowInsets(padding)
                 .imePadding(),
-            contentAlignment = Alignment.TopCenter
-        ) {
+            contentAlignment = Alignment.TopCenter) {
             when {
                 estado.cargando -> {
                     Surface(
@@ -180,13 +157,11 @@ fun DiagnosticoScreen(
                             .align(Alignment.Center)
                             .padding(24.dp),
                         shape = MaterialTheme.shapes.large,
-                        color = colors.surface
-                    ) {
+                        color = colors.surface) {
                         Column(
                             modifier = Modifier.padding(24.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
+                            verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             CircularProgressIndicator()
 
                             Text(
@@ -201,12 +176,10 @@ fun DiagnosticoScreen(
                             .widthIn(max = 480.dp)
                             .padding(24.dp),
                         shape = MaterialTheme.shapes.large,
-                        color = colors.surface
-                    ) {
+                        color = colors.surface) {
                         Column(
                             modifier = Modifier.padding(24.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
+                            verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             Text(
                                 text = stringResource(
                                     R.string.diagnostico_load_error_title),
@@ -220,8 +193,7 @@ fun DiagnosticoScreen(
 
                             Button(
                                 onClick = viewModel::reintentarCarga,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
+                                modifier = Modifier.fillMaxWidth()) {
                                 Text(
                                     stringResource(
                                         R.string.diagnostico_retry)) } } } }
@@ -235,21 +207,18 @@ fun DiagnosticoScreen(
                                 .widthIn(max = 1000.dp)
                                 .fillMaxSize(),
                             contentPadding = PaddingValues(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
+                            verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             if (!estado.permiteEdicion) {
                                 item(key = "aviso_edicion") {
                                     Surface(
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = MaterialTheme.shapes.small,
                                         color = colors.primaryContainer,
-                                        contentColor = colors.onPrimaryContainer
-                                    ) {
+                                        contentColor = colors.onPrimaryContainer) {
                                         Row(
                                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
                                             horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
+                                            verticalAlignment = Alignment.CenterVertically) {
                                             Icon(Icons.Default.Lock, contentDescription = null,
                                                 modifier = Modifier.size(20.dp))
                                             Text(
@@ -270,12 +239,10 @@ fun DiagnosticoScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     shape = MaterialTheme.shapes.large,
                                     color = colors.surface,
-                                    shadowElevation = 1.dp
-                                ) {
+                                    shadowElevation = 1.dp) {
                                     Column(
                                         modifier = Modifier.padding(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                                    ) {
+                                        verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                         Text(
                                             text = stringResource(R.string.diagnostico_notes_title).uppercase(),
                                             style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
@@ -309,10 +276,14 @@ fun DiagnosticoScreen(
     // Hoja para enviar el reporte guardado por WhatsApp.
     val ingresoEnvio = estado.ingreso
     if (mostrarEnvio && ingresoEnvio != null) {
+        // Datos del reporte con lo que ya está en pantalla; el ViewModel de envío agrega después el técnico, la
+        // firma y la entrega.
         val textoHallazgos = estado.hallazgos.map { HallazgoReporte(stringResource(descripcionHallazgo(it)), it.esFalla()) }
         val revision = estado.checklist?.let { itemsRevision(it) }.orEmpty()
+        // Las fotografías van en el orden en que se guardaron.
         val fotosReporte = estadoFotos.evidencias.sortedBy { it.id }.map { FotoReporte(java.io.File(it.rutaImagen), it.descripcion) }
         val total = estado.totalCentavos
+        // Texto que acompaña al PDF: depende del tipo de documento y de si hay cotización con total.
         val mensaje = when {
             estadoEnvio.tipo == TipoReporte.COTIZACION && total != null && estado.conceptos.isNotEmpty() ->
                 stringResource(R.string.send_message_quote, ingresoEnvio.nombreCliente, ingresoEnvio.modelo,
@@ -375,22 +346,19 @@ fun DiagnosticoScreen(
                 onVolver() },
             onDismiss = viewModel::consumirGuardadoExitoso) } }
 
-// Presentación del reporte y estado de sus cambios.
+// Presentación del reporte y estado de sus cambios; ninguna pantalla la usa por ahora.
 // No representa un documento enviado ni firmado.
 @Composable
 private fun EncabezadoReporteDiagnostico(
-    estado: DiagnosticoUiState
-) {
+    estado: DiagnosticoUiState) {
     val colors = MaterialTheme.colorScheme
     Surface(modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        contentColor = colors.onSurface
-    ) {
+        contentColor = colors.onSurface) {
         Column(
             modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
                 text = stringResource(R.string.dashboard_title),
                 style = MaterialTheme.typography.headlineMedium,
@@ -422,21 +390,18 @@ private fun CajaHallazgos(
     estado: DiagnosticoUiState,
     fotos: List<String>,
     onAbrirChecklist: () -> Unit,
-    onAbrirEvidencias: () -> Unit
-) {
+    onAbrirEvidencias: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        shadowElevation = 1.dp
-    ) {
+        shadowElevation = 1.dp) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(R.string.diagnostico_findings_title).uppercase(),
                     style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
@@ -471,8 +436,7 @@ private fun CajaHallazgos(
                         Box(
                             modifier = Modifier.size(56.dp).clip(RoundedCornerShape(12.dp))
                                 .background(colors.surfaceVariant).clickable(onClick = onAbrirEvidencias),
-                            contentAlignment = Alignment.Center
-                        ) {
+                            contentAlignment = Alignment.Center) {
                             Text("+${fotos.size - 3}", style = MaterialTheme.typography.titleSmall) } } } } } } }
 
 // Una línea de la caja de hallazgos, con icono y texto.
@@ -482,7 +446,7 @@ private fun FilaHallazgo(icono: androidx.compose.ui.graphics.vector.ImageVector,
         Icon(icono, contentDescription = null, tint = color, modifier = Modifier.size(22.dp))
         Text(text = texto, style = MaterialTheme.typography.titleSmall) } }
 
-// Los hallazgos graves son fallas; el resto solo pide atención.
+// Banda, filtro y condensador solo piden atención; el resto de los hallazgos son fallas.
 private fun HallazgoDiagnostico.esFalla(): Boolean = when (this) {
     HallazgoDiagnostico.BANDA_DESGASTADA,
     HallazgoDiagnostico.FILTRO_OBSTRUIDO,
@@ -490,6 +454,7 @@ private fun HallazgoDiagnostico.esFalla(): Boolean = when (this) {
     else -> true }
 
 // Cada punto del checklist con su resultado, redactado en positivo para el reporte.
+// Las preguntas que describen un problema se invierten para que ok signifique que el punto está bien.
 @Composable
 private fun itemsRevision(c: com.example.myapplication.data.local.entity.ChecklistDiagnostico): List<ItemChecklistReporte> {
     return listOf(

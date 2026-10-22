@@ -14,13 +14,9 @@ import androidx.room.PrimaryKey
             entity = Diagnostico::class,
             parentColumns = ["diagnosticoId"],
             childColumns = ["diagnosticoId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
+            onDelete = ForeignKey.CASCADE)],
     indices = [
-        Index(value = ["diagnosticoId"])
-    ]
-)
+        Index(value = ["diagnosticoId"])])
 data class ConceptoCotizacion(
     @PrimaryKey(autoGenerate = true)
     val conceptoId: Long = 0,
@@ -36,5 +32,4 @@ data class ConceptoCotizacion(
     val importeCentavos: Long,
 
     // Conserva el orden de las filas mostrado por el mecánico.
-    val orden: Int = 0
-)
+    val orden: Int = 0)

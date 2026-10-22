@@ -24,6 +24,7 @@ class FormatoReporteTest {
         assertNull(FormatoReporte.telefonoWhatsApp("55 1234"))
         assertNull(FormatoReporte.telefonoWhatsApp("sin telefono")) }
 
+    // El formato de moneda del dispositivo puede variar, por eso solo se comprueba el importe.
     @Test
     fun pesos_usaDosDecimalesSinRedondearConDouble() {
         val texto = FormatoReporte.pesos(395000)

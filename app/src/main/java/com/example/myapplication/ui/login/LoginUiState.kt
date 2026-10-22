@@ -1,6 +1,6 @@
 package com.example.myapplication.ui.login
 
-// stado del formulario y de la sesión actual.
+// Estado del formulario y de la sesión actual.
 // id: nombre de usuario escrito en el formulario.
 // tecnicoId: identificador de Room obtenido al autenticar al técnico.
 // La sesión se conserva en memoria mientras viva el ViewModel.
@@ -12,5 +12,4 @@ data class LoginUiState(
     val isLoggedIn: Boolean = false,
     val cargando: Boolean = false,
     val tecnicoId: Long? = null,
-    val nombreTecnico: String? = null
-)
+    val nombreTecnico: String? = null)

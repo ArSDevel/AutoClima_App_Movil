@@ -17,8 +17,7 @@ val MIGRATION_8_9 = object : Migration(8, 9) {
 
 // Crea o completa la tabla de evidencias y la columna fotoPath.
 private fun prepararEvidenciasVersion9(
-    db: SupportSQLiteDatabase
-) {
+    db: SupportSQLiteDatabase) {
     // La versión anterior de diagnóstico no tenía fotoPath.
     // La versión 8 del proyecto ya incluye este campo.
     if (!existeColumnaFotoPath(db)) {
@@ -76,6 +75,7 @@ private fun prepararEvidenciasVersion9(
         """.trimIndent()) }
 
 // Indica si la tabla ingreso ya tiene la columna fotoPath.
+// Consulta el esquema porque SQLite no permite agregar una columna que ya existe.
 private fun existeColumnaFotoPath(
     db: SupportSQLiteDatabase
 ): Boolean {

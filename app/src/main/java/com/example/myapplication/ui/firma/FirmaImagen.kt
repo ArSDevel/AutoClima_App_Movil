@@ -13,6 +13,7 @@ const val ASPECTO_FIRMA = 1.25f
 
 // Dibuja los trazos en tinta oscura sobre fondo blanco y devuelve un PNG.
 // Así la firma se ve igual en el reporte, sin importar el tema de la aplicación.
+// Los puntos llegan en proporción (de 0 a 1); 1000 por 800 mantiene la proporción ASPECTO_FIRMA del recuadro.
 fun renderizarFirma(trazos: List<List<Offset>>, ancho: Int = 1000, alto: Int = 800): ByteArray {
     val mapa = Bitmap.createBitmap(ancho, alto, Bitmap.Config.ARGB_8888)
     val lienzo = Canvas(mapa)
@@ -23,6 +24,7 @@ fun renderizarFirma(trazos: List<List<Offset>>, ancho: Int = 1000, alto: Int = 8
         strokeWidth = 14f
         strokeCap = Paint.Cap.ROUND
         strokeJoin = Paint.Join.ROUND }
+    // Un trazo de un solo punto no dibuja nada, por eso se descarta.
     trazos.filter { it.size > 1 }.forEach { puntos ->
         val camino = Path()
         camino.moveTo(puntos.first().x * ancho, puntos.first().y * alto)

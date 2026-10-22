@@ -22,11 +22,7 @@ class DiagnosticoViewModelFactory(
                 repository = repository,
                 dashboardRepository = dashboardRepository,
                 checklistRepository = checklistRepository
-            ) as T
-        }
+            ) as T }
 
         throw IllegalArgumentException(
-            "ViewModel desconocido: ${modelClass.name}"
-        )
-    }
-}
+            "ViewModel desconocido: ${modelClass.name}") } }

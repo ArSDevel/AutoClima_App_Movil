@@ -76,6 +76,7 @@ import com.example.myapplication.ui.registro.RegistroViewModelFactory
 fun AutoClimaApp() {
     val contexto = LocalContext.current.applicationContext
 
+    // Base de datos y repositorios compartidos: se crean una vez y los usan todas las pantallas.
     val baseDeDatos = remember(contexto) {
         AppDatabase.getInstance(contexto) }
 
@@ -111,6 +112,7 @@ fun AutoClimaApp() {
     val envioReporte = remember(contexto, seguimientoActividad) {
         EnvioPorWhatsApp(contexto) { seguimientoActividad.actual() } }
 
+    // LoginViewModel recibe el DAO, por eso necesita una fábrica propia.
     val loginFactory = remember(tecnicoDao) {
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(
@@ -118,8 +120,7 @@ fun AutoClimaApp() {
             ): T {
                 require(
                     modelClass.isAssignableFrom(
-                        LoginViewModel::class.java)
-                ) {
+                        LoginViewModel::class.java)) {
                     "ViewModel desconocido: ${modelClass.name}" }
 
                 @Suppress("UNCHECKED_CAST")
@@ -133,6 +134,7 @@ fun AutoClimaApp() {
 
     val tecnicoId = uiState.tecnicoId
 
+    // La sesión es válida solo con técnico autenticado, identificador positivo y usuario no vacío.
     val sesionValida = uiState.isLoggedIn &&
             tecnicoId != null &&
             tecnicoId > 0 &&
@@ -144,19 +146,19 @@ fun AutoClimaApp() {
 
     val backStack = rememberNavBackStack(LoginRoute)
 
+    // Mantiene la pila de navegación coherente con la sesión: sin sesión válida solo queda el inicio de sesión; con
+    // sesión, la raíz es el panel del usuario.
     LaunchedEffect(
         uiState.isLoggedIn,
         uiState.id,
-        tecnicoId
-    ) {
+        tecnicoId) {
         if (!sesionValida) {
             if (uiState.isLoggedIn) {
                 loginViewModel.resetLoginState() }
 
             if (
                 backStack.size != 1 ||
-                backStack.lastOrNull() != LoginRoute
-            ) {
+                backStack.lastOrNull() != LoginRoute) {
                 backStack.clear()
                 backStack.add(LoginRoute) }
         } else {
@@ -184,8 +186,7 @@ fun AutoClimaApp() {
 
         if (
             raiz is DashboardRoute &&
-            raiz.userId == uiState.id
-        ) {
+            raiz.userId == uiState.id) {
             while (backStack.size > 1) {
                 backStack.removeAt(backStack.lastIndex) }
         } else {
@@ -223,7 +224,8 @@ fun AutoClimaApp() {
         if (backStack.lastOrNull() != destino) {
             backStack.add(destino) } }
 
-    // Registro confirma previamente la salida si tiene cambios.
+    // Abre una pantalla de selección del menú; si el registro estaba abierto se retira, porque ya pidió confirmar la
+    // salida con cambios sin guardar.
     fun abrirSelector(destino: NavKey) {
         if (!sesionValida) return
         if (backStack.lastOrNull() == destino) return
@@ -321,9 +323,9 @@ fun AutoClimaApp() {
 
             DashboardMenuOption.HISTORIAL -> abrirSelector(HistorialRoute(uiState.id)) } }
 
+    // Hace llegar el nombre del técnico al menú lateral sin pasarlo por cada pantalla.
     androidx.compose.runtime.CompositionLocalProvider(
-        com.example.myapplication.ui.components.LocalNombreTecnico provides uiState.nombreTecnico
-    ) {
+        com.example.myapplication.ui.components.LocalNombreTecnico provides uiState.nombreTecnico) {
     NavDisplay(
         backStack = backStack,
         entryDecorators = listOf(
@@ -351,8 +353,7 @@ fun AutoClimaApp() {
 
                 if (
                     key != LoginRoute &&
-                    (!sesionValida || usuarioRuta != uiState.id)
-                ) {
+                    (!sesionValida || usuarioRuta != uiState.id)) {
                     return@NavEntry }
 
                 when (key) {
@@ -392,8 +393,7 @@ fun AutoClimaApp() {
                         val registroFactory = remember(
                             registroRepository,
                             dashboardRepository,
-                            key.ingresoId
-                        ) {
+                            key.ingresoId) {
                             RegistroViewModelFactory(
                                 repo = registroRepository,
                                 dashboardRepository = dashboardRepository,
@@ -440,8 +440,7 @@ fun AutoClimaApp() {
                                 onLogout = { cerrarSesion() },
                                 onMenuSeleccionado = { opcion ->
                                     if (
-                                        opcion != DashboardMenuOption.REGISTRO
-                                    ) {
+                                        opcion != DashboardMenuOption.REGISTRO) {
                                         seleccionarMenu(opcion) } },
                                 // Si se llegó desde el detalle del mismo ingreso, "Ver detalle" y "Atrás"
                                 // llevarían al mismo lugar: se ofrece solo un botón.
@@ -463,8 +462,7 @@ fun AutoClimaApp() {
                                 confirmButton = {
                                     TextButton(
                                         onClick = {
-                                            mostrarAvisoGaleria = false }
-                                    ) {
+                                            mostrarAvisoGaleria = false }) {
                                         Text(
                                             stringResource(
                                                 R.string.evidence_close)) } }) } }
@@ -474,8 +472,7 @@ fun AutoClimaApp() {
 
                         val factory = remember(
                             key.ingresoId,
-                            dashboardRepository
-                        ) {
+                            dashboardRepository) {
                             DetalleIngresoViewModelFactory(
                                 ingresoId = key.ingresoId,
                                 repository = dashboardRepository) }
@@ -500,8 +497,7 @@ fun AutoClimaApp() {
                         val factory = remember(
                             key.ingresoId,
                             checklistRepository,
-                            dashboardRepository
-                        ) {
+                            dashboardRepository) {
                             ChecklistViewModelFactory(
                                 ingresoId = key.ingresoId,
                                 repo = checklistRepository,
@@ -512,6 +508,7 @@ fun AutoClimaApp() {
 
                         val fotosChecklistFactory = remember(key.ingresoId, evidenciaRepository) {
                             CamaraIngresoViewModelFactory(key.ingresoId, evidenciaRepository) }
+                        // El checklist usa el ViewModel de fotos del ingreso para guardarlas como evidencias.
                         val fotosChecklist: CamaraIngresoViewModel = viewModel(factory = fotosChecklistFactory)
 
                         var camaraChecklist by rememberSaveable { mutableStateOf(false) }
@@ -541,8 +538,7 @@ fun AutoClimaApp() {
                             key.ingresoId,
                             diagnosticoRepository,
                             dashboardRepository,
-                            checklistRepository
-                        ) {
+                            checklistRepository) {
                             DiagnosticoViewModelFactory(
                                 ingresoId = key.ingresoId,
                                 repository = diagnosticoRepository,
@@ -556,6 +552,7 @@ fun AutoClimaApp() {
                             CamaraIngresoViewModelFactory(key.ingresoId, evidenciaRepository) }
                         val fotosDiagnostico: CamaraIngresoViewModel = viewModel(factory = fotosFactory)
 
+                        // Se envía desde una carpeta de caché; GeneradorReportePdf deja allí el PDF y se vacía en cada envío.
                         val envioViewModel: EnvioReporteViewModel = viewModel(
                             factory = remember(key.ingresoId) {
                                 fabricaViewModel {
@@ -626,6 +623,8 @@ fun AutoClimaApp() {
                                         dashboardRepository = dashboardRepository,
                                         diagnosticoRepository = diagnosticoRepository) } })
 
+                        // La clave separa este ViewModel del de otras pantallas porque comparten tipo; abre en el
+                        // acta de entrega.
                         val envioFirma: EnvioReporteViewModel = viewModel(
                             key = "envio_firma_${key.ingresoId}",
                             factory = remember(key.ingresoId) {
@@ -639,6 +638,7 @@ fun AutoClimaApp() {
                                         carpetaTemporal = java.io.File(contexto.cacheDir, "reportes"),
                                         tipoInicial = com.example.myapplication.data.reporte.TipoReporte.ACTA) } })
 
+                        // La clave evita reutilizar el ViewModel de fotos de otra pantalla del mismo ingreso.
                         val fotosFirma: CamaraIngresoViewModel = viewModel(
                             key = "fotos_firma_${key.ingresoId}",
                             factory = remember(key.ingresoId, evidenciaRepository) {
@@ -673,8 +673,7 @@ fun AutoClimaApp() {
 
                         val factory = remember(
                             key.ingresoId,
-                            evidenciaRepository
-                        ) {
+                            evidenciaRepository) {
                             CamaraIngresoViewModelFactory(
                                 ingresoId = key.ingresoId,
                                 repository = evidenciaRepository) }

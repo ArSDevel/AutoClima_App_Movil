@@ -18,6 +18,7 @@ object AutoClimasGradients {
             AutoClimasGradientDarkMiddle,
             AutoClimasGradientDarkEnd))
 
+    // Fondo de la pantalla de inicio de sesión según el tema activo.
     val loginBackground: Brush
         @Composable
         get() = if (LocalAutoClimasDark.current) {

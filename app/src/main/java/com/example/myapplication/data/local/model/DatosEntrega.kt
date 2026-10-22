@@ -6,5 +6,4 @@ data class DatosEntrega(
     val tecnicoId: Long,
     // null cuando no se escribió una nota.
     val nota: String?,
-    val requisitos: RequisitosEntrega
-)
+    val requisitos: RequisitosEntrega)

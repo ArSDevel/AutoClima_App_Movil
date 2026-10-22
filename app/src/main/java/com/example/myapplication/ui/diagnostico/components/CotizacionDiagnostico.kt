@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,23 +45,19 @@ fun CotizacionDiagnostico(
     modifier: Modifier = Modifier,
     habilitado: Boolean = true,
     soloLectura: Boolean = false,
-    erroresCampos: Map<String, String> = emptyMap(),
-    mensajeBloqueo: String? = null
-) {
+    erroresCampos: Map<String, String> = emptyMap()) {
     val colors = MaterialTheme.colorScheme
     val totalCentavos = formulario.totalEnCentavos()
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        shadowElevation = 1.dp
-    ) {
+        shadowElevation = 1.dp) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(R.string.diagnostico_quote_title).uppercase(),
                     style = MaterialTheme.typography.labelLarge.copy(letterSpacing = 0.8.sp),
@@ -80,8 +74,7 @@ fun CotizacionDiagnostico(
                 if (indice > 0) HorizontalDivider(color = colors.outlineVariant)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.Top
-                ) {
+                    verticalAlignment = Alignment.Top) {
                     OutlinedTextField(
                         value = concepto.descripcion,
                         onValueChange = { onDescripcionChange(indice, it) },
@@ -123,8 +116,7 @@ fun CotizacionDiagnostico(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                    verticalAlignment = Alignment.CenterVertically) {
                     Text(text = stringResource(R.string.diagnostico_quote_total),
                         style = MaterialTheme.typography.titleMedium)
                     Text(
@@ -138,7 +130,7 @@ fun CotizacionDiagnostico(
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurfaceVariant) } } } } }
 
-// Formatea centavos como pesos mexicanos sin convertir a Double.
+// Formatea centavos como pesos mexicanos sin convertir a Double; equivale a FormatoReporte.pesos.
 private fun formatearImporte(centavos: Long): String {
     val formato = NumberFormat.getCurrencyInstance(
         Locale("es", "MX")

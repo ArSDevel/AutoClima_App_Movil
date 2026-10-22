@@ -18,8 +18,7 @@ import com.example.myapplication.data.local.repository.DashboardRepository
 
 // Registra y edita ingresos junto con su cliente, vehículo y fotografías.
 class RegistroRepository(
-    private val baseDeDatos: AppDatabase
-) {
+    private val baseDeDatos: AppDatabase) {
     private val clienteDao = baseDeDatos.clienteDao()
     private val vehiculoDao = baseDeDatos.vehiculoDao()
     private val ingresoDao = baseDeDatos.ingresoDao()
@@ -45,6 +44,7 @@ class RegistroRepository(
         fotoPath: String? = null,
         fotosPaths: List<String> = emptyList()
     ): Long = withContext(Dispatchers.IO) {
+        // Une la foto principal y las demás sin repetir rutas y comprueba que cada archivo exista.
         val rutasNuevas = (fotosPaths + listOfNotNull(fotoPath))
             .map { requireNotNull(validarFoto(it)) }.distinct()
         val fotoValidada = fotoPath?.let { requireNotNull(validarFoto(it)) } ?: rutasNuevas.firstOrNull()
@@ -186,8 +186,7 @@ class RegistroRepository(
     private suspend fun registrarFotoPrincipal(
         ingreso: Ingreso,
         ruta: String,
-        tecnicoId: Long
-    ) {
+        tecnicoId: Long) {
         val existente = evidenciaDao.buscarPorRuta(ruta)
         val fecha = System.currentTimeMillis()
 

@@ -35,6 +35,7 @@ class RegistroViewModel(
 
     // Referencia para detectar cambios reales en el formulario.
     private var formularioInicial = _uiState.value.aFormulario()
+    // Observación de las fotografías del ingreso en edición.
     private var fotosJob: Job? = null
 
     init {
@@ -86,6 +87,8 @@ class RegistroViewModel(
                             // El guardado actual actualizará su propia referencia al terminar.
                             if (actual.cargando || actual.registroExitoso) return@update actual
                             val guardadas = (fotos.map { it.rutaImagen } + listOfNotNull(ingreso.fotoPath)).distinct()
+                            // Conserva la foto principal que el técnico eligió sin guardar; si no hay una elegida,
+                            // usa la del ingreso.
                             val elegida = if (actual.fotoPath != actual.fotoPathOriginal &&
                                 (actual.fotoPath in guardadas || actual.fotoPath in actual.fotosNuevas)) {
                                 actual.fotoPath
@@ -102,8 +105,6 @@ class RegistroViewModel(
             } catch (_: Exception) {
                 _uiState.update { it.copy(mensajeError = "No fue posible actualizar las fotografías. Vuelve a abrir el ingreso.") } } } }
 
-    // Permite repetir una consulta fallida.
-    // Nunca recarga un formulario que ya tiene cambios pendientes.
     // Paso del formulario al que pertenece cada campo: 0 cliente, 1 vehículo, 2 recepción.
     private fun pasoDeCampo(campo: String): Int = when (campo) {
         "nombre", "telefono", "email" -> 0
@@ -124,7 +125,8 @@ class RegistroViewModel(
     fun cambiarPaso(valor: Int) {
         _uiState.update { it.copy(paso = valor.coerceIn(0, 2)) } }
 
-    // Vuelve a cargar el ingreso que se está editando.
+    // Vuelve a cargar el ingreso que se está editando tras una consulta fallida.
+    // Nunca recarga un formulario que ya tiene cambios pendientes.
     fun reintentarCarga() {
         val id = ingresoId ?: return
         val actual = _uiState.value
@@ -158,8 +160,7 @@ class RegistroViewModel(
     // Respeta el modo de edición completa o de contacto.
     private fun cambiarCampo(
         campo: String,
-        transformar: (RegistroUiState) -> RegistroUiState
-    ) {
+        transformar: (RegistroUiState) -> RegistroUiState) {
         _uiState.update { actual ->
             if (!actual.formularioDisponible || actual.cargando || actual.registroExitoso) {
                 return@update actual }
@@ -329,10 +330,6 @@ class RegistroViewModel(
             diaSeleccionado.get(Calendar.MONTH),
             diaSeleccionado.get(Calendar.DAY_OF_MONTH))
         return momentoActual.timeInMillis }
-
-    // Quita el mensaje de error.
-    fun resetMensajeError() {
-        _uiState.update { it.copy(mensajeError = null) } }
 
     // Prepara una captura nueva después de guardar.
     // En edición solo consume la notificación de éxito,

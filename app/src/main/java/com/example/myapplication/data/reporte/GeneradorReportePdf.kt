@@ -32,6 +32,7 @@ import kotlin.math.max
 // cotización breve y acta de entrega. El diseño sigue el que se hizo en Figma.
 class GeneradorReportePdf(private val contexto: Context) {
 
+    // Tamaño de página A4 en puntos (1 punto = 1/72 de pulgada) y medidas de la franja superior y del área de contenido.
     private val ancho = 595
     private val alto = 842
     private val margen = 32f
@@ -39,6 +40,7 @@ class GeneradorReportePdf(private val contexto: Context) {
     private val altoBanda = 90f
     private val limiteInferior = alto - 52f
 
+    // Colores del diseño; los mismos del archivo de Figma.
     private val azul = Color.parseColor("#1E3A8A")
     private val azulTexto = Color.parseColor("#1D4ED8")
     private val azulClaro = Color.parseColor("#DBEAFE")
@@ -51,19 +53,24 @@ class GeneradorReportePdf(private val contexto: Context) {
     private val rojo = Color.parseColor("#B91C32")
     private val ambar = Color.parseColor("#946200")
 
+    // Si las fuentes de la aplicación no cargan, se usa la fuente predeterminada del sistema.
     private val montserrat: Typeface = ResourcesCompat.getFont(contexto, R.font.montserrat_bold) ?: Typeface.DEFAULT_BOLD
     private val cuerpo: Typeface = ResourcesCompat.getFont(contexto, R.font.dm_sans) ?: Typeface.DEFAULT
     private val negrita: Typeface = Typeface.create(cuerpo, Typeface.BOLD)
 
+    // Crea un pincel de texto con el tamaño, color y fuente indicados.
     private fun pincel(tamano: Float, color: Int, fuente: Typeface = cuerpo): TextPaint {
         return TextPaint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color; textSize = tamano; typeface = fuente } }
 
+    // Pincel para figuras rellenas.
     private fun relleno(color: Int): Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
 
+    // Pincel para líneas y contornos con extremos redondeados.
     private fun trazo(color: Int, grosor: Float): Paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         this.color = color; style = Paint.Style.STROKE; strokeWidth = grosor
         strokeCap = Paint.Cap.ROUND; strokeJoin = Paint.Join.ROUND }
 
+    // Pinceles reutilizados en todo el documento para no crearlos en cada dibujo.
     private val pTexto = pincel(11f, tinta)
     private val pNegrita = pincel(11f, tinta, negrita)
     private val pEtiqueta = pincel(10f, gris)
@@ -94,6 +101,7 @@ class GeneradorReportePdf(private val contexto: Context) {
         } finally {
             documento.close() } }
 
+    // Fecha y hora corta en español de México.
     private fun fecha(milisegundos: Long): String {
         return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.forLanguageTag("es-MX"))
             .format(Date(milisegundos)) }
@@ -102,6 +110,7 @@ class GeneradorReportePdf(private val contexto: Context) {
     private fun recortar(texto: String, pincel: TextPaint, disponible: Float): String {
         return TextUtils.ellipsize(texto, pincel, disponible, TextUtils.TruncateAt.END).toString() }
 
+    // Texto de varias líneas; con maxLineas lo corta con puntos suspensivos.
     private fun capa(texto: String, pincel: TextPaint, anchoCapa: Int, maxLineas: Int = Int.MAX_VALUE): StaticLayout {
         val constructor = StaticLayout.Builder.obtain(texto, 0, texto.length, pincel, anchoCapa)
             .setAlignment(Layout.Alignment.ALIGN_NORMAL)
@@ -135,19 +144,20 @@ class GeneradorReportePdf(private val contexto: Context) {
         private val documento: PdfDocument,
         private val d: DatosReporte,
         private val tipo: TipoReporte,
-        private val total: Int
-    ) {
+        private val total: Int) {
         private var numero = 0
         private lateinit var pagina: PdfDocument.Page
         private lateinit var lienzo: Canvas
         private var y = 0f
+        // Se carga reducido (inSampleSize) porque en la página solo ocupa unos 60 puntos.
         private val logo: Bitmap? = BitmapFactory.decodeResource(contexto.resources, R.drawable.logo_autoclimas,
             BitmapFactory.Options().apply { inSampleSize = 4 })
+        // Número de ingreso con ceros a la izquierda, por ejemplo 0042.
         private val folio = String.format(Locale.ROOT, "%04d", d.ingresoId)
 
         init { abrir() }
 
-        // ---- Estructura de cada tipo de documento ----
+        // Estructura de cada tipo de documento.
 
         fun completo() {
             datosDelIngreso()
@@ -184,7 +194,7 @@ class GeneradorReportePdf(private val contexto: Context) {
             logo?.recycle()
             return numero }
 
-        // ---- Páginas ----
+        // Manejo de páginas.
 
         private fun abrir() {
             numero += 1
@@ -197,6 +207,7 @@ class GeneradorReportePdf(private val contexto: Context) {
             pie()
             documento.finishPage(pagina) }
 
+        // Abre una página nueva si lo que sigue no cabe antes del pie.
         private fun asegurar(altoNecesario: Float) {
             if (y + altoNecesario > limiteInferior) { cerrar(); abrir() } }
 
@@ -237,7 +248,7 @@ class GeneradorReportePdf(private val contexto: Context) {
             val derecha = contexto.getString(R.string.pdf_footer_page, numero, if (total > 0) total else numero)
             lienzo.drawText(derecha, ancho - margen - pSuave.measureText(derecha), alto - 24f, pSuave) }
 
-        // ---- Bloques ----
+        // Bloques de contenido.
 
         // El título no se queda solo al final de una página: se reserva espacio para el inicio del contenido.
         private fun seccion(titulo: Int, minimoContenido: Float = 24f) {
@@ -246,6 +257,7 @@ class GeneradorReportePdf(private val contexto: Context) {
             lienzo.drawText(contexto.getString(titulo).uppercase(Locale.ROOT), margen, y + 10f, pSeccion)
             y += 18f }
 
+        // Dibuja el fondo suave y devuelve su posición superior; el contenido se dibuja encima.
         private fun caja(alturaCaja: Float): Float {
             asegurar(alturaCaja + 8f)
             val arriba = y
@@ -288,11 +300,13 @@ class GeneradorReportePdf(private val contexto: Context) {
             filaLarga(R.string.pdf_reason, d.motivo)
             filaLarga(R.string.pdf_condition, d.condicionInicial) }
 
+        // Etiqueta redondeada de 70 puntos de ancho con el texto centrado.
         private fun etiquetaCapsula(x: Float, arriba: Float, texto: String, fondo: Int, color: Int) {
             lienzo.drawRoundRect(RectF(x, arriba, x + 70f, arriba + 14f), 7f, 7f, relleno(fondo))
             val p = pincel(8.5f, color, negrita)
             lienzo.drawText(texto, x + (70f - p.measureText(texto)) / 2, arriba + 10.5f, p) }
 
+        // Sin hallazgos se muestra una fila de conformidad; los comentarios del checklist van debajo.
         private fun hallazgos() {
             if (d.hallazgos.isEmpty()) {
                 fila(R.string.pdf_badge_ok, contexto.getString(R.string.pdf_no_findings), Color.parseColor("#DCFCE7"), verde)
@@ -302,6 +316,7 @@ class GeneradorReportePdf(private val contexto: Context) {
                     else fila(R.string.pdf_badge_warn, h.texto, Color.parseColor("#FEF3C7"), ambar) } }
             if (d.comentariosChecklist.isNotBlank()) parrafo(d.comentariosChecklist, pSuave) }
 
+        // Etiqueta de estado a la izquierda y el texto a su derecha; crece según las líneas del texto.
         private fun fila(etiqueta: Int, texto: String, fondo: Int, color: Int) {
             val capa = capa(texto, pTexto, (anchoUtil - 80f).toInt())
             val altura = max(capa.height.toFloat(), 16f) + 4f
@@ -310,12 +325,14 @@ class GeneradorReportePdf(private val contexto: Context) {
             dibujarCapa(capa, margen + 80f, y)
             y += altura }
 
+        // Texto de ancho completo sin caja.
         private fun parrafo(texto: String, pincel: TextPaint) {
             val capa = capa(texto, pincel, anchoUtil.toInt())
             asegurar(capa.height + 6f)
             dibujarCapa(capa, margen, y)
             y += capa.height + 6f }
 
+        // Palomita verde si está bien o tache rojo si no.
         private fun marca(x: Float, arriba: Float, ok: Boolean) {
             val camino = Path()
             if (ok) {
@@ -339,12 +356,14 @@ class GeneradorReportePdf(private val contexto: Context) {
                 lienzo.drawText(recortar(item.texto, pTexto, anchoUtil / 2 - 40f), x + 18f, base + 9.5f, pTexto) }
             y = arriba + altura + 8f }
 
+        // Texto largo dentro de una caja cuya altura se ajusta al contenido.
         private fun cajaDeTexto(texto: String) {
             val capa = capa(texto, pTexto, (anchoUtil - 24f).toInt())
             val arriba = caja(capa.height + 24f)
             dibujarCapa(capa, margen + 12f, arriba + 12f)
             y = arriba + capa.height + 24f + 8f }
 
+        // Resume los tres pasos previos a la entrega con su marca.
         private fun pasos(checklist: Boolean, diagnostico: Boolean, firma: Boolean) {
             val arriba = caja(30f)
             val items = listOf(R.string.entrega_checklist to checklist, R.string.entrega_diagnosis to diagnostico,
@@ -355,6 +374,7 @@ class GeneradorReportePdf(private val contexto: Context) {
                 lienzo.drawText(recortar(contexto.getString(texto), pTexto, anchoUtil / 3 - 34f), x + 18f, arriba + 18.5f, pTexto) }
             y = arriba + 30f + 8f }
 
+        // Tabla de conceptos con importes alineados a la derecha; sin conceptos escribe que la cotización está pendiente.
         private fun cotizacionTabla() {
             if (d.conceptos.isEmpty()) { parrafo(contexto.getString(R.string.pdf_quote_pending), pTexto); return }
             asegurar(24f)
@@ -398,6 +418,7 @@ class GeneradorReportePdf(private val contexto: Context) {
                     val mapa = cargarImagen(foto.archivo, (anchoCelda * 3).toInt())
                     if (mapa != null) {
                         val relacion = anchoCelda / altoImagen
+                        // Recorta la imagen al centro para llenar la celda sin deformarla.
                         val origen = if (mapa.width.toFloat() / mapa.height > relacion) {
                             val anchoOrigen = (mapa.height * relacion).toInt()
                             Rect((mapa.width - anchoOrigen) / 2, 0, (mapa.width + anchoOrigen) / 2, mapa.height)
@@ -437,6 +458,7 @@ class GeneradorReportePdf(private val contexto: Context) {
             d.firma?.let { lienzo.drawText(contexto.getString(R.string.pdf_signed_on, fecha(it.fecha)), margen + 14f, baseNombre + 14f, pSuave) }
             y = arriba + altura + 8f }
 
+        // Dibuja un texto con su posición propia moviendo el lienzo.
         private fun dibujarCapa(capa: StaticLayout, x: Float, arriba: Float) {
             lienzo.save()
             lienzo.translate(x, arriba)
@@ -444,4 +466,5 @@ class GeneradorReportePdf(private val contexto: Context) {
             lienzo.restore() } }
 
     private companion object {
+        // Límite de fotografías por documento para que el PDF no crezca sin control.
         const val MAXIMO_FOTOS = 9 } }

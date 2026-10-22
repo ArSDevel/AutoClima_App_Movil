@@ -16,13 +16,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import com.example.myapplication.ui.theme.AutoClimasGradients
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,26 +25,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,8 +61,7 @@ fun ChecklistScreen(
     tecnicoId: Long,
     onVolver: () -> Unit,
     evidenciasViewModel: com.example.myapplication.ui.camara.CamaraIngresoViewModel? = null,
-    onAgregarFoto: () -> Unit = {}
-) {
+    onAgregarFoto: () -> Unit = {}) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
     var confirmarSalida by rememberSaveable { mutableStateOf(false) }
@@ -92,6 +80,7 @@ fun ChecklistScreen(
     BackHandler {
         solicitarSalida() }
 
+    // Cuenta las preguntas con respuesta, Sí o No, para el avance de 0 a 9.
     val respondidas = listOf(
         estado.faltaGasRefrigerante, estado.fugaVisibleMangueras, estado.fugasDetectadasLuzUV,
         estado.compresorEmbragaAlEncender, estado.compresorDanadoOAmarrado, estado.bandaCompresorDesgastada,
@@ -107,8 +96,7 @@ fun ChecklistScreen(
                 onVolver = solicitarSalida,
                 habilitado = !estado.guardando,
                 // Barra de avance dentro de la cabecera, como en el diseño.
-                contenidoInferior = if (estado.formularioDisponible) {
-                    {
+                contenidoInferior = if (estado.formularioDisponible) { {
                         LinearProgressIndicator(
                             progress = { respondidas / 9f },
                             modifier = Modifier.fillMaxWidth().height(8.dp),
@@ -131,8 +119,7 @@ fun ChecklistScreen(
                         onClick = { viewModel.guardar(tecnicoId) },
                         enabled = estado.puedeGuardar,
                         modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-                        shape = RoundedCornerShape(16.dp)
-                    ) {
+                        shape = RoundedCornerShape(16.dp)) {
                         if (estado.guardando) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
@@ -151,8 +138,7 @@ fun ChecklistScreen(
             modifier = Modifier.fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .padding(padding),
-            contentAlignment = Alignment.TopCenter
-        ) {
+            contentAlignment = Alignment.TopCenter) {
             when {
                 estado.cargando -> {
                     CircularProgressIndicator(
@@ -167,8 +153,7 @@ fun ChecklistScreen(
                             .widthIn(max = 480.dp)
                             .padding(24.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                        horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
                             text = estado.errorCarga
                                 ?: stringResource(
@@ -184,8 +169,7 @@ fun ChecklistScreen(
                             .widthIn(max = 840.dp)
                             .fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(20.dp)
-                    ) {
+                        verticalArrangement = Arrangement.spacedBy(20.dp)) {
                         if (!estado.permiteEdicion) {
                             item(key = "consulta") {
                                 Surface(
@@ -193,8 +177,7 @@ fun ChecklistScreen(
                                     color = MaterialTheme.colorScheme
                                         .primaryContainer,
                                     contentColor = MaterialTheme.colorScheme
-                                        .onPrimaryContainer
-                                ) {
+                                        .onPrimaryContainer) {
                                     Text(
                                         text = stringResource(
                                             R.string.checklist_read_only),
@@ -213,8 +196,7 @@ fun ChecklistScreen(
                                     estado.fugaVisibleMangueras,
                                     estado.fugasDetectadasLuzUV
                                 ).count { it != null },
-                                totalPreguntas = 3
-                            ) {
+                                totalPreguntas = 3) {
                                 PreguntaChecklist(
                                     numero = 1,
                                     pregunta = stringResource(
@@ -260,8 +242,7 @@ fun ChecklistScreen(
                                     estado.compresorDanadoOAmarrado,
                                     estado.bandaCompresorDesgastada
                                 ).count { it != null },
-                                totalPreguntas = 3
-                            ) {
+                                totalPreguntas = 3) {
                                 PreguntaChecklist(
                                     numero = 4,
                                     pregunta = stringResource(
@@ -307,8 +288,7 @@ fun ChecklistScreen(
                                     estado.filtroCabinaSucioUObstruido,
                                     estado.condensadorObstruido
                                 ).count { it != null },
-                                totalPreguntas = 3
-                            ) {
+                                totalPreguntas = 3) {
                                 PreguntaChecklist(
                                     numero = 7,
                                     pregunta = stringResource(
@@ -342,14 +322,15 @@ fun ChecklistScreen(
                                     mostrarPendiente =
                                         estado.mostrarPreguntasPendientes) } }
 
+                        // Las fotos se guardan como evidencias del ingreso; el botón desaparece mientras hay una
+                        // captura pendiente de guardar.
                         item(key = "evidencias") {
                             if (evidenciasViewModel != null) {
                                 val estadoFotos by evidenciasViewModel.uiState.collectAsStateWithLifecycle()
                                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                     Row(
                                         horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
+                                        verticalAlignment = Alignment.CenterVertically) {
                                         Icon(Icons.Default.PhotoCamera, contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary)
                                         Text(
@@ -366,8 +347,7 @@ fun ChecklistScreen(
                                             border = androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                                             colors = ButtonDefaults.outlinedButtonColors(
                                                 containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                                contentColor = MaterialTheme.colorScheme.primary)
-                                        ) {
+                                                contentColor = MaterialTheme.colorScheme.primary)) {
                                             Icon(Icons.Default.PhotoCamera, contentDescription = null)
                                             Text("  " + stringResource(R.string.fotos_add),
                                                 style = MaterialTheme.typography.titleMedium) } }
@@ -422,33 +402,29 @@ fun ChecklistScreen(
                 onVolver() },
             onDismiss = viewModel::consumirGuardadoExitoso) } }
 
-// Presenta el vehículo y el avance real de las respuestas.
+// Presenta el vehículo y el avance real de las respuestas; ninguna pantalla lo usa por ahora porque la cabecera
+// muestra el avance.
 // El progreso no representa un diagnóstico ni un cambio de estado.
 @Composable
 private fun EncabezadoChecklist(
-    estado: ChecklistUiState
-) {
+    estado: ChecklistUiState) {
     val ingreso = estado.ingreso ?: return
     val colors = MaterialTheme.colorScheme
 
     Surface(
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        tonalElevation = 0.dp
-    ) {
+        tonalElevation = 0.dp) {
         Column(
             modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(16.dp)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = MaterialTheme.shapes.medium,
                     color = colors.primaryContainer,
-                    contentColor = colors.onPrimaryContainer
-                ) {
+                    contentColor = colors.onPrimaryContainer) {
                     Icon(
                         imageVector = Icons.Default.DirectionsCar,
                         contentDescription = null,
@@ -458,8 +434,7 @@ private fun EncabezadoChecklist(
 
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = ingreso.placa,
                         style = MaterialTheme.typography.headlineSmall,

@@ -20,8 +20,7 @@ import com.example.myapplication.ui.camara.CamaraIngresoViewModel
 fun GaleriaIngresoConectada(
     viewModel: CamaraIngresoViewModel,
     tecnicoId: Long,
-    habilitada: Boolean = true
-) {
+    habilitada: Boolean = true) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         when {
@@ -55,6 +54,7 @@ fun GaleriaIngresoConectada(
                         estado.evidencias.firstOrNull { it.rutaImagen == ruta }?.let {
                             viewModel.eliminarEvidencia(it.id, tecnicoId) }
                     } else null,
+                    // No se puede eliminar la última fotografía: el ingreso siempre conserva una.
                     permiteEliminar = { editable && estado.evidencias.size > 1 },
                     aviso = when {
                         !estado.permiteAgregar -> stringResource(R.string.evidence_read_only)

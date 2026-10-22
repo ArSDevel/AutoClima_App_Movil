@@ -15,8 +15,7 @@ class CamaraIngresoViewModelFactory(
     ): T {
         if (
             modelClass.isAssignableFrom(
-                CamaraIngresoViewModel::class.java)
-        ) {
+                CamaraIngresoViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return CamaraIngresoViewModel(
                 ingresoId = ingresoId,

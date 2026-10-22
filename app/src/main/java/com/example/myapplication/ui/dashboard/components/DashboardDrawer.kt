@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.dashboard.components
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +12,6 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,25 +30,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Checklist
-import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Draw
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -59,36 +48,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.theme.AutoClimasGradients
-import com.example.myapplication.ui.theme.AutoClimasWhite
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
-// Menú compartido por dashboard y registro.
-// Las pantallas principales delegan la navegación mediante callbacks.
+// Menú lateral compartido por el listado, el registro y el historial.
+// Las pantallas delegan la navegación mediante callbacks.
 @Composable
 fun DashboardDrawer(
     opcionSeleccionada: DashboardMenuOption,
     onOpcionSeleccionada: (DashboardMenuOption) -> Unit,
     onLogout: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
     val shapes = MaterialTheme.shapes
     val typography = MaterialTheme.typography
 
     ModalDrawerSheet(modifier = modifier.width(300.dp),
         drawerContainerColor = colors.surface,
-        windowInsets = WindowInsets(0, 0, 0, 0)
-    ) {
+        windowInsets = WindowInsets(0, 0, 0, 0)) {
         Column(modifier = Modifier.fillMaxWidth().fillMaxHeight()) {
             // Encabezado: logo sobre un cuadro blanco, nombre del técnico y su rol.
             Row(
@@ -96,12 +79,10 @@ fun DashboardDrawer(
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Start))
                     .padding(horizontal = 20.dp, vertical = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     modifier = Modifier.size(64.dp).clip(RoundedCornerShape(18.dp)).background(Color.White),
-                    contentAlignment = Alignment.Center
-                ) {
+                    contentAlignment = Alignment.Center) {
                     com.example.myapplication.ui.components.LogoAutoClimas(
                         sobreFondoOscuro = false,
                         descripcion = stringResource(R.string.dashboard_logo_description),
@@ -118,8 +99,7 @@ fun DashboardDrawer(
             Column(
                 modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
                     .padding(horizontal = 12.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
+                verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 listOf(
                     DashboardMenuOption.DASHBOARD,
                     DashboardMenuOption.REGISTRO,
@@ -142,11 +122,9 @@ fun DashboardDrawer(
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)),
                 shape = shapes.small,
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
-                colors = ButtonDefaults.textButtonColors(contentColor = colors.error)
-            ) {
+                colors = ButtonDefaults.textButtonColors(contentColor = colors.error)) {
                 Row(modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
+                    verticalAlignment = Alignment.CenterVertically) {
                     Icon(imageVector = Icons.AutoMirrored.Filled.ExitToApp,
                         contentDescription = null,
                         modifier = Modifier.size(22.dp))
@@ -158,8 +136,7 @@ fun DashboardDrawer(
 private fun OpcionPrincipalDrawer(
     opcion: DashboardMenuOption,
     seleccionada: Boolean,
-    onClick: () -> Unit
-) {
+    onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val color = if (seleccionada) colors.primary else colors.onSurface
     Row(
@@ -169,8 +146,7 @@ private fun OpcionPrincipalDrawer(
             .clickable(role = androidx.compose.ui.semantics.Role.Button, onClick = onClick)
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = iconoDrawer(opcion), contentDescription = null,
             tint = if (seleccionada) colors.primary else colors.onSurfaceVariant,
@@ -180,22 +156,6 @@ private fun OpcionPrincipalDrawer(
             style = MaterialTheme.typography.titleSmall.copy(fontSize = 16.sp),
             color = color,
             modifier = Modifier.weight(1f)) } }
-
-// Elemento informativo sin acción de navegación.
-// También se identifica como no disponible para accesibilidad.
-@Composable
-private fun OpcionPendienteDrawer(
-    opcion: DashboardMenuOption
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth().semantics(mergeDescendants = true) { disabled() },
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(imageVector = iconoDrawer(opcion), contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(22.dp))
-        Text(text = stringResource(etiquetaDrawer(opcion)), style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f)) } }
 
 // Nombre de cada opción del menú.
 @StringRes

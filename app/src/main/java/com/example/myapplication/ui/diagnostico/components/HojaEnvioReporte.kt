@@ -26,7 +26,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -65,20 +64,17 @@ fun HojaEnvioReporte(
     onCambiarFotos: (Boolean) -> Unit,
     onEnviar: () -> Unit,
     onAbrirChat: () -> Unit,
-    onCerrar: () -> Unit
-) {
+    onCerrar: () -> Unit) {
     val colors = MaterialTheme.colorScheme
     val verde = MaterialTheme.estadoIngresoColors.listoParaFirma
     val ocupado = estado.fase == FaseEnvio.PREPARANDO
     ModalBottomSheet(
         onDismissRequest = { if (!ocupado) onCerrar() },
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = colors.surface
-    ) {
+        containerColor = colors.surface) {
         Column(
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.size(48.dp).clip(RoundedCornerShape(14.dp)).background(verde.copy(alpha = 0.16f)),
                     contentAlignment = Alignment.Center) {
@@ -124,6 +120,7 @@ fun HojaEnvioReporte(
                         else stringResource(R.string.send_desc_no_photos), style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold, color = colors.onPrimaryContainer) } }
 
+            // Vista previa del mensaje; al enviar se copia al portapapeles porque WhatsApp lo ignora cuando se comparte un PDF.
             Surface(shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomEnd = 16.dp, bottomStart = 4.dp),
                 color = colors.surfaceVariant) {
                 Text(mensaje, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) }
@@ -152,11 +149,11 @@ fun HojaEnvioReporte(
             } else {
                 Button(
                     onClick = onEnviar,
+                    // Se necesita algún contenido que enviar: el reporte o fotos disponibles.
                     enabled = estado.puedeEnviar && (estado.incluirReporte || (estado.incluirFotos && cantidadFotos > 0)),
                     modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = verde)
-                ) {
+                    colors = ButtonDefaults.buttonColors(containerColor = verde)) {
                     if (ocupado) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = colors.onPrimary)
                     } else {
@@ -174,8 +171,7 @@ private fun OpcionEnvio(texto: String, etiqueta: String, marcada: Boolean, habil
         modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp)
             .clickable(enabled = habilitada, role = Role.Checkbox) { onCambio(!marcada) },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically) {
         Checkbox(checked = marcada, onCheckedChange = null, enabled = habilitada)
         Text(texto, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
         Surface(shape = CircleShape, color = colors.surfaceVariant) {

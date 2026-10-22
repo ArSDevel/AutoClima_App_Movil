@@ -20,6 +20,7 @@ object FormatoReporte {
     // Acepta 10 dígitos de México, con 52 o con 521 delante, o cualquier número con + y lada de país;
     // devuelve null si no es válido.
     fun telefonoWhatsApp(texto: String): String? {
+        // Con 521 (formato antiguo de móvil) se convierte a 52; con + se acepta cualquier país.
         val digitos = texto.filter { it.isDigit() }
         val conLada = texto.trim().startsWith("+")
         return when {

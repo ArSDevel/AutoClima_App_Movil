@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
@@ -32,8 +31,7 @@ fun GaleriaFotografias(
     onEliminar: ((String) -> Unit)? = null,
     permiteEliminar: (String) -> Boolean = { false },
     aviso: String? = null,
-    mostrarVacio: Boolean = true
-) {
+    mostrarVacio: Boolean = true) {
     var seleccion by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmarEliminar by rememberSaveable { mutableStateOf(false) }
     val fotos = rutas.distinct()
@@ -48,24 +46,20 @@ fun GaleriaFotografias(
                     Surface(
                         modifier = Modifier.weight(1f),
                         shape = MaterialTheme.shapes.medium,
-                        border = if (ruta == principal) BorderStroke(2.dp, colors.primary) else null
-                    ) {
+                        border = if (ruta == principal) BorderStroke(2.dp, colors.primary) else null) {
                         Box(
                             modifier = Modifier.aspectRatio(1f).clickable(
                                 enabled = !ocupado,
-                                onClickLabel = stringResource(R.string.fotos_open_options)
-                            ) {
+                                onClickLabel = stringResource(R.string.fotos_open_options)) {
                                 confirmarEliminar = false
-                                seleccion = ruta }
-                        ) {
+                                seleccion = ruta }) {
                             ImagenFotografia(ruta, Modifier.fillMaxSize(), recortar = true)
                             if (ruta == principal) {
                                 // La foto principal es la que se ve en la lista de ingresos.
                                 Surface(
                                     modifier = Modifier.align(Alignment.TopEnd).padding(6.dp).size(28.dp),
                                     shape = androidx.compose.foundation.shape.CircleShape,
-                                    color = androidx.compose.ui.graphics.Color(0xFFF5B301)
-                                ) {
+                                    color = androidx.compose.ui.graphics.Color(0xFFF5B301)) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Icon(
                                             imageVector = Icons.Default.Star,
@@ -82,13 +76,13 @@ fun GaleriaFotografias(
                                     modifier = Modifier.align(Alignment.TopStart).padding(4.dp).size(28.dp),
                                     shape = androidx.compose.foundation.shape.CircleShape,
                                     color = colors.scrim.copy(alpha = 0.6f),
-                                    contentColor = androidx.compose.ui.graphics.Color.White
-                                ) {
+                                    contentColor = androidx.compose.ui.graphics.Color.White) {
                                     Box(contentAlignment = Alignment.Center) {
                                         Icon(
                                             imageVector = Icons.Default.Close,
                                             contentDescription = stringResource(R.string.fotos_delete),
                                             modifier = Modifier.size(16.dp)) } } } } } }
+                // Completa la fila con espacios vacíos para que las fotos conserven su tamaño.
                 repeat(3 - fila.size) { Spacer(Modifier.weight(1f)) } } }
         if (aviso != null && fotos.isNotEmpty()) {
             Text(aviso, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant) } }
@@ -98,13 +92,11 @@ fun GaleriaFotografias(
         if (!confirmarEliminar) Dialog(onDismissRequest = {
             if (!ocupado) {
                 seleccion = null
-                confirmarEliminar = false }
-        }) {
+                confirmarEliminar = false } }) {
             Surface(shape = MaterialTheme.shapes.large) {
                 LazyColumn(
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     item {
                         ImagenFotografia(rutaSeleccionada, Modifier.fillMaxWidth().height(300.dp)) }
                     item {

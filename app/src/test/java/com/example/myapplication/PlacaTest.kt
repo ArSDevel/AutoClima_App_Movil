@@ -19,6 +19,7 @@ class PlacaTest {
         listOf("", "ABC", "ABCDEFG", "1234567", "AB--123", "ABC-123-D-1", "ABC 123", "FDDFDFFD").forEach {
             assertFalse("$it no debería ser válida", FormularioIngreso.placaValida(it)) } }
 
+    // El guion se conserva y cualquier otro símbolo se elimina.
     @Test
     fun normalizar_quitaSimbolosYPasaAMayusculas() {
         assertEquals("ABC-123", FormularioIngreso.normalizarPlaca("abc 123".replace(' ', '-')))

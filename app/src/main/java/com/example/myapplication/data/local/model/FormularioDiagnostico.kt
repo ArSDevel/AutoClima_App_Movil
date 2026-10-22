@@ -6,8 +6,7 @@ import java.math.BigDecimal
 // El importe permanece como texto mientras el mecánico escribe.
 data class ConceptoCotizacionFormulario(
     val descripcion: String = "",
-    val importe: String = ""
-) {
+    val importe: String = "") {
 
     // Convierte el importe a centavos sin usar Float ni Double.
     // Acepta ejemplos como: 150, 150.50 o 150,50.
@@ -16,8 +15,7 @@ data class ConceptoCotizacionFormulario(
         val texto = importe.trim()
 
         if (!FORMATO_IMPORTE.matches(texto)) {
-            return null
-        }
+            return null }
 
         return try {
             BigDecimal(texto.replace(',', '.'))
@@ -26,22 +24,17 @@ data class ConceptoCotizacionFormulario(
         } catch (_: NumberFormatException) {
             null
         } catch (_: ArithmeticException) {
-            null
-        }
-    }
+            null } }
 
     companion object {
         private val FORMATO_IMPORTE =
-            Regex("""[0-9]+([.,][0-9]{1,2})?""")
-    }
-}
+            Regex("""[0-9]+([.,][0-9]{1,2})?""") } }
 
 // Datos que el mecánico puede modificar en el diagnóstico.
 // Cliente, vehículo y checklist se consultan por separado.
 data class FormularioDiagnostico(
     val observaciones: String = "",
-    val conceptos: List<ConceptoCotizacionFormulario> = emptyList()
-) {
+    val conceptos: List<ConceptoCotizacionFormulario> = emptyList()) {
 
     // Devuelve errores asociados a cada campo del formulario.
     // Ejemplos de claves:
@@ -54,8 +47,7 @@ data class FormularioDiagnostico(
         conceptos.forEachIndexed { indice, concepto ->
             if (concepto.descripcion.isBlank()) {
                 errores["conceptos.$indice.descripcion"] =
-                    "Escribe el concepto del servicio o refacción."
-            }
+                    "Escribe el concepto del servicio o refacción." }
 
             if (concepto.importe.isBlank()) {
                 errores["conceptos.$indice.importe"] =
@@ -63,23 +55,18 @@ data class FormularioDiagnostico(
             } else if (concepto.importeEnCentavos() == null) {
                 errores["conceptos.$indice.importe"] =
                     "Ingresa un importe válido con máximo dos decimales, " +
-                            "sin símbolo de moneda ni separadores de miles."
-            }
-        }
+                            "sin símbolo de moneda ni separadores de miles." } }
 
         // Comprueba también que la suma quepa en el tipo Long.
         // Solo evalúa el total cuando los importes individuales son válidos.
         val importesValidos = conceptos.all {
-            it.importeEnCentavos() != null
-        }
+            it.importeEnCentavos() != null }
 
         if (importesValidos && totalEnCentavos() == null) {
             errores["conceptos.total"] =
-                "El total de la cotización es demasiado grande."
-        }
+                "El total de la cotización es demasiado grande." }
 
-        return errores
-    }
+        return errores }
 
     // Calcula el total exacto.
     // null indica un importe inválido o un total fuera de rango.
@@ -94,12 +81,9 @@ data class FormularioDiagnostico(
             total = try {
                 Math.addExact(total, importeCentavos)
             } catch (_: ArithmeticException) {
-                return null
-            }
-        }
+                return null } }
 
-        return total
-    }
+        return total }
 
     // Distingue una cotización pendiente de una cotización
     // con conceptos cuyo importe sea cero.
@@ -119,10 +103,4 @@ data class FormularioDiagnostico(
                     importe = if (centavos != null) {
                         BigDecimal.valueOf(centavos, 2).toPlainString()
                     } else {
-                        concepto.importe.trim()
-                    }
-                )
-            }
-        )
-    }
-}
+                        concepto.importe.trim() }) }) } }
