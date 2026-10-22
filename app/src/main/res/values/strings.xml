@@ -644,7 +644,7 @@
     <string name="send_button">Enviar por WhatsApp</string>
     <string name="send_preparing">Preparando…</string>
     <string name="send_retry">Reintentar</string>
-    <string name="send_ready">Listo en WhatsApp. Elige el chat de %1$s y toca enviar.</string>
+    <string name="send_ready">Listo en WhatsApp. Elige el chat de %1$s y toca enviar. Si el texto no aparece junto al PDF, pégalo como comentario: ya está copiado.</string>
     <string name="send_summary_title">Vas a enviar</string>
     <string name="send_desc_full">Reporte completo en PDF: datos del ingreso, hallazgos, checklist, observaciones y cotización.</string>
     <string name="send_desc_quote">Cotización en PDF: lo que se encontró y los conceptos con el total.</string>

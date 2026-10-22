@@ -3,6 +3,7 @@ package com.example.myapplication.data.reporte
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -20,6 +21,10 @@ class EnvioPorWhatsApp(
     override suspend fun enviar(solicitud: SolicitudEnvio): ResultadoEnvio {
         val archivos = listOfNotNull(solicitud.pdf) + solicitud.fotos
         if (archivos.isEmpty()) return ResultadoEnvio.Error("No hay nada que enviar.")
+
+        // Algunas versiones de WhatsApp ignoran el texto cuando se comparte un PDF.
+        // Se deja copiado para pegarlo como comentario en el chat.
+        copiarMensaje(solicitud.mensaje)
 
         val autoridad = "${contexto.packageName}.archivos"
         val uris = try {
@@ -69,6 +74,11 @@ class EnvioPorWhatsApp(
                 uris.drop(1).forEach { clip.addItem(ClipData.Item(it)) } }
             if (paquete != null) setPackage(paquete)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) } }
+
+    private fun copiarMensaje(mensaje: String) {
+        if (mensaje.isBlank()) return
+        val portapapeles = contexto.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+        portapapeles?.setPrimaryClip(ClipData.newPlainText("Mensaje para el cliente", mensaje)) }
 
     // Desde la pantalla visible, WhatsApp queda en la misma tarea y atrás regresa a la app.
     // Sin pantalla visible se abre como tarea nueva.
