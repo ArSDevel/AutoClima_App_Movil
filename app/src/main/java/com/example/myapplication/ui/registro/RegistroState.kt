@@ -21,6 +21,7 @@ data class RegistroUiState(
     val fechaEntrada: String = FormularioIngreso.fechaActual(),
     val motivoIngreso: String = "",
     val condicionInicial: String = "",
+    val tecnicoEncargado: String = "",
     // Foto mostrada y referencia persistida antes de editar.
     val fotoPath: String? = null,
     val fotoPathOriginal: String? = null,
@@ -66,4 +67,5 @@ data class RegistroUiState(
             email = emailCliente,
             fecha = fechaEntrada,
             motivo = motivoIngreso,
-            condicion = condicionInicial) } }
+            condicion = condicionInicial,
+            tecnicoEncargado = tecnicoEncargado) } }

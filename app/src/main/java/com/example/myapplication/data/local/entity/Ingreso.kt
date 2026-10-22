@@ -1,5 +1,6 @@
 package com.example.myapplication.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -21,6 +22,8 @@ data class Ingreso(
     val fecha: Long,
     val motivoIngreso: String? = null,
     val condicionInicial: String? = null,
-    val estado: String = EstadoIngreso.REGISTRADO.name, // 👈 Asegúrate de que lleve esta coma
-    val fotoPath: String? = null
+    val estado: String = EstadoIngreso.REGISTRADO.name,
+    val fotoPath: String? = null,
+    @ColumnInfo(defaultValue = "''")
+    val tecnicoEncargado: String = ""
 )

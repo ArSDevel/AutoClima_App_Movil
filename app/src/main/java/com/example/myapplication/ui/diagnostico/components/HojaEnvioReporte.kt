@@ -64,7 +64,6 @@ fun HojaEnvioReporte(
     onCambiarReporte: (Boolean) -> Unit,
     onCambiarFotos: (Boolean) -> Unit,
     onEnviar: () -> Unit,
-    onAbrirChat: () -> Unit,
     onCerrar: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
@@ -137,13 +136,7 @@ fun HojaEnvioReporte(
                     Text(stringResource(R.string.send_ready, nombreCliente), color = verde, style = MaterialTheme.typography.bodyMedium) }
                 else -> Unit }
 
-            // Para un cliente que no está en los contactos: abrir su chat primero para que aparezca entre los recientes.
-            if (!ocupado) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    TextButton(onClick = onAbrirChat) {
-                        Text(stringResource(R.string.send_open_chat), fontWeight = FontWeight.Bold) }
-                    Text(stringResource(R.string.send_open_chat_hint), style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant) } }
+
 
             if (estado.fase == FaseEnvio.LISTO) {
                 OutlinedButton(onClick = onCerrar, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
