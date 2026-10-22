@@ -44,7 +44,8 @@ class RegistroRepository(
         motivoIngreso: String? = null,
         condicionInicial: String? = null,
         fotoPath: String? = null,
-        fotosPaths: List<String> = emptyList()
+        fotosPaths: List<String> = emptyList(),
+        tecnicoEncargado: String
     ): Long = withContext(Dispatchers.IO) {
         // Une la foto principal y las demás sin repetir rutas y comprueba que cada archivo exista.
         val rutasNuevas = (fotosPaths + listOfNotNull(fotoPath))
@@ -60,13 +61,16 @@ class RegistroRepository(
         val serieLimpia = numeroSerie?.trim()?.ifEmpty { null }
         val motivoLimpio = motivoIngreso?.trim()?.ifEmpty { null }
         val condicionLimpia = condicionInicial?.trim()?.ifEmpty { null }
+        val tecnicoEncargadoLimpio = tecnicoEncargado.trim()
 
         // La validación también se ejecuta en la capa de datos.
         val formulario = FormularioIngreso(
             placa = placaLimpia, modelo = modeloLimpio, color = colorLimpio.orEmpty(),
             numeroSerie = serieLimpia.orEmpty(), nombre = nombreLimpio, telefono = telefonoLimpio,
             email = emailLimpio.orEmpty(), fecha = FormularioIngreso.formatearFecha(fechaEntrada),
-            motivo = motivoLimpio.orEmpty(), condicion = condicionLimpia.orEmpty())
+            motivo = motivoLimpio.orEmpty(), condicion = condicionLimpia.orEmpty(),
+        tecnicoEncargado = tecnicoEncargadoLimpio)
+
 
         val errores = formulario.errores()
 
@@ -124,7 +128,8 @@ class RegistroRepository(
                     fecha = fechaEntrada, motivoIngreso = motivoLimpio,
                     condicionInicial = condicionLimpia,
                     estado = EstadoIngreso.REGISTRADO.name,
-                    fotoPath = fotoValidada))
+                    fotoPath = fotoValidada,
+                    tecnicoEncargado = tecnicoEncargadoLimpio))
 
             ingresoDao.insertarEvento(
                 EventoIngreso(ingresoId = ingresoId, fecha = System.currentTimeMillis(),

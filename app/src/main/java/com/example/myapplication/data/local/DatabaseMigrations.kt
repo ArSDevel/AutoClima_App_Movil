@@ -70,3 +70,10 @@ val MIGRATION_9_10 = object : Migration(9, 10) {
         // El índice único garantiza una sola firma vigente por ingreso.
         db.execSQL("""CREATE UNIQUE INDEX IF NOT EXISTS index_firma_ingresoId
             ON firma (ingresoId)""".trimIndent()) } }
+// Versión 10 → 11: incorpora el técnico encargado de la reparación en cada ingreso.
+// Los ingresos existentes quedan con el valor vacío.
+val MIGRATION_10_11 = object : Migration(10, 11) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""ALTER TABLE ingreso
+            ADD COLUMN tecnicoEncargado TEXT NOT NULL DEFAULT ''
+            """.trimIndent()) } }

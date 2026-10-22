@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
         ConceptoCotizacion::class,
         Evidencia::class,
         Firma::class],
-    version = 10,
+    version = 11,
     exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tecnicoDao(): TecnicoDao
@@ -76,7 +76,8 @@ abstract class AppDatabase : RoomDatabase() {
                     .addMigrations(MIGRATION_5_6,
                         MIGRATION_6_9,
                         MIGRATION_8_9,
-                        MIGRATION_9_10)
+                        MIGRATION_9_10,
+                        MIGRATION_10_11)
                     .addCallback(object : Callback() {
                         // Solo se ejecuta al crear una base nueva.
                         // Una actualización conserva los técnicos existentes.

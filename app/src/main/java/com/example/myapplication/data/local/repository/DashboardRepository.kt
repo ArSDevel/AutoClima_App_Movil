@@ -114,7 +114,8 @@ class DashboardRepository(
                         fechaOriginal = ingreso.fecha,
                         nuevaFecha = formulario.fecha),
                     motivoIngreso = formulario.motivo.trim().ifEmpty { null },
-                    condicionInicial = formulario.condicion.trim().ifEmpty { null }) }
+                    condicionInicial = formulario.condicion.trim().ifEmpty { null },
+                    tecnicoEncargado = formulario.tecnicoEncargado.trim()) }
 
             val cambioCliente = clienteActualizado != cliente
             val cambioVehiculo = vehiculoActualizado != vehiculo

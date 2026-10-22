@@ -29,7 +29,7 @@ interface IngresoDao {
             i.ingresoId AS ingresoId,v.placa AS placa,v.modelo AS modelo,v.color AS color,
             v.numeroSerie AS numeroSerie,c.nombre AS nombreCliente,c.telefono AS telefonoCliente,c.email AS emailCliente,
             i.fecha AS fechaEntrada,i.estado AS estado,i.motivoIngreso AS motivoIngreso,
-            i.condicionInicial AS condicionInicial, i.fotoPath AS fotoPath
+            i.condicionInicial AS condicionInicial, i.fotoPath AS fotoPath,  i.tecnicoEncargado AS tecnicoEncargado
         FROM ingreso AS i
         INNER JOIN vehiculo AS v ON i.vehiculoId = v.vehiculoId
         INNER JOIN cliente AS c ON v.clienteId = c.clienteId
@@ -100,7 +100,7 @@ interface IngresoDao {
             i.ingresoId AS ingresoId,v.placa AS placa, v.modelo AS modelo,
             v.color AS color, v.numeroSerie AS numeroSerie, c.nombre AS nombreCliente,
             c.telefono AS telefonoCliente, c.email AS emailCliente, i.fecha AS fechaEntrada,
-            i.estado AS estado, i.motivoIngreso AS motivoIngreso, i.condicionInicial AS condicionInicial, i.fotoPath AS fotoPath
+            i.estado AS estado, i.motivoIngreso AS motivoIngreso, i.condicionInicial AS condicionInicial, i.fotoPath AS fotoPath,  i.tecnicoEncargado AS tecnicoEncargado
         FROM ingreso AS i
         INNER JOIN vehiculo AS v ON i.vehiculoId = v.vehiculoId
         INNER JOIN cliente AS c ON v.clienteId = c.clienteId

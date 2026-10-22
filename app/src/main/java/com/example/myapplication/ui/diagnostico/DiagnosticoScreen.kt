@@ -305,7 +305,8 @@ fun DiagnosticoScreen(
             condicionInicial = ingresoEnvio.condicionInicial, hallazgos = textoHallazgos, checklist = revision,
             comentariosChecklist = estado.comentariosChecklist, observaciones = estado.observaciones.trim(),
             conceptos = estado.conceptos.map { ConceptoReporte(it.descripcion.trim(), it.importeEnCentavos() ?: 0L) },
-            totalCentavos = total, fotos = fotosReporte, tecnicoId = estado.tecnicoUltimoGuardadoId)
+            totalCentavos = total, fotos = fotosReporte, tecnicoId = estado.tecnicoUltimoGuardadoId,
+            tecnicoEncargado = ingresoEnvio.tecnicoEncargado)
         HojaEnvioReporte(
             estado = estadoEnvio,
             nombreCliente = ingresoEnvio.nombreCliente,
@@ -317,7 +318,6 @@ fun DiagnosticoScreen(
             onCambiarReporte = envioViewModel::cambiarReporte,
             onCambiarFotos = envioViewModel::cambiarFotos,
             onEnviar = { envioViewModel.enviar(datos, mensaje, tecnicoId) },
-            onAbrirChat = { envioViewModel.abrirChat(ingresoEnvio.telefonoCliente, mensaje) },
             onCerrar = { mostrarEnvio = false
                 envioViewModel.reiniciar() }) }
 

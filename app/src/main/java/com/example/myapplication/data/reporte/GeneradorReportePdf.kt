@@ -284,10 +284,10 @@ class GeneradorReportePdf(private val contexto: Context) {
         // Fila de ancho completo, con el valor en varias líneas si hace falta.
         private fun filaLarga(etiqueta: Int, valor: String?) {
             if (valor.isNullOrBlank()) return
-            val texto = capa(valor, pTexto, (anchoUtil - 90f).toInt())
+            val texto = capa(valor, pTexto, (anchoUtil - 104f).toInt())
             asegurar(texto.height + 4f)
             lienzo.drawText(contexto.getString(etiqueta), margen, y + 10f, pEtiqueta)
-            dibujarCapa(texto, margen + 90f, y)
+            dibujarCapa(texto, margen + 104f, y)
             y += texto.height + 4f }
 
         private fun datosDelIngreso() {
@@ -297,6 +297,8 @@ class GeneradorReportePdf(private val contexto: Context) {
                     R.string.pdf_color to d.color, R.string.pdf_serial to d.serie),
                 listOf(R.string.pdf_customer to d.cliente, R.string.pdf_phone to d.telefono,
                     R.string.pdf_email to d.correo, R.string.pdf_entry to fecha(d.fechaEntrada)))
+            filaLarga(R.string.pdf_assigned_tech,
+                d.tecnicoEncargado?.takeIf { it.isNotBlank() } ?: contexto.getString(R.string.pdf_unassigned))
             filaLarga(R.string.pdf_reason, d.motivo)
             filaLarga(R.string.pdf_condition, d.condicionInicial) }
 

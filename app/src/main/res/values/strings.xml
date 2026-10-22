@@ -111,6 +111,7 @@
     <string name="registro_reason">Motivo del ingreso</string>
     <string name="registro_initial_condition">Condición inicial</string>
     <string name="registro_select_date">Seleccionar fecha</string>
+    <string name="registro_assigned_technician">Técnico encargado</string>
 
     <!-- Registro y edición: alcance de los cambios -->
     <string name="registro_shared_warning">Cliente y vehículo son fichas compartidas: el cambio también afecta otras visitas.</string>
@@ -516,8 +517,6 @@
     <string name="send_message_quote">Hola %1$s, te compartimos la cotización de tu %2$s (%3$s). Total: %4$s.</string>
     <string name="send_message_quote_no_total">Hola %1$s, te compartimos la cotización de tu %2$s (%3$s).</string>
     <string name="send_delivery_receipt">Enviar acta</string>
-    <string name="send_open_chat">Abrir chat con el mensaje</string>
-    <string name="send_open_chat_hint">Si no está en tus contactos, o el texto no llegó junto con el PDF, abre su chat con el mensaje ya escrito.</string>
     <string name="send_close">Cerrar</string>
     <string name="detalle_event_report">Reporte enviado</string>
     <string name="historial_report">Reporte</string>
@@ -541,6 +540,8 @@
     <string name="pdf_entry">Entrada</string>
     <string name="pdf_reason">Motivo</string>
     <string name="pdf_condition">Condición inicial</string>
+    <string name="pdf_assigned_tech">Técnico encargado</string>
+    <string name="pdf_unassigned">Sin asignar</string>
     <string name="pdf_findings">Hallazgos</string>
     <string name="pdf_found">Qué encontramos</string>
     <string name="pdf_no_findings">No se detectaron fallas en la revisión.</string>

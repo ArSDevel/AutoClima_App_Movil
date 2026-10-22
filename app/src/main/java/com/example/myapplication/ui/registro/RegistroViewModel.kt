@@ -148,6 +148,7 @@ class RegistroViewModel(
                 ingreso.fechaEntrada),
             motivoIngreso = ingreso.motivoIngreso.orEmpty(),
             condicionInicial = ingreso.condicionInicial.orEmpty(),
+            tecnicoEncargado = ingreso.tecnicoEncargado,
             ingresoIdEnEdicion = ingreso.ingresoId,
             estadoIngreso = estado,
             fotoPath = ingreso.fotoPath,
@@ -275,6 +276,10 @@ class RegistroViewModel(
     fun onFechaEntradaChange(valor: String) {
         cambiarCampo("fecha") { it.copy(fechaEntrada = valor) } }
 
+    // Actualiza el técnico encargado de la reparación.
+    fun onTecnicoEncargadoChange(valor: String) {
+        cambiarCampo("tecnicoEncargado") { it.copy(tecnicoEncargado = valor.take(FormularioIngreso.MAXIMO_TECNICO)) } }
+
     // Actualiza el motivo del ingreso.
     fun onMotivoIngresoChange(valor: String) {
         cambiarCampo("motivo") { it.copy(motivoIngreso = valor.take(FormularioIngreso.MAXIMO_MOTIVO)) } }
@@ -363,7 +368,8 @@ class RegistroViewModel(
                         tecnicoId = tecnicoId, motivoIngreso = formulario.motivo,
                         condicionInicial = formulario.condicion,
                         fotoPath = actual.fotoPath,
-                        fotosPaths = actual.fotosNuevas) }
+                        fotosPaths = actual.fotosNuevas,
+                        tecnicoEncargado = formulario.tecnicoEncargado) }
                 formularioInicial = formulario
                 _uiState.update {
                     it.copy(

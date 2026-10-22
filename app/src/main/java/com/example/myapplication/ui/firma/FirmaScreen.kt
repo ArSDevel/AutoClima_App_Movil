@@ -212,7 +212,8 @@ fun FirmaScreen(
             condicionInicial = ingresoEnvio.condicionInicial, hallazgos = emptyList(), checklist = emptyList(),
             comentariosChecklist = "", observaciones = "",
             conceptos = estado.conceptos.map { ConceptoReporte(it.descripcion, it.importeCentavos) },
-            totalCentavos = estado.totalCentavos, fotos = fotosActa, tecnicoId = null)
+            totalCentavos = estado.totalCentavos, fotos = fotosActa, tecnicoId = null,
+            tecnicoEncargado = ingresoEnvio.tecnicoEncargado)
         HojaEnvioReporte(
             estado = estadoEnvio,
             nombreCliente = ingresoEnvio.nombreCliente,
@@ -224,7 +225,6 @@ fun FirmaScreen(
             onCambiarReporte = envioViewModel::cambiarReporte,
             onCambiarFotos = envioViewModel::cambiarFotos,
             onEnviar = { envioViewModel.enviar(datos, mensaje, tecnicoId) },
-            onAbrirChat = { envioViewModel.abrirChat(ingresoEnvio.telefonoCliente, mensaje) },
             onCerrar = { mostrarEnvio = false
                 envioViewModel.reiniciar() }) }
 
