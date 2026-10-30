@@ -25,8 +25,7 @@ data class CamaraUiState(
     val guardadoExitoso: Boolean = false,
     val evidenciaGuardadaId: Long? = null,
     val mensajeGaleria: String? = null,
-    val errorGaleria: String? = null
-) {
+    val errorGaleria: String? = null) {
 
     // null indica que todavía no existe un expediente disponible.
     val estadoActual: EstadoIngreso?

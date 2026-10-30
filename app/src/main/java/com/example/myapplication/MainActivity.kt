@@ -16,16 +16,11 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Dibuja la interfaz por debajo de las barras del sistema; cada pantalla aplica sus márgenes.
         enableEdgeToEdge()
         setContent {
             MyApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AutoClimaApp()
-                }
-            }
-        }
-    }
-}
+                    color = MaterialTheme.colorScheme.background) {
+                    AutoClimaApp() } } } } }

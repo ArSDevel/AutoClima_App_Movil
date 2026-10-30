@@ -49,11 +49,11 @@ fun IngresoCard(
     onVerFotos: ((Long) -> Unit)? = null,
     onEditar: ((Long) -> Unit)? = null,
     onAbrirChecklist: ((Long) -> Unit)? = null,
-    onAbrirDiagnostico: ((Long) -> Unit)? = null
-) {
+    onAbrirDiagnostico: ((Long) -> Unit)? = null) {
     val colors = MaterialTheme.colorScheme
     val estado = EstadoIngreso.desdeValor(ingreso.estado)
     val locale = LocalConfiguration.current.locales[0]
+    // Fecha corta con el idioma del dispositivo; solo se recalcula si cambia la fecha o el idioma.
     val fechaFormateada = remember(ingreso.fechaEntrada, locale) {
         DateFormat.getDateInstance(DateFormat.MEDIUM, locale).format(Date(ingreso.fechaEntrada)) }
     val vehiculo = listOfNotNull(
@@ -71,21 +71,17 @@ fun IngresoCard(
             contentColor = colors.onSurface,
             disabledContainerColor = colors.surface,
             disabledContentColor = colors.onSurface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 FotoIngresoCard(ruta = ingreso.fotoPath)
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = ingreso.placa,
                         style = MaterialTheme.typography.titleLarge,
@@ -114,12 +110,10 @@ fun IngresoCard(
                                 tint = colors.primary) } } } }
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     DatoBreve(icono = Icons.Default.Person, texto = ingreso.nombreCliente)
                     DatoBreve(icono = Icons.Default.DateRange, texto = fechaFormateada) }
                 // Siguiente paso del ingreso: checklist en revisión, diagnóstico en reparación.
@@ -133,8 +127,7 @@ fun IngresoCard(
                     Button(
                         onClick = { abrirAccion(ingreso.ingresoId) },
                         shape = MaterialTheme.shapes.small,
-                        contentPadding = PaddingValues(start = 16.dp, end = 10.dp)
-                    ) {
+                        contentPadding = PaddingValues(start = 16.dp, end = 10.dp)) {
                         Text(text = stringResource(textoAccion), style = MaterialTheme.typography.labelLarge)
                         Icon(
                             imageVector = Icons.Default.ChevronRight,
@@ -146,8 +139,7 @@ fun IngresoCard(
 private fun DatoBreve(icono: ImageVector, texto: String) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
+        verticalAlignment = Alignment.CenterVertically) {
         Icon(
             imageVector = icono,
             contentDescription = null,

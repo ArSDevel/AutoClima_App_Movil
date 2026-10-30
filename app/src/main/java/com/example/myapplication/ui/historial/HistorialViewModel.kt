@@ -18,6 +18,7 @@ class HistorialViewModel(private val repository: HistorialRepository) : ViewMode
     private val _uiState = MutableStateFlow(HistorialUiState())
     val uiState = _uiState.asStateFlow()
     private var observacion: Job? = null
+    // Cantidad de actividades que se piden; se consulta una más para saber si hay otra página.
     private var limite = 50
     // Impide que una consulta anterior publique sobre criterios más recientes.
     private var solicitud = 0L

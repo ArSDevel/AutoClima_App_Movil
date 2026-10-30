@@ -31,23 +31,19 @@ import com.example.myapplication.ui.registro.RegistroUiState
 // Permite volver sin esperar a que termine la consulta.
 @Composable
 internal fun CargaInicialRegistro(
-    onVolver: () -> Unit
-) {
+    onVolver: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Surface(
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.primaryContainer
-        ) {
+            color = MaterialTheme.colorScheme.primaryContainer) {
             Box(
                 modifier = Modifier.size(80.dp),
-                contentAlignment = Alignment.Center
-            ) {
+                contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(36.dp),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -68,8 +64,7 @@ internal fun CargaInicialRegistro(
 internal fun ErrorCargaRegistro(
     mensaje: String,
     onReintentar: () -> Unit,
-    onVolver: () -> Unit
-) {
+    onVolver: () -> Unit) {
     val colors = MaterialTheme.colorScheme
 
     Column(
@@ -77,17 +72,14 @@ internal fun ErrorCargaRegistro(
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Surface(
             shape = CircleShape,
             color = colors.errorContainer,
-            contentColor = colors.onErrorContainer
-        ) {
+            contentColor = colors.onErrorContainer) {
             Box(
                 modifier = Modifier.size(80.dp),
-                contentAlignment = Alignment.Center
-            ) {
+                contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Icons.Default.ErrorOutline,
                     contentDescription = null,
@@ -106,14 +98,12 @@ internal fun ErrorCargaRegistro(
 
         Button(
             onClick = onReintentar,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.dashboard_retry)) }
 
         TextButton(
             onClick = onVolver,
-            modifier = Modifier.fillMaxWidth()
-        ) {
+            modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.registro_back_dashboard)) } } }
 
 // Confirmación visual después de registrar o editar.
@@ -123,8 +113,7 @@ internal fun ResultadoRegistro(
     uiState: RegistroUiState,
     onNuevaCaptura: () -> Unit,
     onVolver: () -> Unit,
-    onVerIngreso: ((Long) -> Unit)?
-) {
+    onVerIngreso: ((Long) -> Unit)?) {
     val colors = MaterialTheme.colorScheme
 
     Column(
@@ -132,17 +121,14 @@ internal fun ResultadoRegistro(
             .fillMaxWidth()
             .padding(vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+        verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Surface(
             shape = CircleShape,
             color = colors.primaryContainer,
-            contentColor = colors.onPrimaryContainer
-        ) {
+            contentColor = colors.onPrimaryContainer) {
             Box(
                 modifier = Modifier.size(80.dp),
-                contentAlignment = Alignment.Center
-            ) {
+                contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = null,
@@ -161,8 +147,7 @@ internal fun ResultadoRegistro(
             Surface(
                 shape = MaterialTheme.shapes.small,
                 color = colors.surfaceVariant,
-                contentColor = colors.onSurfaceVariant
-            ) {
+                contentColor = colors.onSurfaceVariant) {
                 Text(
                     text = stringResource(
                         R.string.registro_saved_identifier,
@@ -176,8 +161,7 @@ internal fun ResultadoRegistro(
                 Button(
                     enabled = !uiState.cargando,
                     onClick = { abrir(id) },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                    modifier = Modifier.fillMaxWidth()) {
                     Text(
                         stringResource(
                             R.string.dashboard_card_view_detail)) } } }
@@ -186,8 +170,7 @@ internal fun ResultadoRegistro(
             OutlinedButton(
                 enabled = !uiState.cargando,
                 onClick = onNuevaCaptura,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+                modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.registro_another)) } }
 
         if (uiState.esEdicion && onVerIngreso == null) {
@@ -195,14 +178,12 @@ internal fun ResultadoRegistro(
             Button(
                 enabled = !uiState.cargando,
                 onClick = onVolver,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+                modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.registro_back_detail)) }
         } else {
             TextButton(
                 enabled = !uiState.cargando,
                 onClick = onVolver,
-                modifier = Modifier.fillMaxWidth()
-            ) {
+                modifier = Modifier.fillMaxWidth()) {
                 // Al editar se regresa a la pantalla de donde se llegó; al crear, a la lista.
                 Text(stringResource(if (uiState.esEdicion) R.string.registro_back else R.string.registro_back_dashboard)) } } } }

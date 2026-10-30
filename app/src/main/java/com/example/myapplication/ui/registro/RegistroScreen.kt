@@ -86,7 +86,6 @@ import com.example.myapplication.ui.components.DialogoAviso
 import com.example.myapplication.ui.components.TipoAviso
 
 // Conecta el estado y las acciones del ViewModel con la interfaz.
-
 @Composable
 fun RegistroScreen(
     viewModel: RegistroViewModel,
@@ -94,11 +93,10 @@ fun RegistroScreen(
     onMenuSeleccionado: (DashboardMenuOption) -> Unit,
     tecnicoId: Long,
     onTomarFotoClick: () -> Unit,
-    onEscanearPlacaClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     onVerIngreso: ((Long) -> Unit)? = null,
-    onVolver: () -> Unit = {}
-) {
+    onVolver: () -> Unit = {},
+    onEscanearPlacaClick: () -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     RegistroContent(
@@ -123,7 +121,6 @@ fun RegistroScreen(
         onNuevaCaptura = viewModel::resetRegistroExitoso,
         onReintentarCarga = viewModel::reintentarCarga,
         onTomarFotoClick = onTomarFotoClick,
-        onEscanearPlacaClick = onEscanearPlacaClick,
         onSeleccionarFoto = viewModel::seleccionarFotoPrincipal,
         onQuitarFoto = viewModel::quitarFotoPendiente,
         onPasoChange = viewModel::cambiarPaso,
@@ -132,16 +129,16 @@ fun RegistroScreen(
         onMenuSeleccionado = onMenuSeleccionado,
         onVerIngreso = onVerIngreso,
         onVolver = onVolver,
+        onEscanearPlacaClick = onEscanearPlacaClick,
         modifier = modifier
     )
 }
 
+
 // Solo se utilizan para organizar los callbacks de esta pantalla.
 private enum class CampoRegistro {
-    PLACA, MODELO, COLOR, SERIE, NOMBRE,
-    TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION
+    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION
 }
-
 // A dónde se quiere ir al salir del formulario.
 private enum class SalidaRegistro {
     // Volver a la pantalla anterior (flecha, ×, atrás del sistema).
@@ -166,14 +163,14 @@ private fun RegistroContent(
     onLogout: () -> Unit,
     onMenuSeleccionado: (DashboardMenuOption) -> Unit,
     onTomarFotoClick: () -> Unit,
-    onEscanearPlacaClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     onVerIngreso: ((Long) -> Unit)? = null,
     onSeleccionarFoto: (String) -> Unit = {},
     onQuitarFoto: (String) -> Unit = {},
     onPasoChange: (Int) -> Unit = {},
     onValidarPaso: (Int) -> Boolean = { true },
-    onVolver: () -> Unit = {}) {
+    onVolver: () -> Unit = {},
+    onEscanearPlacaClick: () -> Unit = {}) {
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val snackbar = remember { SnackbarHostState() }
@@ -415,24 +412,20 @@ private fun RegistroContent(
                                             } else null,
                                         habilitado = datosCompletosHabilitados,
                                         destacado = true,
-                                        // Botón de escaneo de placa inactivo (semitransparente): la lectura de la
-                                        // placa todavía no está disponible.
+                                        // Botón que abre el escáner de placa con la cámara.
                                         contenidoFinal = {
                                             OutlinedButton(
                                                 onClick = onEscanearPlacaClick,
                                                 enabled = datosCompletosHabilitados,
                                                 modifier = Modifier.padding(end = 8.dp),
-                                                shape = RoundedCornerShape(12.dp)
-                                            ) {
-                                                Icon(
-                                                    Icons.Default.PhotoCamera,
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                                Text("Escanear")
-                                            }
-                                        },
-                                        ayuda = stringResource(R.string.registro_scan_pending),
+                                                shape = RoundedCornerShape(12.dp),
+                                                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                                                    horizontal = 12.dp, vertical = 8.dp)) {
+                                                Icon(Icons.Default.PhotoCamera, contentDescription = "Escanear placa",
+                                                    modifier = Modifier.size(20.dp))
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text(text = "Escanear", style = MaterialTheme.typography.labelLarge) } },
+                                        ayuda = "También puedes escanear la placa con la cámara.",
                                         onCambio = { onCampoChange(CampoRegistro.PLACA, it) })
                                     CampoRegistroTexto(
                                         etiqueta = R.string.dashboard_model,

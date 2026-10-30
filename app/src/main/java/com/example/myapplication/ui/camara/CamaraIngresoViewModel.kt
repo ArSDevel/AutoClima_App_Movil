@@ -23,6 +23,7 @@ class CamaraIngresoViewModel(
     private val _uiState = MutableStateFlow(CamaraUiState())
     val uiState = _uiState.asStateFlow()
 
+    // Observación activa del ingreso y sus fotografías; se cancela antes de volver a cargar.
     private var observacion: Job? = null
 
     init {
@@ -169,6 +170,7 @@ class CamaraIngresoViewModel(
 
         viewModelScope.launch {
             try {
+                // El archivo se borra en un hilo de entrada y salida; si ya no existe se considera descartado.
                 val eliminada = withContext(Dispatchers.IO) {
                     val archivo = File(ruta)
                     !archivo.exists() || archivo.delete() }

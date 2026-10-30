@@ -20,11 +20,7 @@ class ChecklistViewModelFactory(
                 ingresoId = ingresoId,
                 repo = repo,
                 dashboardRepository = dashboardRepository
-            ) as T
-        }
+            ) as T }
 
         throw IllegalArgumentException(
-            "ViewModel desconocido: ${modelClass.name}"
-        )
-    }
-}
+            "ViewModel desconocido: ${modelClass.name}") } }

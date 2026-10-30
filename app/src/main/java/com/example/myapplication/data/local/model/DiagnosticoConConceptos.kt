@@ -6,5 +6,4 @@ import com.example.myapplication.data.local.entity.Diagnostico
 // Resultado de consultar un diagnóstico y su cotización.
 data class DiagnosticoConConceptos(
     val diagnostico: Diagnostico,
-    val conceptos: List<ConceptoCotizacion>
-)
+    val conceptos: List<ConceptoCotizacion>)

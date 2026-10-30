@@ -6,12 +6,15 @@ import androidx.room.Query
 import androidx.room.Update
 import com.example.myapplication.data.local.entity.Vehiculo
 
+// Consultas de los vehículos registrados.
 @Dao
 interface VehiculoDao {
 
+    // Registra un vehículo y devuelve su identificador.
     @Insert
     suspend fun insertar(vehiculo: Vehiculo): Long
 
+    // La placa es única; la usa el registro para reutilizar el vehículo de un ingreso anterior.
     @Query("SELECT * FROM vehiculo WHERE placa = :placa LIMIT 1")
     suspend fun buscarPorPlaca(placa: String): Vehiculo?
 
@@ -21,5 +24,4 @@ interface VehiculoDao {
 
     // Devuelve la cantidad de filas actualizadas.
     @Update
-    suspend fun actualizar(vehiculo: Vehiculo): Int
-}
+    suspend fun actualizar(vehiculo: Vehiculo): Int }

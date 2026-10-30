@@ -51,8 +51,7 @@ data class ChecklistUiState(
 
     // Activa los avisos de preguntas pendientes después
     // de intentar guardar un checklist incompleto.
-    val mostrarPreguntasPendientes: Boolean = false
-) {
+    val mostrarPreguntasPendientes: Boolean = false) {
 
     // Agrupa las respuestas para calcular el avance.
     // No almacena una segunda copia del formulario.
@@ -66,8 +65,7 @@ data class ChecklistUiState(
             bandaCompresorDesgastada,
             funcionanAbanicosRadiador,
             filtroCabinaSucioUObstruido,
-            condensadorObstruido
-        )
+            condensadorObstruido)
 
     val totalPreguntas: Int
         get() = respuestas.size
@@ -95,8 +93,7 @@ data class ChecklistUiState(
 
     val estadoActual: EstadoIngreso?
         get() = ingreso?.let {
-            EstadoIngreso.desdeValor(it.estado)
-        }
+            EstadoIngreso.desdeValor(it.estado) }
 
     // Respeta las mismas etapas que valida el repositorio.
     val permiteEdicion: Boolean
@@ -115,5 +112,4 @@ data class ChecklistUiState(
     // Mantener habilitado el botón permite mostrar qué falta.
     val puedeGuardar: Boolean
         get() = puedeModificar &&
-                (checklistId == null || tieneCambiosSinGuardar)
-}
+                (checklistId == null || tieneCambiosSinGuardar) }

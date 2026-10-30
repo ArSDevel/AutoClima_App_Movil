@@ -7,6 +7,7 @@ import androidx.room.Update
 import com.example.myapplication.data.local.entity.ConceptoCotizacion
 import com.example.myapplication.data.local.entity.Diagnostico
 
+// Consultas del diagnóstico y de los conceptos de su cotización.
 @Dao
 interface DiagnosticoDao {
 
@@ -18,8 +19,7 @@ interface DiagnosticoDao {
         FROM diagnostico
         WHERE ingresoId = :ingresoId
         LIMIT 1
-        """
-    )
+        """)
     suspend fun obtenerPorIngreso(
         ingresoId: Long
     ): Diagnostico?
@@ -44,8 +44,7 @@ interface DiagnosticoDao {
         FROM concepto_cotizacion
         WHERE diagnosticoId = :diagnosticoId
         ORDER BY orden ASC, conceptoId ASC
-        """
-    )
+        """)
     suspend fun obtenerConceptos(
         diagnosticoId: Long
     ): List<ConceptoCotizacion>
@@ -65,9 +64,7 @@ interface DiagnosticoDao {
         """
         DELETE FROM concepto_cotizacion
         WHERE diagnosticoId = :diagnosticoId
-        """
-    )
+        """)
     suspend fun eliminarConceptos(
         diagnosticoId: Long
-    ): Int
-}
+    ): Int }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+// Estado y operaciones del checklist de un ingreso: carga, edición de respuestas y guardado.
 class ChecklistViewModel(
     private val ingresoId: Long,
     private val repo: ChecklistRepository,
@@ -28,8 +29,7 @@ class ChecklistViewModel(
     private var formularioInicial = _uiState.value.datosFormulario()
 
     init {
-        cargarChecklist()
-    }
+        cargarChecklist() }
 
     // Carga el ingreso y el checklist asociado.
     // Cuando no existe un checklist, las preguntas quedan pendientes.
@@ -39,18 +39,14 @@ class ChecklistViewModel(
         if (ingresoId <= 0) {
             _uiState.value = ChecklistUiState(
                 cargando = false,
-                errorCarga = "El identificador del ingreso no es válido."
-            )
-            return
-        }
+                errorCarga = "El identificador del ingreso no es válido.")
+            return }
 
         _uiState.update {
             it.copy(
                 cargando = true,
                 errorCarga = null,
-                ingresoNoEncontrado = false
-            )
-        }
+                ingresoNoEncontrado = false) }
 
         cargaJob = viewModelScope.launch {
             try {
@@ -61,10 +57,8 @@ class ChecklistViewModel(
                 if (ingreso == null) {
                     _uiState.value = ChecklistUiState(
                         cargando = false,
-                        ingresoNoEncontrado = true
-                    )
-                    return@launch
-                }
+                        ingresoNoEncontrado = true)
+                    return@launch }
 
                 val checklist = repo.obtenerPorIngreso(ingresoId)
 
@@ -95,8 +89,7 @@ class ChecklistViewModel(
 
                     comentarios = checklist?.comentarios.orEmpty(),
                     fechaUltimoGuardado = checklist?.fecha,
-                    cargando = false
-                )
+                    cargando = false)
 
                 formularioInicial = nuevoEstado.datosFormulario()
                 _uiState.value = nuevoEstado
@@ -107,12 +100,7 @@ class ChecklistViewModel(
                     it.copy(
                         cargando = false,
                         errorCarga = error.message
-                            ?: "No fue posible cargar el checklist."
-                    )
-                }
-            }
-        }
-    }
+                            ?: "No fue posible cargar el checklist.") } } } }
 
     // Reintenta una carga fallida sin sobrescribir
     // las respuestas que el usuario ya está modificando.
@@ -123,80 +111,61 @@ class ChecklistViewModel(
             actual.cargando ||
             actual.guardando ||
             actual.tieneCambiosSinGuardar ||
-            actual.guardadoExitoso
-        ) {
-            return
-        }
+            actual.guardadoExitoso) {
+            return }
 
         if (actual.errorCarga == null && !actual.ingresoNoEncontrado) {
-            return
-        }
+            return }
 
-        cargarChecklist()
-    }
+        cargarChecklist() }
 
     // Centraliza las modificaciones del formulario.
     // Respeta el estado del ingreso y bloquea cambios al guardar.
     private fun cambiarCampo(
-        transformar: (ChecklistUiState) -> ChecklistUiState
-    ) {
+        transformar: (ChecklistUiState) -> ChecklistUiState) {
         _uiState.update { actual ->
             if (!actual.puedeModificar) {
-                return@update actual
-            }
+                return@update actual }
 
             val modificado = transformar(actual)
 
             modificado.copy(
                 errorGuardado = null,
                 tieneCambiosSinGuardar =
-                    modificado.datosFormulario() != formularioInicial
-            )
-        }
-    }
+                    modificado.datosFormulario() != formularioInicial) } }
 
     // Refrigerante y fugas.
     fun onFaltaGasRefrigeranteChange(valor: Boolean) {
-        cambiarCampo { it.copy(faltaGasRefrigerante = valor) }
-    }
+        cambiarCampo { it.copy(faltaGasRefrigerante = valor) } }
 
     fun onFugaVisibleManguerasChange(valor: Boolean) {
-        cambiarCampo { it.copy(fugaVisibleMangueras = valor) }
-    }
+        cambiarCampo { it.copy(fugaVisibleMangueras = valor) } }
 
     fun onFugasDetectadasLuzUVChange(valor: Boolean) {
-        cambiarCampo { it.copy(fugasDetectadasLuzUV = valor) }
-    }
+        cambiarCampo { it.copy(fugasDetectadasLuzUV = valor) } }
 
     // Compresor y transmisión.
     fun onCompresorEmbragaAlEncenderChange(valor: Boolean) {
-        cambiarCampo { it.copy(compresorEmbragaAlEncender = valor) }
-    }
+        cambiarCampo { it.copy(compresorEmbragaAlEncender = valor) } }
 
     fun onCompresorDanadoOAmarradoChange(valor: Boolean) {
-        cambiarCampo { it.copy(compresorDanadoOAmarrado = valor) }
-    }
+        cambiarCampo { it.copy(compresorDanadoOAmarrado = valor) } }
 
     fun onBandaCompresorDesgastadaChange(valor: Boolean) {
-        cambiarCampo { it.copy(bandaCompresorDesgastada = valor) }
-    }
+        cambiarCampo { it.copy(bandaCompresorDesgastada = valor) } }
 
     // Ventilación y limpieza.
     fun onFuncionanAbanicosRadiadorChange(valor: Boolean) {
-        cambiarCampo { it.copy(funcionanAbanicosRadiador = valor) }
-    }
+        cambiarCampo { it.copy(funcionanAbanicosRadiador = valor) } }
 
     fun onFiltroCabinaSucioUObstruidoChange(valor: Boolean) {
-        cambiarCampo { it.copy(filtroCabinaSucioUObstruido = valor) }
-    }
+        cambiarCampo { it.copy(filtroCabinaSucioUObstruido = valor) } }
 
     fun onCondensadorObstruidoChange(valor: Boolean) {
-        cambiarCampo { it.copy(condensadorObstruido = valor) }
-    }
+        cambiarCampo { it.copy(condensadorObstruido = valor) } }
 
     fun onComentariosChange(valor: String) {
-        cambiarCampo { it.copy(comentarios = valor) }
-    }
+        cambiarCampo { it.copy(comentarios = valor) } }
 
     // Comprueba las respuestas y guarda con el técnico autenticado.
     // No utiliza un identificador de técnico predeterminado.
@@ -206,46 +175,34 @@ class ChecklistViewModel(
         if (
             !actual.formularioDisponible ||
             actual.guardando ||
-            actual.guardadoExitoso
-        ) {
-            return
-        }
+            actual.guardadoExitoso) {
+            return }
 
         if (tecnicoId <= 0) {
             _uiState.update {
                 it.copy(
-                    errorGuardado = "Inicia sesión nuevamente para continuar."
-                )
-            }
-            return
-        }
+                    errorGuardado = "Inicia sesión nuevamente para continuar.") }
+            return }
 
         if (!actual.permiteEdicion) {
             _uiState.update {
                 it.copy(
                     errorGuardado = "El checklist solo se puede modificar " +
-                            "durante la revisión o la reparación."
-                )
-            }
-            return
-        }
+                            "durante la revisión o la reparación.") }
+            return }
 
         // No convierte respuestas pendientes en "No".
         if (!actual.estaCompleto) {
             _uiState.update {
                 it.copy(
                     mostrarPreguntasPendientes = true,
-                    errorGuardado = "Responde las nueve preguntas antes de guardar."
-                )
-            }
-            return
-        }
+                    errorGuardado = "Responde las nueve preguntas antes de guardar.") }
+            return }
 
         // Evita operaciones innecesarias si ya está guardado
         // y el usuario no modificó ninguna respuesta.
         if (actual.checklistId != null && !actual.tieneCambiosSinGuardar) {
-            return
-        }
+            return }
 
         // Se activa antes de lanzar la corrutina para evitar
         // que dos pulsaciones inicien guardados simultáneos.
@@ -253,12 +210,11 @@ class ChecklistViewModel(
             it.copy(
                 guardando = true,
                 errorGuardado = null,
-                mostrarPreguntasPendientes = false
-            )
-        }
+                mostrarPreguntasPendientes = false) }
 
         viewModelScope.launch {
             try {
+                // estaCompleto garantiza que ninguna respuesta es null, por eso requireNotNull no falla.
                 val checklistId = repo.guardarChecklist(
                     ingresoId = ingresoId,
                     faltaGasRefrigerante =
@@ -280,8 +236,7 @@ class ChecklistViewModel(
                     condensadorObstruido =
                         requireNotNull(actual.condensadorObstruido),
                     comentarios = actual.comentarios,
-                    tecnicoId = tecnicoId
-                )
+                    tecnicoId = tecnicoId)
 
                 formularioInicial = actual.datosFormulario()
 
@@ -292,57 +247,37 @@ class ChecklistViewModel(
                     it.copy(
                         checklistId = checklistId,
                         guardadoExitoso = true,
-                        tieneCambiosSinGuardar = false
-                    )
-                }
+                        tieneCambiosSinGuardar = false) }
 
                 try {
                     val guardado = repo.obtenerPorIngreso(ingresoId)
 
                     _uiState.update {
-                        it.copy(fechaUltimoGuardado = guardado?.fecha)
-                    }
+                        it.copy(fechaUltimoGuardado = guardado?.fecha) }
                 } catch (cancelacion: CancellationException) {
                     throw cancelacion
                 } catch (_: Exception) {
                     // No muestra una fecha anterior como si
                     // correspondiera al último guardado.
                     _uiState.update {
-                        it.copy(fechaUltimoGuardado = null)
-                    }
-                }
+                        it.copy(fechaUltimoGuardado = null) } }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (error: Exception) {
                 _uiState.update {
                     it.copy(
                         errorGuardado = error.message
-                            ?: "No fue posible guardar el checklist."
-                    )
-                }
+                            ?: "No fue posible guardar el checklist.") }
             } finally {
-                _uiState.update { it.copy(guardando = false) }
-            }
-        }
-    }
+                _uiState.update { it.copy(guardando = false) } } } }
 
     // La pantalla consume el resultado después de mostrar
     // la confirmación. Conserva las respuestas guardadas.
     fun consumirGuardadoExitoso() {
         if (_uiState.value.guardando) {
-            return
-        }
+            return }
 
-        _uiState.update { it.copy(guardadoExitoso = false) }
-    }
-
-    fun limpiarErrorGuardado() {
-        if (_uiState.value.guardando) {
-            return
-        }
-
-        _uiState.update { it.copy(errorGuardado = null) }
-    }
+        _uiState.update { it.copy(guardadoExitoso = false) } }
 
     // Compara únicamente las respuestas y los comentarios.
     // Los cambios de carga, fecha o mensajes no ensucian el formulario.
@@ -357,7 +292,4 @@ class ChecklistViewModel(
             funcionanAbanicosRadiador,
             filtroCabinaSucioUObstruido,
             condensadorObstruido,
-            comentarios.trim()
-        )
-    }
-}
+            comentarios.trim()) } }

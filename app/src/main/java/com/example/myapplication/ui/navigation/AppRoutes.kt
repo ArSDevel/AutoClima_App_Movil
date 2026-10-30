@@ -71,3 +71,22 @@ data class EvidenciasIngresoRoute(
 @Serializable
 data class HistorialRoute(val userId: String) : NavKey
 
+// Selección del ingreso que se va a firmar o entregar.
+@Serializable
+data class SeleccionIngresoFirmaRoute(
+    val userId: String
+) : NavKey
+
+// Firma del cliente de un ingreso listo para firma.
+@Serializable
+data class FirmaRoute(
+    val userId: String,
+    val ingresoId: Long
+) : NavKey
+
+// Entrega del vehículo de un ingreso firmado.
+@Serializable
+data class EntregaRoute(
+    val userId: String,
+    val ingresoId: Long
+) : NavKey

@@ -19,8 +19,7 @@ data class DashboardUiState(
     val ingresos: List<IngresoResumen> = emptyList(),
     // Estado de la consulta.
     val cargando: Boolean = true,
-    val hayError: Boolean = false
-) {
+    val hayError: Boolean = false) {
     // Cambiar el orden no se considera un filtro.
     val hayFiltrosActivos: Boolean
         get() = textoBusqueda.isNotBlank() || estadoSeleccionado != null ||
@@ -29,5 +28,4 @@ data class DashboardUiState(
     // Cantidad del listado filtrado.
     // Se muestra cuando la consulta termina sin errores.
     val cantidadResultados: Int
-        get() = ingresos.size
-}
+        get() = ingresos.size }

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FilterChip
@@ -51,8 +50,7 @@ fun HistorialScreen(
     onVolver: () -> Unit,
     onAbrirIngreso: (Long) -> Unit,
     onMenuSeleccionado: (DashboardMenuOption) -> Unit = {},
-    onLogout: () -> Unit = {}
-) {
+    onLogout: () -> Unit = {}) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -70,8 +68,7 @@ fun HistorialScreen(
                     scope.launch {
                         drawerState.close()
                         if (opcion != DashboardMenuOption.HISTORIAL) onMenuSeleccionado(opcion) } },
-                onLogout = { scope.launch { drawerState.close(); onLogout() } }) }
-    ) {
+                onLogout = { scope.launch { drawerState.close(); onLogout() } }) }) {
         Scaffold(
             containerColor = colors.background,
             topBar = {
@@ -88,8 +85,7 @@ fun HistorialScreen(
                                 val colocable = medible.measure(restricciones)
                                 val solape = 28.dp.roundToPx()
                                 layout(colocable.width, colocable.height - solape) {
-                                    colocable.place(0, -solape) } }
-                    ) {
+                                    colocable.place(0, -solape) } }) {
                         BuscadorIngreso(
                             textoBusqueda = estado.busqueda,
                             onBusquedaChange = viewModel::buscar,
@@ -99,8 +95,7 @@ fun HistorialScreen(
                 LazyColumn(
                     modifier = Modifier.widthIn(max = 720.dp).fillMaxSize(),
                     contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     item(key = "filtros") {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             item {

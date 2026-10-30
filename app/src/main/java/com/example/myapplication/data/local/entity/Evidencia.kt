@@ -20,7 +20,9 @@ data class Evidencia(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
+    // Ruta absoluta del archivo de la imagen.
     val rutaImagen: String,
+    // null en las fotografías antiguas que no se pudieron asignar a un ingreso.
     val ingresoId: Long? = null,
 
     // Técnico que registró la evidencia.

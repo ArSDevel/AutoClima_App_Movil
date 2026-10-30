@@ -1,8 +1,6 @@
 package com.example.myapplication.ui.login
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -53,9 +50,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -79,8 +74,7 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier) {
     // Obtenemos el estado actual del ViewModel.
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     // Mantiene actualizado el callback sin reiniciar el efecto.
@@ -102,8 +96,7 @@ fun LoginContent(
     onIdChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onLoginClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier) {
     // Colores normalizados, bordes y tipografía para la UI.
     val colors = MaterialTheme.colorScheme
     val shapes = MaterialTheme.shapes
@@ -153,15 +146,13 @@ fun LoginContent(
 
     Box(modifier = modifier
             .fillMaxSize().background(brush = backgroundGradient).safeDrawingPadding()
-            .imePadding()
-    ) {
+            .imePadding()) {
         // Centra el formulario cuando hay espacio y permite
         // desplazarlo cuando aparece el teclado.
         Column(modifier = Modifier
                 .fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
+            verticalArrangement = Arrangement.Center) {
             // Tarjeta central redondeada.
             Card(shape = shapes.extraLarge,
                 colors = CardDefaults.cardColors(
@@ -174,16 +165,14 @@ fun LoginContent(
             ) { Column(
                     modifier = Modifier.fillMaxWidth()
                         .padding(horizontal = 24.dp, vertical = 32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
+                    horizontalAlignment = Alignment.CenterHorizontally) {
                     // Logo con fondo transparente; en modo oscuro usa la versión de texto claro.
                     com.example.myapplication.ui.components.LogoAutoClimas(
                         descripcion = stringResource(R.string.login_logo_description),
                         modifier = Modifier.width(240.dp).height(164.dp))
                     Spacer(modifier = Modifier.height(28.dp))
                     // Campo de entrada: ID de usuario.
-                    Column(modifier = Modifier.fillMaxWidth()
-                    ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
                         Text(text = etiquetaUsuario, style = typography.labelLarge, color = colors.onSurface)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -205,8 +194,7 @@ fun LoginContent(
                                 style = typography.bodySmall, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) } }
                     Spacer(modifier = Modifier.height(16.dp))
                     // Campo de entrada: Contraseña.
-                    Column(modifier = Modifier.fillMaxWidth()
-                    ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
                         Text(text = etiquetaPassword, style = typography.labelLarge, color = colors.onSurface)
                         Spacer(modifier = Modifier.height(6.dp))
                         OutlinedTextField(
@@ -220,8 +208,7 @@ fun LoginContent(
                                 VisualTransformation.None } else { PasswordVisualTransformation() },
                             trailingIcon = {
                                 IconButton(enabled = formularioHabilitado,
-                                    onClick = { passwordVisible = !passwordVisible}
-                                ) {
+                                    onClick = { passwordVisible = !passwordVisible}) {
                                     Icon(imageVector = if (passwordVisible) {
                                         Icons.Filled.Visibility
                                         } else { Icons.Filled.VisibilityOff },

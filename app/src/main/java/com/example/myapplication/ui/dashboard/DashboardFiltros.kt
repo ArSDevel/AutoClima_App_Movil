@@ -1,7 +1,7 @@
 package com.example.myapplication.ui.dashboard
 
-//Periodos disponibles para filtrar por fecha de entrada.
-// Los límites se calcularán según la zona horaria del dispositivo.
+// Periodos disponibles para filtrar por fecha de entrada.
+// Los límites se calculan según la zona horaria del dispositivo.
 enum class FiltroFechaIngreso {
     // No limita la fecha de entrada.
     TODAS,
@@ -10,12 +10,10 @@ enum class FiltroFechaIngreso {
     // Hoy y los seis días anteriores.
     ULTIMOS_SIETE_DIAS,
     // Desde el primer día del mes hasta el inicio del siguiente.
-    ESTE_MES
-}
+    ESTE_MES }
 
-//Orden del listado.
+// Orden del listado.
 enum class OrdenIngreso {
     RECIENTES,
     ANTIGUOS,
-    PLACA_ASCENDENTE
-}
+    PLACA_ASCENDENTE }

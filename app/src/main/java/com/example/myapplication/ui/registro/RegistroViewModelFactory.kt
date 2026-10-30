@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.data.local.repository.DashboardRepository
 import com.example.myapplication.data.repository.RegistroRepository
 
+// Crea el ViewModel del registro; con ingresoId abre la edición de ese ingreso.
 class RegistroViewModelFactory(
     private val repo: RegistroRepository,
     private val dashboardRepository: DashboardRepository,
@@ -14,9 +15,6 @@ class RegistroViewModelFactory(
         if (modelClass.isAssignableFrom(RegistroViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return RegistroViewModel(repo = repo, dashboardRepository = dashboardRepository,
-                ingresoId = ingresoId) as T
-        }
+                ingresoId = ingresoId) as T }
 
-        throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
-    }
-}
+        throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}") } }

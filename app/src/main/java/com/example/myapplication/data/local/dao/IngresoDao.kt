@@ -24,6 +24,7 @@ interface IngresoDao {
     // Las fechas van en milisegundos: fechaDesde incluye el instante y fechaHastaExclusiva lo excluye;
     // null omite ese límite. Los órdenes son RECIENTES, ANTIGUOS y PLACA_ASCENDENTE,
     // y cualquier otro valor usa el orden por fecha reciente.
+    // Room reemite la lista cada vez que cambian las tablas consultadas.
     @Query("""SELECT
             i.ingresoId AS ingresoId,v.placa AS placa,v.modelo AS modelo,v.color AS color,
             v.numeroSerie AS numeroSerie,c.nombre AS nombreCliente,c.telefono AS telefonoCliente,c.email AS emailCliente,
@@ -65,13 +66,23 @@ interface IngresoDao {
     suspend fun actualizar(ingreso: Ingreso): Int
 
     // El repositorio debe validar primero si se permite eliminar.
+    // La eliminación arrastra el historial, el checklist, el diagnóstico y la firma; las evidencias la impiden (RESTRICT).
     @Query("DELETE FROM ingreso WHERE ingresoId = :id")
-    suspend fun eliminar(id: Long): Int
+        suspend fun eliminar(id: Long): Int
 
     // Historial del ingreso.
     // Guarda un evento y devuelve su identificador.
     @Insert
     suspend fun insertarEvento(evento: EventoIngreso): Long
+
+    // Último cambio de estado hacia un estado dado, por ejemplo la entrega.
+    @Query("""SELECT * FROM evento_ingreso WHERE ingresoId = :id AND accion = 'ESTADO'
+        AND estadoNuevo = :estado ORDER BY fecha DESC, eventoId DESC LIMIT 1""")
+    suspend fun ultimoCambioHacia(id: Long, estado: String): EventoIngreso?
+
+    // Cuenta los ingresos de un vehículo que todavía no se entregan ni se cancelan.
+    @Query("SELECT COUNT(*) FROM ingreso WHERE vehiculoId = :vehiculoId AND estado NOT IN ('ENTREGADO', 'CANCELADO')")
+    suspend fun contarAbiertosDelVehiculo(vehiculoId: Long): Int
 
     // Observa el historial, mostrando primero lo más reciente.
     @Query("SELECT * FROM evento_ingreso WHERE ingresoId = :id ORDER BY fecha DESC, eventoId DESC")

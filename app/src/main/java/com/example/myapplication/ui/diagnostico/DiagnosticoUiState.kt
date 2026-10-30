@@ -8,7 +8,7 @@ import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.repository.DiagnosticoRepository
 
 // Identifica los hallazgos sin guardar textos de interfaz.
-// La pantalla utilizará strings.xml para mostrar cada descripción.
+// La pantalla usa strings.xml para mostrar cada descripción.
 enum class HallazgoDiagnostico {
     FALTA_REFRIGERANTE,
     FUGA_VISIBLE_MANGUERAS,
@@ -18,8 +18,7 @@ enum class HallazgoDiagnostico {
     BANDA_DESGASTADA,
     VENTILADORES_NO_FUNCIONAN,
     FILTRO_OBSTRUIDO,
-    CONDENSADOR_OBSTRUIDO
-}
+    CONDENSADOR_OBSTRUIDO }
 
 // Información utilizada por la pantalla del diagnóstico.
 // No realiza consultas ni guarda cambios en la base de datos.
@@ -54,8 +53,7 @@ data class DiagnosticoUiState(
     val guardadoExitoso: Boolean = false,
 
     // Permite advertir antes de abandonar el formulario.
-    val tieneCambiosSinGuardar: Boolean = false
-) {
+    val tieneCambiosSinGuardar: Boolean = false) {
 
     // Accesos a los campos del formulario sin duplicar sus valores.
     val observaciones: String
@@ -66,11 +64,10 @@ data class DiagnosticoUiState(
 
     val estadoActual: EstadoIngreso?
         get() = ingreso?.let {
-            EstadoIngreso.desdeValor(it.estado)
-        }
+            EstadoIngreso.desdeValor(it.estado) }
 
     // El reporte puede mostrarse aunque aún no exista un checklist.
-    // En ese caso se indicará que la revisión está pendiente.
+    // En ese caso se indica que la revisión está pendiente.
     val reporteDisponible: Boolean
         get() = !cargando &&
                 errorCarga == null &&
@@ -96,15 +93,10 @@ data class DiagnosticoUiState(
                 !guardadoExitoso
 
     // El botón permite intentar guardar para señalar los campos
-    // inválidos. El ViewModel y el repositorio harán la validación.
+    // inválidos. El ViewModel y el repositorio hacen la validación.
     val puedeGuardar: Boolean
         get() = puedeModificar &&
                 (diagnosticoId == null || tieneCambiosSinGuardar)
-
-    // Sin conceptos, la cotización está pendiente.
-    // Una cotización con conceptos de importe cero sí existe.
-    val cotizacionPendiente: Boolean
-        get() = !formulario.tieneCotizacion
 
     // null significa que algún importe no es válido
     // o que la suma supera el rango permitido.
@@ -124,40 +116,28 @@ data class DiagnosticoUiState(
 
             return buildList {
                 if (respuestas.faltaGasRefrigerante) {
-                    add(HallazgoDiagnostico.FALTA_REFRIGERANTE)
-                }
+                    add(HallazgoDiagnostico.FALTA_REFRIGERANTE) }
 
                 if (respuestas.fugaVisibleMangueras) {
-                    add(HallazgoDiagnostico.FUGA_VISIBLE_MANGUERAS)
-                }
+                    add(HallazgoDiagnostico.FUGA_VISIBLE_MANGUERAS) }
 
                 if (respuestas.fugasDetectadasLuzUV) {
-                    add(HallazgoDiagnostico.FUGA_DETECTADA_UV)
-                }
+                    add(HallazgoDiagnostico.FUGA_DETECTADA_UV) }
 
                 if (!respuestas.compresorEmbragaAlEncender) {
-                    add(HallazgoDiagnostico.COMPRESOR_NO_EMBRAGA)
-                }
+                    add(HallazgoDiagnostico.COMPRESOR_NO_EMBRAGA) }
 
                 if (respuestas.compresorDanadoOAmarrado) {
-                    add(HallazgoDiagnostico.COMPRESOR_DANADO)
-                }
+                    add(HallazgoDiagnostico.COMPRESOR_DANADO) }
 
                 if (respuestas.bandaCompresorDesgastada) {
-                    add(HallazgoDiagnostico.BANDA_DESGASTADA)
-                }
+                    add(HallazgoDiagnostico.BANDA_DESGASTADA) }
 
                 if (!respuestas.funcionanAbanicosRadiador) {
-                    add(HallazgoDiagnostico.VENTILADORES_NO_FUNCIONAN)
-                }
+                    add(HallazgoDiagnostico.VENTILADORES_NO_FUNCIONAN) }
 
                 if (respuestas.filtroCabinaSucioUObstruido) {
-                    add(HallazgoDiagnostico.FILTRO_OBSTRUIDO)
-                }
+                    add(HallazgoDiagnostico.FILTRO_OBSTRUIDO) }
 
                 if (respuestas.condensadorObstruido) {
-                    add(HallazgoDiagnostico.CONDENSADOR_OBSTRUIDO)
-                }
-            }
-        }
-}
+                    add(HallazgoDiagnostico.CONDENSADOR_OBSTRUIDO) } } } }

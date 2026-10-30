@@ -15,14 +15,10 @@ import androidx.room.PrimaryKey
             entity = Ingreso::class,
             parentColumns = ["ingresoId"],
             childColumns = ["ingresoId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
+            onDelete = ForeignKey.CASCADE)],
     indices = [
         // Cada ingreso tiene un solo diagnóstico editable.
-        Index(value = ["ingresoId"], unique = true)
-    ]
-)
+        Index(value = ["ingresoId"], unique = true)])
 data class Diagnostico(
     @PrimaryKey(autoGenerate = true)
     val diagnosticoId: Long = 0,
@@ -40,5 +36,4 @@ data class Diagnostico(
     val fechaCreacion: Long = System.currentTimeMillis(),
 
     // Se actualiza únicamente cuando se guardan cambios.
-    val fechaActualizacion: Long = fechaCreacion
-)
+    val fechaActualizacion: Long = fechaCreacion)

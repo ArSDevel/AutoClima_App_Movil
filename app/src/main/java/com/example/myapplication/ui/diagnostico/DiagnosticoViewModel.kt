@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
 
+// Estado y operaciones del diagnóstico de un ingreso: carga, edición de notas y cotización, y guardado.
 class DiagnosticoViewModel(
     private val ingresoId: Long,
     private val repository: DiagnosticoRepository,
@@ -33,8 +34,7 @@ class DiagnosticoViewModel(
     private var formularioInicial = FormularioDiagnostico()
 
     init {
-        cargarDiagnostico()
-    }
+        cargarDiagnostico() }
 
     // Recupera la información necesaria para presentar el reporte.
     // Si todavía no existe un diagnóstico, prepara un formulario vacío.
@@ -44,18 +44,14 @@ class DiagnosticoViewModel(
         if (ingresoId <= 0) {
             _uiState.value = DiagnosticoUiState(
                 cargando = false,
-                errorCarga = "El identificador del ingreso no es válido."
-            )
-            return
-        }
+                errorCarga = "El identificador del ingreso no es válido.")
+            return }
 
         _uiState.update {
             it.copy(
                 cargando = true,
                 errorCarga = null,
-                ingresoNoEncontrado = false
-            )
-        }
+                ingresoNoEncontrado = false) }
 
         cargaJob = viewModelScope.launch {
             try {
@@ -66,14 +62,11 @@ class DiagnosticoViewModel(
                 if (ingreso == null) {
                     _uiState.value = DiagnosticoUiState(
                         cargando = false,
-                        ingresoNoEncontrado = true
-                    )
-                    return@launch
-                }
+                        ingresoNoEncontrado = true)
+                    return@launch }
 
                 val checklist = checklistRepository.obtenerPorIngreso(
-                    ingresoId
-                )
+                    ingresoId)
 
                 val guardado = repository.obtenerPorIngreso(ingresoId)
 
@@ -89,10 +82,8 @@ class DiagnosticoViewModel(
                             importe = BigDecimal.valueOf(
                                 concepto.importeCentavos,
                                 2
-                            ).toPlainString()
-                        )
-                    }.orEmpty()
-                )
+                            ).toPlainString())
+                    }.orEmpty())
 
                 formularioInicial = formulario.normalizado()
 
@@ -105,8 +96,7 @@ class DiagnosticoViewModel(
                         guardado?.diagnostico?.fechaActualizacion,
                     tecnicoUltimoGuardadoId =
                         guardado?.diagnostico?.tecnicoId,
-                    cargando = false
-                )
+                    cargando = false)
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (error: Exception) {
@@ -114,12 +104,7 @@ class DiagnosticoViewModel(
                     it.copy(
                         cargando = false,
                         errorCarga = error.message
-                            ?: "No fue posible cargar el diagnóstico."
-                    )
-                }
-            }
-        }
-    }
+                            ?: "No fue posible cargar el diagnóstico.") } } } }
 
     // Permite repetir una carga fallida.
     // No sobrescribe un formulario con cambios pendientes.
@@ -130,27 +115,21 @@ class DiagnosticoViewModel(
             actual.cargando ||
             actual.guardando ||
             actual.guardadoExitoso ||
-            actual.tieneCambiosSinGuardar
-        ) {
-            return
-        }
+            actual.tieneCambiosSinGuardar) {
+            return }
 
         if (actual.errorCarga == null && !actual.ingresoNoEncontrado) {
-            return
-        }
+            return }
 
-        cargarDiagnostico()
-    }
+        cargarDiagnostico() }
 
     // Centraliza los cambios y comprueba si el formulario
     // sigue siendo diferente de su última versión guardada.
     private fun cambiarFormulario(
-        transformar: (FormularioDiagnostico) -> FormularioDiagnostico
-    ) {
+        transformar: (FormularioDiagnostico) -> FormularioDiagnostico) {
         _uiState.update { actual ->
             if (!actual.puedeModificar) {
-                return@update actual
-            }
+                return@update actual }
 
             val modificado = transformar(actual.formulario)
 
@@ -159,96 +138,68 @@ class DiagnosticoViewModel(
             val erroresActualizados = if (actual.erroresCampos.isNotEmpty()) {
                 modificado.errores()
             } else {
-                emptyMap()
-            }
+                emptyMap() }
 
             actual.copy(
                 formulario = modificado,
                 erroresCampos = erroresActualizados,
                 errorGuardado = null,
                 tieneCambiosSinGuardar =
-                    modificado.normalizado() != formularioInicial
-            )
-        }
-    }
+                    modificado.normalizado() != formularioInicial) } }
 
     // Modifica únicamente las notas del diagnóstico.
     // Los comentarios del checklist se mantienen separados.
     fun onObservacionesChange(valor: String) {
         cambiarFormulario {
-            it.copy(observaciones = valor)
-        }
-    }
+            it.copy(observaciones = valor) } }
 
     // Agrega una fila vacía para que el mecánico capture
     // el concepto y su importe.
     fun agregarConcepto() {
         cambiarFormulario {
             it.copy(
-                conceptos = it.conceptos + ConceptoCotizacionFormulario()
-            )
-        }
-    }
+                conceptos = it.conceptos + ConceptoCotizacionFormulario()) } }
 
     fun onDescripcionConceptoChange(
         indice: Int,
-        valor: String
-    ) {
+        valor: String) {
         cambiarFormulario { formulario ->
             if (indice !in formulario.conceptos.indices) {
-                return@cambiarFormulario formulario
-            }
+                return@cambiarFormulario formulario }
 
             formulario.copy(
                 conceptos = formulario.conceptos.mapIndexed { posicion, concepto ->
                     if (posicion == indice) {
                         concepto.copy(descripcion = valor)
                     } else {
-                        concepto
-                    }
-                }
-            )
-        }
-    }
+                        concepto } }) } }
 
     // Conserva el texto tal como se escribe.
     // La validación y conversión a centavos pertenecen al formulario.
     fun onImporteConceptoChange(
         indice: Int,
-        valor: String
-    ) {
+        valor: String) {
         cambiarFormulario { formulario ->
             if (indice !in formulario.conceptos.indices) {
-                return@cambiarFormulario formulario
-            }
+                return@cambiarFormulario formulario }
 
             formulario.copy(
                 conceptos = formulario.conceptos.mapIndexed { posicion, concepto ->
                     if (posicion == indice) {
                         concepto.copy(importe = valor)
                     } else {
-                        concepto
-                    }
-                }
-            )
-        }
-    }
+                        concepto } }) } }
 
     // Retira una fila del formulario.
     // La base de datos solo cambia cuando se pulsa Guardar.
     fun eliminarConcepto(indice: Int) {
         cambiarFormulario { formulario ->
             if (indice !in formulario.conceptos.indices) {
-                return@cambiarFormulario formulario
-            }
+                return@cambiarFormulario formulario }
 
             formulario.copy(
                 conceptos = formulario.conceptos.filterIndexed { posicion, _ ->
-                    posicion != indice
-                }
-            )
-        }
-    }
+                    posicion != indice }) } }
 
     // Guarda con el identificador real del técnico autenticado.
     // No cambia el estado del ingreso ni envía el reporte.
@@ -258,39 +209,28 @@ class DiagnosticoViewModel(
         if (
             !actual.reporteDisponible ||
             actual.guardando ||
-            actual.guardadoExitoso
-        ) {
-            return
-        }
+            actual.guardadoExitoso) {
+            return }
 
         if (tecnicoId <= 0) {
             _uiState.update {
                 it.copy(
-                    errorGuardado = "Inicia sesión nuevamente para continuar."
-                )
-            }
-            return
-        }
+                    errorGuardado = "Inicia sesión nuevamente para continuar.") }
+            return }
 
         if (!actual.tieneChecklist) {
             _uiState.update {
                 it.copy(
                     errorGuardado =
-                        "Guarda primero el checklist para elaborar el diagnóstico."
-                )
-            }
-            return
-        }
+                        "Guarda primero el checklist para elaborar el diagnóstico.") }
+            return }
 
         if (!actual.permiteEdicion) {
             _uiState.update {
                 it.copy(
                     errorGuardado = "Solo puedes modificar el diagnóstico " +
-                            "durante la revisión o la reparación."
-                )
-            }
-            return
-        }
+                            "durante la revisión o la reparación.") }
+            return }
 
         val errores = actual.formulario.errores()
 
@@ -298,20 +238,15 @@ class DiagnosticoViewModel(
             _uiState.update {
                 it.copy(
                     erroresCampos = errores,
-                    errorGuardado = "Revisa los campos de la cotización."
-                )
-            }
-            return
-        }
+                    errorGuardado = "Revisa los campos de la cotización.") }
+            return }
 
         // No repite el guardado cuando el diagnóstico ya existe
         // y no se modificó su contenido.
         if (
             actual.diagnosticoId != null &&
-            !actual.tieneCambiosSinGuardar
-        ) {
-            return
-        }
+            !actual.tieneCambiosSinGuardar) {
+            return }
 
         val formulario = actual.formulario.normalizado()
 
@@ -320,17 +255,14 @@ class DiagnosticoViewModel(
             it.copy(
                 guardando = true,
                 errorGuardado = null,
-                erroresCampos = emptyMap()
-            )
-        }
+                erroresCampos = emptyMap()) }
 
         viewModelScope.launch {
             try {
                 val diagnosticoId = repository.guardar(
                     ingresoId = ingresoId,
                     formulario = formulario,
-                    tecnicoId = tecnicoId
-                )
+                    tecnicoId = tecnicoId)
 
                 formularioInicial = formulario
 
@@ -343,13 +275,11 @@ class DiagnosticoViewModel(
                         guardadoExitoso = true,
                         tieneCambiosSinGuardar = false,
                         fechaUltimoGuardado = null,
-                        tecnicoUltimoGuardadoId = null
-                    )
-                }
+                        tecnicoUltimoGuardadoId = null) }
 
                 // Recupera la fecha y el autor realmente persistidos.
-                // Un fallo de esta consulta no convierte el guardado
-                // exitoso en un error de escritura.
+                // Un fallo de esta consulta no convierte el guardado exitoso en un error de escritura.
+                // Si falla, las notas y la cotización ya quedaron guardadas y los metadatos se recuperan al reabrir.
                 try {
                     val guardado = repository.obtenerPorIngreso(ingresoId)
 
@@ -358,50 +288,25 @@ class DiagnosticoViewModel(
                             fechaUltimoGuardado =
                                 guardado?.diagnostico?.fechaActualizacion,
                             tecnicoUltimoGuardadoId =
-                                guardado?.diagnostico?.tecnicoId
-                        )
-                    }
+                                guardado?.diagnostico?.tecnicoId) }
                 } catch (cancelacion: CancellationException) {
                     throw cancelacion
-                } catch (_: Exception) {
-                    // Las notas y la cotización ya quedaron guardadas.
-                    // Los metadatos se recuperarán al volver a abrir.
-                }
+                } catch (_: Exception) { }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion
             } catch (error: Exception) {
                 _uiState.update {
                     it.copy(
                         errorGuardado = error.message
-                            ?: "No fue posible guardar el diagnóstico."
-                    )
-                }
+                            ?: "No fue posible guardar el diagnóstico.") }
             } finally {
                 _uiState.update {
-                    it.copy(guardando = false)
-                }
-            }
-        }
-    }
+                    it.copy(guardando = false) } } } }
 
     // Consume la confirmación sin borrar el formulario guardado.
     fun consumirGuardadoExitoso() {
         if (_uiState.value.guardando) {
-            return
-        }
+            return }
 
         _uiState.update {
-            it.copy(guardadoExitoso = false)
-        }
-    }
-
-    fun limpiarErrorGuardado() {
-        if (_uiState.value.guardando) {
-            return
-        }
-
-        _uiState.update {
-            it.copy(errorGuardado = null)
-        }
-    }
-}
+            it.copy(guardadoExitoso = false) } } }

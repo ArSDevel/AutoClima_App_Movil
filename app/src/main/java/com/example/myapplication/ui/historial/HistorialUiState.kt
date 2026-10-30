@@ -13,7 +13,6 @@ data class HistorialUiState(
     val eventos: List<EventoHistorial> = emptyList(),
     val cargando: Boolean = true,
     val hayError: Boolean = false,
-    val hayMas: Boolean = false
-) {
+    val hayMas: Boolean = false) {
     val tieneFiltros: Boolean
         get() = busqueda.isNotBlank() || accion != null || periodo != PeriodoHistorial.TODOS }

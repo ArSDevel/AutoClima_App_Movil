@@ -20,6 +20,7 @@ class DetalleIngresoViewModel(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(DetalleIngresoUiState())
     val uiState: StateFlow<DetalleIngresoUiState> = _uiState.asStateFlow()
+    // Observación activa del expediente; se cancela antes de volver a cargar.
     private var observacionJob: Job? = null
     init { cargarDetalle() }
 
@@ -37,6 +38,7 @@ class DetalleIngresoViewModel(
 
         observacionJob = viewModelScope.launch {
             try {
+                // Combina el expediente y el historial para emitir un solo estado cuando ambos ya respondieron.
                 combine(repository.observarIngresoPorId(ingresoId),
                     repository.observarEventos(ingresoId)) { ingreso, historial ->
                     ingreso to historial
@@ -89,7 +91,7 @@ class DetalleIngresoViewModel(
             repository.cancelar(ingresoId = ingresoId, motivo = motivo,
                 tecnicoId = tecnicoId) } }
 
-    //Permite corregir un estado desconocido.
+    // Permite corregir un estado desconocido.
     // El repositorio comprueba también el estado actual
     // y que la transición esté permitida.
     fun regularizarEstado(destino: EstadoIngreso, motivo: String, tecnicoId: Long) {

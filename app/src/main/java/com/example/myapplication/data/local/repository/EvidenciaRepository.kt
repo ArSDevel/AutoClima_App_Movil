@@ -17,8 +17,7 @@ import kotlinx.coroutines.NonCancellable
 // Guarda, consulta y elimina las fotografías de un ingreso.
 class EvidenciaRepository(
     private val baseDeDatos: AppDatabase,
-    private val directorioArchivos: File
-) {
+    private val directorioArchivos: File) {
     private val evidenciaDao = baseDeDatos.evidenciaDao()
     private val ingresoDao = baseDeDatos.ingresoDao()
     private val tecnicoDao = baseDeDatos.tecnicoDao()
@@ -72,8 +71,7 @@ class EvidenciaRepository(
         require(
             archivoReal.isFile &&
                     archivoReal.canRead() &&
-                    archivoReal.length() > 0
-        ) {
+                    archivoReal.length() > 0) {
             "No se encontró una fotografía válida. Tómala nuevamente." }
 
         baseDeDatos.withTransaction {
@@ -81,8 +79,7 @@ class EvidenciaRepository(
                 "El técnico ya no existe. Inicia sesión nuevamente." }
 
             val ingreso = requireNotNull(
-                ingresoDao.obtener(ingresoId)
-            ) {
+                ingresoDao.obtener(ingresoId)) {
                 "El ingreso ya no existe." }
 
             // Una repetición del mismo guardado no debe
@@ -93,8 +90,7 @@ class EvidenciaRepository(
             if (existente != null) {
                 require(
                     existente.ingresoId == ingresoId &&
-                            existente.tecnicoId == tecnicoId
-                ) {
+                            existente.tecnicoId == tecnicoId) {
                     "Esta fotografía ya está registrada. " +
                             "No puede asignarse automáticamente a otro expediente." }
 
@@ -176,6 +172,8 @@ class EvidenciaRepository(
                 check(evidenciaDao.eliminar(evidenciaId, ingresoId) == 1) {
                     "No fue posible eliminar la fotografía." }
                 if (ingreso.fotoPath == evidencia.rutaImagen) {
+                    // La fila ya se borró, así que la primera que queda pasa a ser la principal; el conteo previo
+                    // garantiza que existe.
                     val sustituta = evidenciaDao.obtenerPorIngreso(ingresoId).first()
                     check(ingresoDao.actualizar(ingreso.copy(fotoPath = sustituta.rutaImagen)) == 1) }
                 ingresoDao.insertarEvento(
@@ -197,6 +195,7 @@ class EvidenciaRepository(
                     Log.w("Evidencias", "No fue posible limpiar el archivo local") } } } }
 
     // Comprueba el técnico y que el estado del ingreso permita cambiar fotografías.
+    // Devuelve el ingreso ya cargado para que la operación no lo consulte otra vez.
     private suspend fun validarOperacion(ingresoId: Long, tecnicoId: Long): com.example.myapplication.data.local.entity.Ingreso {
         require(ingresoId > 0 && tecnicoId > 0) { "La sesión o el ingreso no son válidos." }
         requireNotNull(tecnicoDao.obtener(tecnicoId)) { "Inicia sesión nuevamente para continuar." }

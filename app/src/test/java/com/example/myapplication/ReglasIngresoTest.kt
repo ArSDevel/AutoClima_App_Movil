@@ -18,10 +18,20 @@ class ReglasIngresoTest {
         assertFalse(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.EN_REVISION, EstadoIngreso.LISTO_PARA_FIRMA)) }
 
     @Test
-    fun firmaYEntrega_noSePuedenSaltarConUnMotivo() {
-        // Quedan para el equipo que desarrolla esos módulos.
-        assertFalse(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.LISTO_PARA_FIRMA, EstadoIngreso.LISTO_PARA_ENTREGA))
-        assertFalse(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.LISTO_PARA_ENTREGA, EstadoIngreso.ENTREGADO)) }
+    fun firmaYEntrega_siguenElOrdenDelProceso() {
+        assertTrue(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.LISTO_PARA_FIRMA, EstadoIngreso.LISTO_PARA_ENTREGA))
+        assertTrue(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.LISTO_PARA_ENTREGA, EstadoIngreso.ENTREGADO))
+        // No se puede saltar la firma ni entregar sin firmar.
+        assertFalse(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.EN_REPARACION, EstadoIngreso.LISTO_PARA_ENTREGA))
+        assertFalse(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.LISTO_PARA_FIRMA, EstadoIngreso.ENTREGADO))
+        assertFalse(ReglasIngreso.puedeCambiarEstado(EstadoIngreso.ENTREGADO, EstadoIngreso.LISTO_PARA_ENTREGA)) }
+
+    @Test
+    fun firmarYEntregar_soloEnSuEtapa() {
+        assertTrue(ReglasIngreso.firmar(EstadoIngreso.LISTO_PARA_FIRMA))
+        assertFalse(ReglasIngreso.firmar(EstadoIngreso.LISTO_PARA_ENTREGA))
+        assertTrue(ReglasIngreso.entregar(EstadoIngreso.LISTO_PARA_ENTREGA))
+        assertFalse(ReglasIngreso.entregar(EstadoIngreso.ENTREGADO)) }
 
     @Test
     fun devolverAReparacion_sigueDisponibleDesdeFirma() {

@@ -3,8 +3,6 @@ package com.example.myapplication.ui.registro.components
 import android.app.DatePickerDialog
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,36 +32,6 @@ import com.example.myapplication.data.local.model.FormularioIngreso
 import java.util.Calendar
 
 /*
- * Utiliza las mismas entradas en una o dos columnas.
- * La distribución depende del ancho, no de la orientación.
- */
-@Composable
-internal fun CamposAdaptables(
-    primero: @Composable () -> Unit,
-    segundo: @Composable () -> Unit
-) {
-    BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        if (maxWidth >= 560.dp) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Box(Modifier.weight(1f)) {
-                    primero() }
-
-                Box(Modifier.weight(1f)) {
-                    segundo() } }
-        } else {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                primero()
-                segundo() } } } }
-
-/*
  * Etiqueta externa y campo Material 3.
  * El botón de limpiar conserva un área táctil estándar.
  */
@@ -79,19 +47,16 @@ internal fun CampoRegistroTexto(
     tipo: KeyboardType = KeyboardType.Text,
     destacado: Boolean = false,
     contenidoFinal: (@Composable () -> Unit)? = null,
-    ayuda: String? = null
-) {
+    ayuda: String? = null) {
     val nombre = stringResource(etiqueta)
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
+        verticalArrangement = Arrangement.spacedBy(6.dp)) {
         // Los campos opcionales se marcan con una palabra; los demás no necesitan marca.
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+            horizontalArrangement = Arrangement.SpaceBetween) {
             Text(
                 text = nombre,
                 style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp))
@@ -127,8 +92,7 @@ internal fun CampoRegistroTexto(
                     contenidoFinal()
                 } else if (valor.isNotEmpty() && habilitado) {
                     IconButton(
-                        onClick = { onCambio("") }
-                    ) {
+                        onClick = { onCambio("") }) {
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(
@@ -152,14 +116,12 @@ internal fun FechaRegistro(
     valor: String,
     error: String?,
     habilitado: Boolean,
-    onCambio: (String) -> Unit
-) {
+    onCambio: (String) -> Unit) {
     val context = LocalContext.current
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
+        verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
             text = stringResource(R.string.dashboard_entry_date),
             style = MaterialTheme.typography.labelLarge.copy(fontSize = 15.sp))
@@ -194,8 +156,7 @@ internal fun FechaRegistro(
                     calendario.get(Calendar.YEAR),
                     calendario.get(Calendar.MONTH),
                     calendario.get(Calendar.DAY_OF_MONTH)
-                ).show() }
-        ) {
+                ).show() }) {
             Icon(
                 imageVector = Icons.Default.DateRange,
                 contentDescription = null,

@@ -13,9 +13,6 @@ class DetalleIngresoViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DetalleIngresoViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return DetalleIngresoViewModel(ingresoId = ingresoId, repository = repository) as T
-        }
+            return DetalleIngresoViewModel(ingresoId = ingresoId, repository = repository) as T }
 
-        throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
-    }
-}
+        throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}") } }

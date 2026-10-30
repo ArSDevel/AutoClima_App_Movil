@@ -41,8 +41,7 @@ fun PreguntaChecklist(
     onRespuestaChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     habilitada: Boolean = true,
-    mostrarPendiente: Boolean = false
-) {
+    mostrarPendiente: Boolean = false) {
     val colors = MaterialTheme.colorScheme
     val pendiente = mostrarPendiente && respuesta == null
 
@@ -52,16 +51,13 @@ fun PreguntaChecklist(
         color = colors.surface,
         border = BorderStroke(
             width = 1.dp,
-            color = if (pendiente) colors.error else colors.outlineVariant)
-    ) {
+            color = if (pendiente) colors.error else colors.outlineVariant)) {
         Column(
             modifier = Modifier.padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "$numero. $pregunta",
                     style = MaterialTheme.typography.titleSmall,
@@ -72,8 +68,7 @@ fun PreguntaChecklist(
                 // Las dos opciones forman un grupo de selección única.
                 Row(
                     modifier = Modifier.selectableGroup(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     OpcionRespuestaChecklist(
                         descripcion = stringResource(R.string.checklist_answer_yes),
                         icono = Icons.Default.Check,
@@ -104,15 +99,13 @@ private fun OpcionRespuestaChecklist(
     colorSeleccion: Color,
     seleccionada: Boolean,
     habilitada: Boolean,
-    onClick: () -> Unit
-) {
+    onClick: () -> Unit) {
     val colors = MaterialTheme.colorScheme
 
     Surface(
         shape = MaterialTheme.shapes.small,
         color = if (seleccionada) colorSeleccion else colors.surfaceVariant,
-        contentColor = if (seleccionada) colors.surface else colors.onSurfaceVariant
-    ) {
+        contentColor = if (seleccionada) colors.surface else colors.onSurfaceVariant) {
         Row(
             modifier = Modifier
                 .selectable(
@@ -123,8 +116,7 @@ private fun OpcionRespuestaChecklist(
                 .heightIn(min = 48.dp)
                 .padding(horizontal = 12.dp),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = icono,
                 contentDescription = descripcion,

@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+// Revisión del sistema de aire acondicionado de un ingreso; cada casilla en true indica un problema detectado.
 @Entity(
     tableName = "checklist_diagnostico",
     foreignKeys = [
@@ -12,11 +13,9 @@ import androidx.room.PrimaryKey
             entity = Ingreso::class,
             parentColumns = ["ingresoId"],
             childColumns = ["ingresoId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [Index("ingresoId", unique = true)] // un checklist por ingreso, no varios
-)
+            onDelete = ForeignKey.CASCADE)],
+    // Un checklist por ingreso, no varios.
+    indices = [Index("ingresoId", unique = true)])
 data class ChecklistDiagnostico(
     @PrimaryKey(autoGenerate = true) val checklistId: Long = 0,
     val ingresoId: Long,
@@ -31,6 +30,7 @@ data class ChecklistDiagnostico(
     val filtroCabinaSucioUObstruido: Boolean = false,
     val condensadorObstruido: Boolean = false,
 
+    // Texto libre del técnico; null cuando no escribió nada.
     val comentarios: String?,
-    val fecha: Long = System.currentTimeMillis()
-)
+    // Momento del último guardado, en milisegundos.
+    val fecha: Long = System.currentTimeMillis())

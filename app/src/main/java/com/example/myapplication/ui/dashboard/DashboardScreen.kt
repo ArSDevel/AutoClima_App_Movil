@@ -1,7 +1,6 @@
 package com.example.myapplication.ui.dashboard
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,9 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.background
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -90,8 +87,7 @@ fun DashboardScreen(
     onVerDetalle: ((Long) -> Unit)? = null,
     onVerFotos: ((Long) -> Unit)? = null,
     onAbrirChecklist: ((Long) -> Unit)? = null,
-    onAbrirDiagnostico: ((Long) -> Unit)? = null
-) {
+    onAbrirDiagnostico: ((Long) -> Unit)? = null) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -135,8 +131,7 @@ fun DashboardContent(
     onVerDetalle: ((Long) -> Unit)? = null,
     onVerFotos: ((Long) -> Unit)? = null,
     onAbrirChecklist: ((Long) -> Unit)? = null,
-    onAbrirDiagnostico: ((Long) -> Unit)? = null
-) {
+    onAbrirDiagnostico: ((Long) -> Unit)? = null) {
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -159,11 +154,12 @@ fun DashboardContent(
                             DashboardMenuOption.CHECKLIST,
                             DashboardMenuOption.DIAGNOSTICO,
                             DashboardMenuOption.EVIDENCIAS,
+                            DashboardMenuOption.FIRMA,
                             DashboardMenuOption.HISTORIAL -> {
                                 onMenuSeleccionado(opcion) }
+                            // Las opciones que este listado no atiende muestran el aviso de sección pendiente.
                             else -> snackbarState.showSnackbar(mensajePendiente) } } },
-                onLogout = onLogout) }
-    ) {
+                onLogout = onLogout) }) {
         Scaffold(
             containerColor = colors.background,
             snackbarHost = { SnackbarHost(snackbarState) },
@@ -188,8 +184,7 @@ fun DashboardContent(
                                 layout(colocable.width, colocable.height - solape) {
                                     colocable.place(0, -solape) } },
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                        verticalAlignment = Alignment.CenterVertically) {
                         BuscadorIngreso(
                             textoBusqueda = uiState.textoBusqueda,
                             onBusquedaChange = onBusquedaChange,
@@ -202,21 +197,19 @@ fun DashboardContent(
                 FloatingActionButton(
                     onClick = { onMenuSeleccionado(DashboardMenuOption.REGISTRO) },
                     containerColor = colors.secondary,
-                    contentColor = colors.onSecondary
-                ) {
+                    contentColor = colors.onSecondary) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = stringResource(R.string.registro_title_new)) } }
         ) { padding ->
             Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentAlignment = Alignment.TopCenter
-            ) {
+                contentAlignment = Alignment.TopCenter) {
                 LazyColumn(
                     modifier = Modifier.widthIn(max = 720.dp).fillMaxSize(),
+                    // El margen inferior evita que el botón flotante tape la última tarjeta.
                     contentPadding = PaddingValues(start = 16.dp, top = 4.dp, end = 16.dp, bottom = 96.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     item(key = "estados") {
                         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             item {
@@ -282,17 +275,14 @@ fun DashboardContent(
             ModalBottomSheet(
                 onDismissRequest = { mostrarFiltros = false },
                 sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = colors.surface
-            ) {
+                containerColor = colors.surface) {
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                        verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = stringResource(R.string.filtros_title),
                             style = MaterialTheme.typography.titleLarge,
@@ -325,8 +315,7 @@ fun DashboardContent(
                         onClick = { mostrarFiltros = false },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        contentPadding = PaddingValues(vertical = 16.dp)
-                    ) {
+                        contentPadding = PaddingValues(vertical = 16.dp)) {
                         Text(
                             text = androidx.compose.ui.res.pluralStringResource(R.plurals.filtros_show_results, uiState.cantidadResultados, uiState.cantidadResultados),
                             style = MaterialTheme.typography.titleMedium) } } } } } }
@@ -336,8 +325,7 @@ fun DashboardContent(
 @Composable
 private fun GrupoFiltro(
     titulo: String,
-    contenido: @Composable () -> Unit
-) {
+    contenido: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             text = titulo,
@@ -354,8 +342,7 @@ private fun ChipEstado(
     texto: String,
     seleccionado: Boolean,
     onClick: () -> Unit,
-    color: androidx.compose.ui.graphics.Color? = null
-) {
+    color: androidx.compose.ui.graphics.Color? = null) {
     FilterChip(
         selected = seleccionado,
         onClick = onClick,
@@ -372,16 +359,14 @@ private fun ChipEstado(
 @Composable
 private fun BotonFiltros(
     activo: Boolean,
-    onClick: () -> Unit
-) {
+    onClick: () -> Unit) {
     Surface(
         onClick = onClick,
         modifier = Modifier.size(56.dp),
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.primary,
-        shadowElevation = 6.dp
-    ) {
+        shadowElevation = 6.dp) {
         Box(contentAlignment = Alignment.Center) {
             BadgedBox(badge = { if (activo) Badge(containerColor = MaterialTheme.colorScheme.secondary) }) {
                 Icon(
@@ -408,13 +393,11 @@ private fun etiquetaOrden(orden: OrdenIngreso): Int {
 // Panel blanco para mensajes y avisos del listado.
 @Composable
 private fun PanelDashboard(
-    contenido: @Composable ColumnScope.() -> Unit
-) {
+    contenido: @Composable ColumnScope.() -> Unit) {
     Surface(modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface
-    ) {
+        contentColor = MaterialTheme.colorScheme.onSurface) {
         Column(modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp), content = contenido) } }
 
@@ -424,8 +407,7 @@ private fun MensajeDashboard(
     titulo: String,
     textoAccion: String,
     onAccion: () -> Unit,
-    descripcion: String? = null
-) {
+    descripcion: String? = null) {
     PanelDashboard {
         Text(text = titulo,
             style = MaterialTheme.typography.titleMedium)
@@ -467,8 +449,7 @@ private val estadoDashboardPreview = DashboardUiState(
 // Contenido de ejemplo para las vistas previas.
 @Composable
 private fun ContenidoDashboardPreview(
-    uiState: DashboardUiState = estadoDashboardPreview
-) {
+    uiState: DashboardUiState = estadoDashboardPreview) {
     DashboardContent(
         uiState = uiState,
         onBusquedaChange = {},

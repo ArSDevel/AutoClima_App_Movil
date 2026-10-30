@@ -5,6 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+// Vehículo de un cliente; la placa es única en toda la tabla.
 @Entity(
     tableName = "vehiculo",
     foreignKeys = [
@@ -12,18 +13,15 @@ import androidx.room.PrimaryKey
             entity = Cliente::class,
             parentColumns = ["clienteId"],
             childColumns = ["clienteId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [Index("clienteId"), Index("placa", unique = true)]
-)
+            onDelete = ForeignKey.CASCADE)],
+    indices = [Index("clienteId"), Index("placa", unique = true)])
 data class Vehiculo(
     @PrimaryKey(autoGenerate = true) val vehiculoId: Long = 0,
     val clienteId: Long,
     val placa: String,
-    val modelo: String,       // marca + modelo juntos, ej. "Nissan Versa"
+    // Marca y modelo juntos, por ejemplo "Nissan Versa".
+    val modelo: String,
     val color: String?,
     val numeroSerie: String?,
     val kilometraje: Int?,
-    val observaciones: String?
-)
+    val observaciones: String?)

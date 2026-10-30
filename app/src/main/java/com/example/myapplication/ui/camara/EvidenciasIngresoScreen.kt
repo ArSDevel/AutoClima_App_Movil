@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,17 +23,13 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -45,8 +38,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,7 +55,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.myapplication.R
-import com.example.myapplication.ui.theme.AutoClimasGradients
 import java.io.File
 import com.example.myapplication.ui.camara.components.GaleriaIngresoConectada
 
@@ -74,8 +64,7 @@ import com.example.myapplication.ui.camara.components.GaleriaIngresoConectada
 fun EvidenciasIngresoScreen(
     viewModel: CamaraIngresoViewModel,
     tecnicoId: Long,
-    onVolver: () -> Unit
-) {
+    onVolver: () -> Unit) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = MaterialTheme.colorScheme
     val snackbar = remember { SnackbarHostState() }
@@ -111,8 +100,7 @@ fun EvidenciasIngresoScreen(
         salirTrasDescartar,
         estado.guardando,
         estado.rutaPendiente,
-        estado.errorGuardado
-    ) {
+        estado.errorGuardado) {
         if (salirTrasDescartar && !estado.guardando) {
             when {
                 estado.rutaPendiente == null -> {
@@ -172,8 +160,7 @@ fun EvidenciasIngresoScreen(
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSecondary)
-                    ) {
+                            contentColor = MaterialTheme.colorScheme.onSecondary)) {
                         Icon(imageVector = Icons.Default.PhotoCamera, contentDescription = null)
                         Text(
                             text = "  " + stringResource(R.string.evidence_take_photo),
@@ -186,22 +173,19 @@ fun EvidenciasIngresoScreen(
                 .padding(padding)
                 .consumeWindowInsets(padding)
                 .imePadding(),
-            contentAlignment = Alignment.TopCenter
-        ) {
+            contentAlignment = Alignment.TopCenter) {
             LazyColumn(
                 modifier = Modifier
                     .widthIn(max = 900.dp)
                     .fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
+                verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 if (estado.cargando || estado.errorCarga != null || estado.ingresoNoEncontrado || !estado.permiteAgregar) item(key = "expediente") {
                     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                         Column(
                             modifier = Modifier.padding(20.dp),
                             verticalArrangement =
-                                Arrangement.spacedBy(12.dp)
-                        ) {
+                                Arrangement.spacedBy(12.dp)) {
                             when {
                                 estado.cargando -> {
                                     CircularProgressIndicator()
@@ -217,8 +201,7 @@ fun EvidenciasIngresoScreen(
 
                                     Button(
                                         onClick = viewModel::reintentarCarga,
-                                        enabled = !estado.guardando
-                                    ) {
+                                        enabled = !estado.guardando) {
                                         Text(
                                             stringResource(
                                                 R.string.camera_retry)) } }
@@ -243,8 +226,7 @@ fun EvidenciasIngresoScreen(
                             Column(
                                 modifier = Modifier.padding(20.dp),
                                 verticalArrangement =
-                                    Arrangement.spacedBy(12.dp)
-                            ) {
+                                    Arrangement.spacedBy(12.dp)) {
                                 Text(
                                     text = stringResource(
                                         R.string.evidence_review_photo),
@@ -269,6 +251,7 @@ fun EvidenciasIngresoScreen(
                                             stringResource(
                                                 R.string.evidence_description_count,
                                                 estado.descripcion.length)) },
+                                    // El límite de 300 caracteres coincide con el que valida el repositorio.
                                     isError = estado.descripcion
                                         .trim().length > 300,
                                     minLines = 2,
@@ -291,8 +274,7 @@ fun EvidenciasIngresoScreen(
                                     onClick = {
                                         viewModel.guardar(tecnicoId) },
                                     enabled = estado.puedeGuardar,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
+                                    modifier = Modifier.fillMaxWidth()) {
                                     Text(
                                         stringResource(
                                             R.string.evidence_save)) }
@@ -302,8 +284,7 @@ fun EvidenciasIngresoScreen(
                                         salidaSolicitada = false
                                         confirmarDescarte = true },
                                     enabled = !estado.guardando,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
+                                    modifier = Modifier.fillMaxWidth()) {
                                     Text(
                                         stringResource(
                                             R.string.evidence_discard)) } } } } }
@@ -340,17 +321,14 @@ fun EvidenciasIngresoScreen(
     fotoAmpliada?.let { ruta ->
         Dialog(
             onDismissRequest = {
-                fotoAmpliada = null }
-        ) {
+                fotoAmpliada = null }) {
             Surface(
-                shape = MaterialTheme.shapes.large
-            ) {
+                shape = MaterialTheme.shapes.large) {
                 // Permite desplazarse en pantallas pequeñas
                 // o cuando el teléfono está en horizontal.
                 LazyColumn(
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                    verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     item {
                         FotoEvidencia(
                             ruta = ruta,
@@ -360,8 +338,7 @@ fun EvidenciasIngresoScreen(
                         TextButton(
                             onClick = {
                                 fotoAmpliada = null },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
+                            modifier = Modifier.fillMaxWidth()) {
                             Text(
                                 stringResource(
                                     R.string.evidence_close)) } } } } } } }
@@ -371,8 +348,7 @@ fun EvidenciasIngresoScreen(
 private fun FotoEvidencia(
     ruta: String,
     altura: Dp = 220.dp,
-    onAbrir: (() -> Unit)? = null
-) {
+    onAbrir: (() -> Unit)? = null) {
     var errorImagen by remember(ruta) {
         mutableStateOf(false) }
 
@@ -390,8 +366,7 @@ private fun FotoEvidencia(
                 onClick = onAbrir)
         } else {
             modificador },
-        contentAlignment = Alignment.Center
-    ) {
+        contentAlignment = Alignment.Center) {
         AsyncImage(
             model = File(ruta),
             contentDescription = stringResource(

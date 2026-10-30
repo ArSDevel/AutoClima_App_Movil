@@ -25,7 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import androidx.compose.foundation.background
 
 // Campo de búsqueda con sombra y botón para borrar el texto.
 @Composable
@@ -33,8 +32,7 @@ fun BuscadorIngreso(
     textoBusqueda: String,
     onBusquedaChange: (String) -> Unit,
     modifier: Modifier = Modifier,
-    textoGuia: String? = null
-) {
+    textoGuia: String? = null) {
     val colors = MaterialTheme.colorScheme
 
     OutlinedTextField(
@@ -54,8 +52,7 @@ fun BuscadorIngreso(
                 contentDescription = null) },
         trailingIcon = {
             if (textoBusqueda.isNotEmpty()) {
-                IconButton(onClick = { onBusquedaChange("") }
-                ) {
+                IconButton(onClick = { onBusquedaChange("") }) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(R.string.dashboard_clear_search)) } } },

@@ -45,6 +45,7 @@ import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.theme.LocalAutoClimasDark
 import com.example.myapplication.ui.theme.estadoIngresoColors
 
+// Azul claro del subtítulo sobre la cabecera azul.
 private val TextoSecundarioCabecera = Color(0xFFDBEAFE)
 
 // Cabecera común de las pantallas internas.
@@ -62,19 +63,16 @@ fun EncabezadoAutoClimas(
     iconoVolver: ImageVector = Icons.AutoMirrored.Filled.ArrowBack,
     descripcionVolver: String? = null,
     contenidoInferior: (@Composable () -> Unit)? = null,
-    acciones: @Composable RowScope.() -> Unit = {}
-) {
+    acciones: @Composable RowScope.() -> Unit = {}) {
     Box(modifier = modifier.fillMaxWidth().background(AutoClimasGradients.header)) {
         Column(
             modifier = Modifier.fillMaxWidth().statusBarsPadding()
                 .padding(start = 12.dp, end = 12.dp, top = 12.dp, bottom = 16.dp + espacioInferior),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (onVolver != null) {
                 BotonCabecera(
                     icono = iconoVolver,
@@ -111,8 +109,7 @@ fun EncabezadoAutoClimas(
 fun LogoAutoClimas(
     modifier: Modifier = Modifier,
     sobreFondoOscuro: Boolean = LocalAutoClimasDark.current,
-    descripcion: String? = null
-) {
+    descripcion: String? = null) {
     androidx.compose.foundation.Image(
         painter = androidx.compose.ui.res.painterResource(
             if (sobreFondoOscuro) R.drawable.logo_autoclimas_claro else R.drawable.logo_autoclimas),
@@ -127,16 +124,14 @@ fun BotonCabecera(
     descripcion: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    habilitado: Boolean = true
-) {
+    habilitado: Boolean = true) {
     Surface(
         onClick = onClick,
         enabled = habilitado,
         modifier = modifier.size(44.dp).alpha(if (habilitado) 1f else 0.5f),
         shape = CircleShape,
         color = Color.White.copy(alpha = 0.16f),
-        contentColor = Color.White
-    ) {
+        contentColor = Color.White) {
         Box(contentAlignment = Alignment.Center) {
             Icon(imageVector = icono, contentDescription = descripcion) } } }
 
@@ -144,14 +139,12 @@ fun BotonCabecera(
 @Composable
 fun BarraAccionInferior(
     modifier: Modifier = Modifier,
-    contenido: @Composable RowScope.() -> Unit
-) {
+    contenido: @Composable RowScope.() -> Unit) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 3.dp,
-        shadowElevation = 8.dp
-    ) {
+        shadowElevation = 8.dp) {
         Row(
             modifier = Modifier.fillMaxWidth().navigationBarsPadding()
                 .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -164,20 +157,17 @@ fun BarraAccionInferior(
 fun PildoraEstado(
     estado: EstadoIngreso,
     modifier: Modifier = Modifier,
-    sobreCabecera: Boolean = false
-) {
+    sobreCabecera: Boolean = false) {
     val color = if (sobreCabecera) Color.White else colorEstado(estado)
     Surface(
         modifier = modifier,
         shape = CircleShape,
         color = if (sobreCabecera) Color.White.copy(alpha = 0.18f) else color.copy(alpha = 0.14f),
-        contentColor = color
-    ) {
+        contentColor = color) {
         Row(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(color))
             Text(
                 text = stringResource(etiquetaEstado(estado)),
@@ -218,21 +208,18 @@ fun etiquetaEstado(estado: EstadoIngreso): Int {
 fun TarjetaSeleccionIngreso(
     ingreso: com.example.myapplication.data.local.model.IngresoResumen,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
     Surface(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         color = colors.surface,
-        shadowElevation = 2.dp
-    ) {
+        shadowElevation = 2.dp) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(14.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             com.example.myapplication.ui.dashboard.components.FotoIngresoCard(
                 ruta = ingreso.fotoPath,
                 tamano = 72.dp)
@@ -270,10 +257,10 @@ fun DialogoAviso(
     textoPrincipal: String,
     onPrincipal: () -> Unit,
     onDismiss: () -> Unit,
-    habilitado: Boolean = true
-) {
+    habilitado: Boolean = true) {
     val colors = MaterialTheme.colorScheme
     val estados = MaterialTheme.estadoIngresoColors
+    // Reutiliza los colores de estado: ámbar para advertir y verde para confirmar.
     val (fondoIcono, colorIcono, icono) = when (tipo) {
         TipoAviso.ADVERTENCIA -> Triple(
             estados.enReparacion.copy(alpha = 0.18f), estados.enReparacion, Icons.Default.Warning)
@@ -283,16 +270,13 @@ fun DialogoAviso(
         Surface(
             shape = androidx.compose.foundation.shape.RoundedCornerShape(28.dp),
             color = colors.surface,
-            shadowElevation = 8.dp
-        ) {
+            shadowElevation = 8.dp) {
             Column(
                 modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
+                verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Box(
                     modifier = Modifier.size(56.dp).clip(CircleShape).background(fondoIcono),
-                    contentAlignment = Alignment.Center
-                ) {
+                    contentAlignment = Alignment.Center) {
                     Icon(imageVector = icono, contentDescription = null, tint = colorIcono,
                         modifier = Modifier.size(28.dp)) }
                 Text(text = titulo, style = MaterialTheme.typography.titleLarge,
@@ -301,8 +285,7 @@ fun DialogoAviso(
                     color = colors.onSurfaceVariant)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     androidx.compose.material3.OutlinedButton(
                         onClick = onSecundario,
                         enabled = habilitado,
@@ -324,8 +307,7 @@ fun DialogoAviso(
 fun CampoBloqueado(
     etiqueta: String,
     valor: String,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier) {
     val colors = MaterialTheme.colorScheme
     val borde = colors.outline
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -343,8 +325,7 @@ fun CampoBloqueado(
                             pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(14f, 10f)))) }
                 .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+            verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Lock, contentDescription = null, tint = colors.onSurfaceVariant)
             Text(
                 text = valor.ifBlank { "—" },
@@ -356,8 +337,9 @@ fun CampoBloqueado(
 // Nombre del técnico con sesión iniciada, disponible para el menú lateral.
 val LocalNombreTecnico = androidx.compose.runtime.staticCompositionLocalOf<String?> { null }
 
-// "Jesús Martínez Pérez" → "Jesús M."
+// "Jesús Martínez Pérez" queda como "Jesús M."
 fun nombreCortoTecnico(nombre: String?): String? {
+    // Quita espacios repetidos antes de separar las palabras.
     val partes = nombre?.trim()?.split(" ")?.filter { it.isNotBlank() } ?: return null
     if (partes.isEmpty()) return null
     return if (partes.size == 1) partes[0] else "${partes[0]} ${partes[1].first()}." }

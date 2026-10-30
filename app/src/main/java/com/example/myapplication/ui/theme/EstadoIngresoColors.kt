@@ -7,7 +7,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-//Colores de los estados de un ingreso.
+// Colores de los estados de un ingreso.
 @Immutable
 data class EstadoIngresoColors(
     val registrado: Color,
@@ -17,8 +17,7 @@ data class EstadoIngresoColors(
     val listoParaEntrega: Color,
     val noDisponible: Color,
     val entregado: Color,
-    val cancelado: Color
-)
+    val cancelado: Color)
 
 // Paleta para superficies claras
 internal val LightEstadoIngresoColors = EstadoIngresoColors(
@@ -29,8 +28,7 @@ internal val LightEstadoIngresoColors = EstadoIngresoColors(
     listoParaEntrega = IngresoEntregaLight,
     noDisponible = IngresoSinEstadoLight,
     entregado = IngresoEntregadoLight,
-    cancelado = IngresoCanceladoLight
-)
+    cancelado = IngresoCanceladoLight)
 
 // Paleta para superficies oscuras
 internal val DarkEstadoIngresoColors = EstadoIngresoColors(
@@ -41,13 +39,11 @@ internal val DarkEstadoIngresoColors = EstadoIngresoColors(
     listoParaEntrega = IngresoEntregaDark,
     noDisponible = IngresoSinEstadoDark,
     entregado = IngresoEntregadoDark,
-    cancelado = IngresoCanceladoDark
-)
+    cancelado = IngresoCanceladoDark)
 
 // MyApplicationTheme proporciona la paleta correspondiente al tema seleccionado.
 internal val LocalEstadoIngresoColors = staticCompositionLocalOf {
-    LightEstadoIngresoColors
-}
+    LightEstadoIngresoColors }
 
 // Acceso a la paleta desde componentes Compose.
 val MaterialTheme.estadoIngresoColors: EstadoIngresoColors

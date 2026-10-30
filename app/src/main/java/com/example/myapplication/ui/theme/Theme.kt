@@ -13,6 +13,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+// Indica a los componentes si el tema oscuro está activo; los degradados lo consultan.
 internal val LocalAutoClimasDark = staticCompositionLocalOf { false }
 
 
@@ -121,10 +122,10 @@ private val DarkColorScheme = darkColorScheme(
 fun MyApplicationTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
-) {
+    content: @Composable () -> Unit) {
     val context = LocalContext.current
     val colorScheme = when {
+        // Los colores dinámicos del sistema solo existen desde Android 12; por omisión se usa la paleta de la marca.
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             if (darkTheme) {
                 dynamicDarkColorScheme(context)
@@ -138,8 +139,7 @@ fun MyApplicationTheme(
         LightEstadoIngresoColors }
     CompositionLocalProvider(
         LocalEstadoIngresoColors provides estadoColors,
-        LocalAutoClimasDark provides darkTheme
-    ) {
+        LocalAutoClimasDark provides darkTheme) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = Typography,

@@ -24,6 +24,7 @@ val Montserrat = FontFamily(
     Font(R.font.montserrat_bold, FontWeight.Bold),
     Font(R.font.montserrat_bold, FontWeight.ExtraBold))
 
+// Estilos que usa la aplicación: Montserrat para títulos y botones, DM Sans para el texto.
 private val TipografiaBase = Typography(
     // Título principal, como "Iniciar sesión".
     headlineMedium = TextStyle(
