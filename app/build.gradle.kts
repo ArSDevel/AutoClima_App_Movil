@@ -37,14 +37,20 @@ android {
     }
 }
 
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
+
     implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
+
+    // CameraX
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+
+    // Compose
     implementation(libs.androidx.compose.adaptive)
     implementation(libs.androidx.compose.adaptive.layout)
     implementation(libs.androidx.compose.adaptive.navigation3)
@@ -54,16 +60,24 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
+
+    // Android y almacenamiento
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)
+
+    // Lifecycle y navegación
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
+
+    // Room
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.room.runtime)
+
+    // Otras dependencias
     implementation(libs.coil.compose)
     implementation(libs.converter.moshi)
     implementation(libs.kotlinx.coroutines.android)
@@ -75,17 +89,27 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.play.services.location)
     implementation(libs.retrofit)
+
+    // Reconocimiento de matrículas
+    implementation("com.google.mlkit:text-recognition:16.0.1")
+
+    // Pruebas unitarias
     testImplementation(libs.androidx.core)
     testImplementation(libs.androidx.junit)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+
+    // Pruebas instrumentadas
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.runner)
+
+    // Depuración
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
-    "ksp"(libs.androidx.room.compiler)
-    "ksp"(libs.moshi.kotlin.codegen)
+
+    // KSP
+    ksp(libs.androidx.room.compiler)
+    ksp(libs.moshi.kotlin.codegen)
 }

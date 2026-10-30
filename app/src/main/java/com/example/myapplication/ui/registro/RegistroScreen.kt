@@ -120,9 +120,11 @@ fun RegistroScreen(
     onTomarFotoClick: () -> Unit,
     modifier: Modifier = Modifier,
     onVerIngreso: ((Long) -> Unit)? = null,
-    onVolver: () -> Unit = {}
+    onVolver: () -> Unit = {},
+    onEscanearPlacaClick: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     RegistroContent(
         uiState = uiState,
         onCampoChange = { campo, valor ->
@@ -136,8 +138,12 @@ fun RegistroScreen(
                 CampoRegistro.EMAIL -> viewModel.onEmailClienteChange(valor)
                 CampoRegistro.FECHA -> viewModel.onFechaEntradaChange(valor)
                 CampoRegistro.MOTIVO -> viewModel.onMotivoIngresoChange(valor)
-                CampoRegistro.CONDICION -> viewModel.onCondicionInicialChange(valor) } },
-        onGuardar = { viewModel.guardar(tecnicoId) },
+                CampoRegistro.CONDICION -> viewModel.onCondicionInicialChange(valor)
+            }
+        },
+        onGuardar = {
+            viewModel.guardar(tecnicoId)
+        },
         onNuevaCaptura = viewModel::resetRegistroExitoso,
         onReintentarCarga = viewModel::reintentarCarga,
         onTomarFotoClick = onTomarFotoClick,
@@ -149,12 +155,16 @@ fun RegistroScreen(
         onMenuSeleccionado = onMenuSeleccionado,
         onVerIngreso = onVerIngreso,
         onVolver = onVolver,
-        modifier = modifier) }
+        onEscanearPlacaClick = onEscanearPlacaClick,
+        modifier = modifier
+    )
+}
+
 
 // Solo se utilizan para organizar los callbacks de esta pantalla.
 private enum class CampoRegistro {
-    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION }
-
+    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION
+}
 // A dónde se quiere ir al salir del formulario.
 private enum class SalidaRegistro {
     // Volver a la pantalla anterior (flecha, ×, atrás del sistema).
@@ -184,7 +194,8 @@ private fun RegistroContent(
     onQuitarFoto: (String) -> Unit = {},
     onPasoChange: (Int) -> Unit = {},
     onValidarPaso: (Int) -> Boolean = { true },
-    onVolver: () -> Unit = {}
+    onVolver: () -> Unit = {},
+    onEscanearPlacaClick: () -> Unit = {}
 ) {
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -431,24 +442,31 @@ private fun RegistroContent(
                                             } else null,
                                         habilitado = datosCompletosHabilitados,
                                         destacado = true,
-                                        // El escáner de placa lo desarrollará otro equipo.
+                                        // Botón para abrir el escáner de placas.
                                         contenidoFinal = {
-                                            Surface(
-                                                modifier = Modifier.padding(end = 8.dp).alpha(0.5f),
+                                            OutlinedButton(
+                                                onClick = onEscanearPlacaClick,
+                                                enabled = datosCompletosHabilitados,
+                                                modifier = Modifier.padding(end = 8.dp),
                                                 shape = RoundedCornerShape(12.dp),
-                                                color = colors.primaryContainer,
-                                                contentColor = colors.onPrimaryContainer
+                                                contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                                                    horizontal = 12.dp,
+                                                    vertical = 8.dp
+                                                )
                                             ) {
-                                                Row(
-                                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                                                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Icon(Icons.Default.PhotoCamera, contentDescription = null,
-                                                        modifier = Modifier.size(20.dp))
-                                                    Text(stringResource(R.string.registro_scan),
-                                                        style = MaterialTheme.typography.labelLarge) } } },
-                                        ayuda = stringResource(R.string.registro_scan_pending),
+                                                Icon(
+                                                    Icons.Default.PhotoCamera,
+                                                    contentDescription = "Escanear placa",
+                                                    modifier = Modifier.size(20.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Text(
+                                                    text = "Escanear",
+                                                    style = MaterialTheme.typography.labelLarge
+                                                )
+                                            }
+                                        },
+                                        ayuda = "También puedes escanear la placa con la cámara.",
                                         onCambio = { onCampoChange(CampoRegistro.PLACA, it) })
                                     CampoRegistroTexto(
                                         etiqueta = R.string.dashboard_model,
