@@ -15,6 +15,9 @@ data class HallazgoReporte(val texto: String, val grave: Boolean)
 // Un punto del checklist con su resultado, para mostrar la revisión completa.
 data class ItemChecklistReporte(val texto: String, val ok: Boolean)
 
+// Máximo de fotografías que lleva un PDF; las pantallas, el envío y el generador usan el mismo límite.
+const val MAXIMO_FOTOS_REPORTE = 9
+
 // Fotografía con su descripción, para colocarla dentro del PDF.
 data class FotoReporte(val archivo: File, val pie: String)
 

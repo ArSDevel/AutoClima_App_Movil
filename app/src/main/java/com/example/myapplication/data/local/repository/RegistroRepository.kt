@@ -6,8 +6,10 @@ import com.example.myapplication.data.local.entity.Cliente
 import com.example.myapplication.data.local.entity.EventoIngreso
 import com.example.myapplication.data.local.entity.Ingreso
 import com.example.myapplication.data.local.entity.Vehiculo
+import com.example.myapplication.data.local.model.DatosPlacaRegistrada
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.FormularioIngreso
+import com.example.myapplication.data.reporte.FormatoReporte
 import java.util.Locale
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -76,7 +78,7 @@ class RegistroRepository(
 
             requireNotNull(tecnicoDao.obtener(tecnicoId)) { "El técnico ya no existe. Inicia sesión nuevamente." }
 
-            val clienteExistente = clienteDao.buscarPorTelefono(telefonoLimpio)
+            val clienteExistente = clienteDao.buscarPorTelefono(FormatoReporte.variantesTelefono(telefonoLimpio))
             val vehiculoExistente = vehiculoDao.buscarPorPlaca(placaLimpia)
 
             // Evita reutilizar un cliente ignorando diferencias
@@ -134,6 +136,19 @@ class RegistroRepository(
                     registrarFotoPrincipal(ingresoGuardado, ruta, tecnicoId) } }
             ingresoId } }
 
+
+    // Busca una placa ya registrada y devuelve los datos de su vehículo y de su cliente; null si no existe.
+    suspend fun buscarDatosPorPlaca(placa: String): DatosPlacaRegistrada? = withContext(Dispatchers.IO) {
+        val limpia = placa.trim().uppercase(Locale.ROOT)
+        val vehiculo = vehiculoDao.buscarPorPlaca(limpia)
+            ?: vehiculoDao.buscarPorPlacaSinGuiones(limpia.replace("-", ""))
+            ?: return@withContext null
+        val cliente = clienteDao.obtener(vehiculo.clienteId) ?: return@withContext null
+        DatosPlacaRegistrada(
+            placa = vehiculo.placa, modelo = vehiculo.modelo, color = vehiculo.color.orEmpty(),
+            numeroSerie = vehiculo.numeroSerie.orEmpty(), nombre = cliente.nombre,
+            telefono = cliente.telefono, email = cliente.email.orEmpty(),
+            ingresoAbierto = ingresoDao.contarAbiertosDelVehiculo(vehiculo.vehiculoId) > 0) }
 
     // Consulta las fotografías del expediente sin modificar el formulario.
     fun observarFotos(ingresoId: Long): kotlinx.coroutines.flow.Flow<List<Evidencia>> =

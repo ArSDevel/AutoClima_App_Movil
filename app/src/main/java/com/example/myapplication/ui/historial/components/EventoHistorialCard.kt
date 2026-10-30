@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
 import com.example.myapplication.data.local.model.EventoHistorial
 import com.example.myapplication.ui.theme.estadoIngresoColors
+import com.example.myapplication.ui.components.nombreCortoTecnico
 import java.text.DateFormat
 import java.util.Calendar
 import java.util.Date
@@ -52,7 +53,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
     val colors = MaterialTheme.colorScheme
     val estados = MaterialTheme.estadoIngresoColors
     val fecha = fechaRelativa(evento.fecha)
-    val tecnico = nombreCorto(evento.nombreTecnico)
+    val tecnico = nombreCortoTecnico(evento.nombreTecnico)
         ?: stringResource(R.string.historial_actor_unknown, evento.tecnicoId)
 
     val (icono, color) = when (evento.accion) {
@@ -117,22 +118,20 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
                         Text(stringResource(R.string.historial_open_short), fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
                         Icon(Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.size(18.dp)) } } } } } }
 
-// "Jesús Martínez Pérez" queda como "Jesús M."
-private fun nombreCorto(nombre: String?): String? {
-    val partes = nombre?.trim()?.split(" ")?.filter { it.isNotBlank() } ?: return null
-    if (partes.isEmpty()) return null
-    return if (partes.size == 1) partes[0] else "${partes[0]} ${partes[1].first()}." }
-
 // Muestra Hoy o Ayer con la hora; para otros días, la fecha corta.
 @Composable
 private fun fechaRelativa(milisegundos: Long): String {
-    val ahora = Calendar.getInstance()
-    val evento = Calendar.getInstance().apply { timeInMillis = milisegundos }
     val hora = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(milisegundos))
-    // Cuenta los días con año por 366 más día del año; al cruzar de año, Ayer se muestra como fecha corta.
-    val dias = (ahora.get(Calendar.YEAR) * 366 + ahora.get(Calendar.DAY_OF_YEAR)) -
-            (evento.get(Calendar.YEAR) * 366 + evento.get(Calendar.DAY_OF_YEAR))
-    return when (dias) {
+    return when (diasEntre(System.currentTimeMillis(), milisegundos)) {
         0 -> stringResource(R.string.historial_today) + " " + hora
         1 -> stringResource(R.string.historial_yesterday) + " " + hora
         else -> DateFormat.getDateInstance(DateFormat.SHORT).format(Date(milisegundos)) + " " + hora } }
+
+// Días de calendario entre dos instantes, de medianoche a medianoche, también al cruzar de mes o de año.
+// Se redondea porque un cambio de horario hace que un día dure 23 o 25 horas.
+internal fun diasEntre(ahoraMs: Long, eventoMs: Long): Int {
+    fun medianoche(ms: Long): Long = Calendar.getInstance().apply {
+        timeInMillis = ms
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+    return Math.round((medianoche(ahoraMs) - medianoche(eventoMs)) / 86_400_000.0).toInt() }

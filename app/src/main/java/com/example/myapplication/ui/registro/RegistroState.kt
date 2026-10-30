@@ -1,13 +1,18 @@
 package com.example.myapplication.ui.registro
 
+import com.example.myapplication.data.local.model.DatosPlacaRegistrada
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.FormularioIngreso
 
 // Información que utiliza la pantalla de registro y edición.
 data class RegistroUiState(
-    // Paso visible del formulario (0 cliente, 1 vehículo, 2 recepción).
+    // Paso visible del formulario (0 vehículo, 1 cliente, 2 recepción).
     // Vive aquí para conservarse al abrir la cámara.
     val paso: Int = 0,
+    // Datos tomados de un registro anterior de la placa escrita; null si no se llenó nada.
+    val autollenado: DatosPlacaRegistrada? = null,
+    // La búsqueda de datos de la placa falló; se avisa sin bloquear el formulario.
+    val fallaAutollenado: Boolean = false,
     // Datos del vehículo.
     val placa: String = "",
     val modelo: String = "",

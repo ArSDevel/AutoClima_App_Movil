@@ -115,6 +115,10 @@ data class FormularioIngreso(
             return compacta.length in 5..7 &&
                     compacta.any { it in 'A'..'Z' } && compacta.any { it in '0'..'9' } }
 
+        // Dos placas son la misma aunque una lleve guiones y la otra no, por ejemplo la que entrega el escáner.
+        fun mismaPlaca(a: String, b: String): Boolean {
+            return a.replace("-", "").equals(b.replace("-", ""), ignoreCase = true) }
+
         // Pasa a mayúsculas y quita lo que una placa no admite mientras se escribe.
         fun normalizarPlaca(valor: String): String {
             return valor.uppercase(Locale.ROOT).filter { it in 'A'..'Z' || it in '0'..'9' || it == '-' }.take(9) }

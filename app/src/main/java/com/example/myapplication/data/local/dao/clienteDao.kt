@@ -13,9 +13,13 @@ interface ClienteDao {
     @Insert
     suspend fun insertar(cliente: Cliente): Long
 
-    // Reutiliza al cliente cuando el teléfono ya está registrado; compara el texto exacto, sin normalizar.
-    @Query("SELECT * FROM cliente WHERE telefono = :telefono LIMIT 1")
-    suspend fun buscarPorTelefono(telefono: String): Cliente?
+    // Reutiliza al cliente cuando el teléfono ya está registrado, aunque se haya escrito con otro formato.
+    // Compara solo los dígitos del teléfono guardado, sin espacios, guiones, paréntesis ni signo +.
+    // Recibe las formas válidas de un mismo número, por ejemplo 5512345678, 525512345678 y 5215512345678.
+    @Query("""SELECT * FROM cliente WHERE
+        REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefono, ' ', ''), '-', ''), '(', ''), ')', ''), '+', '') IN (:variantes)
+        LIMIT 1""")
+    suspend fun buscarPorTelefono(variantes: List<String>): Cliente?
 
     // Obtiene la ficha actual del cliente.
     @Query("SELECT * FROM cliente WHERE clienteId = :id")

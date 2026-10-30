@@ -6,6 +6,7 @@ import com.example.myapplication.ui.login.LoginViewModel
 import com.example.myapplication.util.PasswordHasher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -63,13 +64,12 @@ class LoginViewModelTest {
         assertNull(state.passwordError)
         assertFalse(state.isLoggedIn) }
 
-    // El mensaje esperado de ID ya no coincide con el del ViewModel (El usuario no puede estar vacío).
     @Test
     fun login_withEmptyFields_showsErrorMessages() {
         viewModel.login()
 
         val state = viewModel.uiState.value
-        assertEquals("El ID no puede estar vacío", state.idError)
+        assertEquals("El usuario no puede estar vacío", state.idError)
         assertEquals("La contraseña no puede estar vacía", state.passwordError)
         assertFalse(state.isLoggedIn) }
 
@@ -87,7 +87,8 @@ class LoginViewModelTest {
         viewModel.onPasswordChanged("password123")
 
         viewModel.login()
-        testDispatcher.scheduler.advanceUntilIdle()
+        // El hash de la contraseña corre en un hilo real: se espera a que la sesión se abra.
+        viewModel.uiState.first { it.isLoggedIn }
 
         val state = viewModel.uiState.value
         assertNull(state.idError)
@@ -108,7 +109,8 @@ class LoginViewModelTest {
         viewModel.onIdChanged("01")
         viewModel.onPasswordChanged("password123")
         viewModel.login()
-        testDispatcher.scheduler.advanceUntilIdle()
+        // El hash de la contraseña corre en un hilo real: se espera a que la sesión se abra.
+        viewModel.uiState.first { it.isLoggedIn }
 
         assertTrue(viewModel.uiState.value.isLoggedIn)
 

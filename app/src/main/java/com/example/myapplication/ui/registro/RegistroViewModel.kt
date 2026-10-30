@@ -2,6 +2,7 @@ package com.example.myapplication.ui.registro
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.local.model.DatosPlacaRegistrada
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.FormularioIngreso
 import com.example.myapplication.data.local.model.IngresoResumen
@@ -37,6 +38,8 @@ class RegistroViewModel(
     private var formularioInicial = _uiState.value.aFormulario()
     // Observación de las fotografías del ingreso en edición.
     private var fotosJob: Job? = null
+    // Búsqueda en curso de los datos guardados de la placa escrita.
+    private var autollenadoJob: Job? = null
 
     init {
         // Un registro nuevo no necesita consultar un expediente.
@@ -105,17 +108,17 @@ class RegistroViewModel(
             } catch (_: Exception) {
                 _uiState.update { it.copy(mensajeError = "No fue posible actualizar las fotografías. Vuelve a abrir el ingreso.") } } } }
 
-    // Paso del formulario al que pertenece cada campo: 0 cliente, 1 vehículo, 2 recepción.
+    // Paso del formulario al que pertenece cada campo: 0 vehículo, 1 cliente, 2 recepción.
     private fun pasoDeCampo(campo: String): Int = when (campo) {
-        "nombre", "telefono", "email" -> 0
-        "placa", "modelo", "color", "numeroSerie" -> 1
+        "placa", "modelo", "color", "numeroSerie" -> 0
+        "nombre", "telefono", "email" -> 1
         else -> 2 }
 
     // Comprueba solo los campos del paso indicado. Si hay errores los marca y devuelve false.
     fun validarPaso(paso: Int): Boolean {
         val actual = _uiState.value
         val soloContacto = actual.esEdicion && ReglasIngreso.soloContacto(actual.estadoIngreso)
-        val errores = actual.aFormulario().errores(soloContacto = soloContacto)
+        val errores = (actual.aFormulario().errores(soloContacto = soloContacto) + erroresDePlaca(actual))
             .filterKeys { pasoDeCampo(it) == paso }
         if (errores.isEmpty()) return true
         _uiState.update { it.copy(erroresCampos = it.erroresCampos + errores, mensajeError = null) }
@@ -178,9 +181,71 @@ class RegistroViewModel(
                 tieneCambiosSinGuardar = modificado.aFormulario() != formularioInicial ||
                         modificado.fotoPath != modificado.fotoPathOriginal || modificado.fotosNuevas.isNotEmpty()) } }
 
-    // Actualiza la placa, ya normalizada.
+    // Actualiza la placa, ya normalizada, y revisa si se pueden llenar los demás datos.
     fun onPlacaChange(valor: String) {
-        cambiarCampo("placa") { it.copy(placa = FormularioIngreso.normalizarPlaca(valor)) } }
+        cambiarCampo("placa") { it.copy(placa = FormularioIngreso.normalizarPlaca(valor)) }
+        revisarAutollenado() }
+
+    // Con una placa válida en un ingreso nuevo, busca sus datos guardados y llena el formulario.
+    // Si la placa cambia después, quita lo que se había llenado para no mezclar datos de dos vehículos.
+    private fun revisarAutollenado() {
+        autollenadoJob?.cancel()
+        if (_uiState.value.fallaAutollenado) { _uiState.update { it.copy(fallaAutollenado = false) } }
+        val actual = _uiState.value
+        if (actual.esEdicion) return
+        val previo = actual.autollenado
+        if (previo != null && !FormularioIngreso.mismaPlaca(previo.placa, actual.placa)) { quitarAutollenado(previo) }
+        if (!FormularioIngreso.placaValida(actual.placa)) return
+        if (previo != null && FormularioIngreso.mismaPlaca(previo.placa, actual.placa)) return
+        val placa = actual.placa
+        autollenadoJob = viewModelScope.launch {
+            try {
+                val datos = repo.buscarDatosPorPlaca(placa) ?: return@launch
+                aplicarAutollenado(placa, datos)
+            } catch (cancelacion: CancellationException) {
+                throw cancelacion
+            } catch (_: Exception) {
+                // La búsqueda es una ayuda: si falla, se avisa y el técnico captura los datos a mano.
+                _uiState.update { it.copy(fallaAutollenado = true) }
+            } } }
+
+    // Llena cliente y vehículo con lo guardado, siempre que la placa siga siendo la misma al llegar la respuesta.
+    // La placa se reemplaza por la guardada, con sus guiones, para reutilizar el mismo vehículo al guardar.
+    private fun aplicarAutollenado(placa: String, datos: DatosPlacaRegistrada) {
+        _uiState.update { actual ->
+            if (actual.esEdicion || actual.cargando || actual.registroExitoso ||
+                !FormularioIngreso.mismaPlaca(actual.placa, placa)) { return@update actual }
+            val lleno = actual.copy(
+                autollenado = datos, placa = datos.placa, modelo = datos.modelo, color = datos.color,
+                numeroSerie = datos.numeroSerie, nombreCliente = datos.nombre,
+                telefonoCliente = datos.telefono, emailCliente = datos.email,
+                fallaAutollenado = false, mensajeError = null,
+                erroresCampos = actual.erroresCampos - listOf("placa", "modelo", "color", "numeroSerie",
+                    "nombre", "telefono", "email") + erroresDePlaca(actual.copy(autollenado = datos)))
+            lleno.copy(tieneCambiosSinGuardar = hayCambios(lleno)) } }
+
+    // Vacía solo los campos que siguen igual a lo autollenado, para conservar lo que el técnico ya corrigió.
+    private fun quitarAutollenado(previo: DatosPlacaRegistrada) {
+        _uiState.update { actual ->
+            val limpio = actual.copy(
+                autollenado = null,
+                modelo = if (actual.modelo == previo.modelo) "" else actual.modelo,
+                color = if (actual.color == previo.color) "" else actual.color,
+                numeroSerie = if (actual.numeroSerie == previo.numeroSerie) "" else actual.numeroSerie,
+                nombreCliente = if (actual.nombreCliente == previo.nombre) "" else actual.nombreCliente,
+                telefonoCliente = if (actual.telefonoCliente == previo.telefono) "" else actual.telefonoCliente,
+                emailCliente = if (actual.emailCliente == previo.email) "" else actual.emailCliente)
+            limpio.copy(tieneCambiosSinGuardar = hayCambios(limpio)) } }
+
+    // Un vehículo con un ingreso abierto no admite otro: se marca la placa antes de avanzar o guardar.
+    private fun erroresDePlaca(estado: RegistroUiState): Map<String, String> {
+        val abierto = !estado.esEdicion && estado.autollenado?.ingresoAbierto == true
+        return if (abierto) mapOf("placa" to MENSAJE_INGRESO_ABIERTO) else emptyMap() }
+
+    // Indica si el formulario o las fotos ya difieren de lo guardado.
+    private fun hayCambios(estado: RegistroUiState): Boolean {
+        return estado.aFormulario() != formularioInicial || estado.fotoPath != estado.fotoPathOriginal ||
+                estado.fotosNuevas.isNotEmpty() }
 
     // Actualiza el modelo del vehículo.
     fun onModeloChange(valor: String) {
@@ -263,7 +328,7 @@ class RegistroViewModel(
         val formulario = actual.aFormulario()
         val soloContacto = actual.esEdicion && ReglasIngreso.soloContacto(actual.estadoIngreso)
 
-        val errores = formulario.errores(soloContacto = soloContacto)
+        val errores = formulario.errores(soloContacto = soloContacto) + erroresDePlaca(actual)
 
         if (errores.isNotEmpty()) {
             // Lleva al técnico al primer paso que tiene algo por corregir.
@@ -345,4 +410,9 @@ class RegistroViewModel(
         } else {
             val nuevoEstado = RegistroUiState()
             formularioInicial = nuevoEstado.aFormulario()
-            _uiState.value = nuevoEstado } } }
+            _uiState.value = nuevoEstado } }
+
+    private companion object {
+        // Mismo texto que el repositorio, para que el aviso sea igual antes y después de guardar.
+        const val MENSAJE_INGRESO_ABIERTO =
+            "Esta placa ya tiene un ingreso abierto. Entrégalo o cancélalo antes de registrar otro." } }

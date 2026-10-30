@@ -26,6 +26,18 @@ class FormatoReporteTest {
 
     // El formato de moneda del dispositivo puede variar, por eso solo se comprueba el importe.
     @Test
+    fun variantesTelefono_unNumeroDeMexicoTieneTresFormas() {
+        val esperado = listOf("5512345678", "525512345678", "5215512345678")
+        assertEquals(esperado, FormatoReporte.variantesTelefono("55 1234 5678"))
+        assertEquals(esperado, FormatoReporte.variantesTelefono("(55) 1234-5678"))
+        assertEquals(esperado, FormatoReporte.variantesTelefono("+52 55 1234 5678"))
+        assertEquals(esperado, FormatoReporte.variantesTelefono("+52 1 55 1234 5678")) }
+
+    @Test
+    fun variantesTelefono_otroPaisSeBuscaTalCual() {
+        assertEquals(listOf("14155552671"), FormatoReporte.variantesTelefono("+1 415 555 2671")) }
+
+    @Test
     fun pesos_usaDosDecimalesSinRedondearConDouble() {
         val texto = FormatoReporte.pesos(395000)
         assertEquals(true, texto.contains("3,950.00")) } }

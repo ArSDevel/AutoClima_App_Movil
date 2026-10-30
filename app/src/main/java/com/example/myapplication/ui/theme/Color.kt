@@ -9,7 +9,6 @@ val AutoClimasBlueDark = Color(0xFF1D4ED8)
 val AutoClimasNavy = Color(0xFF0F172A)
 val AutoClimasHeaderBlue = Color(0xFF1E3A8A)
 val AutoClimasRed = Color(0xFFC51F32)
-val AutoClimasRedLight = Color(0xFFFFB2BB)
 val AutoClimasRedContainer = Color(0xFFFFE3E6)
 val AutoClimasRedDeep = Color(0xFF680B1B)
 
@@ -27,7 +26,6 @@ internal val AutoClimasLightSurfaceHighest = Color(0xFFDFE7F1)
 
 // Tema claro: textos y bordes
 val AutoClimasSlateDark = Color(0xFF1E293B)
-val AutoClimasSlate = Color(0xFF334155)
 val AutoClimasSlateMuted = Color(0xFF64748B)
 val AutoClimasBorder = Color(0xFFCBD5E1)
 

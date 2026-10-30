@@ -68,6 +68,7 @@ import com.example.myapplication.data.reporte.HallazgoReporte
 import com.example.myapplication.data.reporte.ItemChecklistReporte
 import com.example.myapplication.data.reporte.TipoReporte
 import com.example.myapplication.data.reporte.FormatoReporte
+import com.example.myapplication.data.reporte.MAXIMO_FOTOS_REPORTE
 
 // Conecta el reporte con su ViewModel.
 // El técnico debe provenir de la sesión autenticada.
@@ -281,7 +282,7 @@ fun DiagnosticoScreen(
         val textoHallazgos = estado.hallazgos.map { HallazgoReporte(stringResource(descripcionHallazgo(it)), it.esFalla()) }
         val revision = estado.checklist?.let { itemsRevision(it) }.orEmpty()
         // Las fotografías van en el orden en que se guardaron.
-        val fotosReporte = estadoFotos.evidencias.sortedBy { it.id }.map { FotoReporte(java.io.File(it.rutaImagen), it.descripcion) }
+        val fotosReporte = estadoFotos.evidencias.sortedBy { it.id }.take(MAXIMO_FOTOS_REPORTE).map { FotoReporte(java.io.File(it.rutaImagen), it.descripcion) }
         val total = estado.totalCentavos
         // Texto que acompaña al PDF: depende del tipo de documento y de si hay cotización con total.
         val mensaje = when {
@@ -345,44 +346,6 @@ fun DiagnosticoScreen(
             onPrincipal = { viewModel.consumirGuardadoExitoso()
                 onVolver() },
             onDismiss = viewModel::consumirGuardadoExitoso) } }
-
-// Presentación del reporte y estado de sus cambios; ninguna pantalla la usa por ahora.
-// No representa un documento enviado ni firmado.
-@Composable
-private fun EncabezadoReporteDiagnostico(
-    estado: DiagnosticoUiState) {
-    val colors = MaterialTheme.colorScheme
-    Surface(modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        color = colors.surface,
-        contentColor = colors.onSurface) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(
-                text = stringResource(R.string.dashboard_title),
-                style = MaterialTheme.typography.headlineMedium,
-                color = colors.primary)
-            Box(
-                modifier = Modifier.width(40.dp).height(4.dp)
-                    .background(
-                        color = colors.secondary,
-                        shape = MaterialTheme.shapes.extraSmall))
-            Text(text = stringResource(
-                R.string.diagnostico_report_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant)
-
-            Text(
-                text = stringResource(
-                    when {estado.tieneCambiosSinGuardar ->
-                        R.string.diagnostico_unsaved_changes
-                        estado.diagnosticoId != null ->
-                            R.string.diagnostico_saved_record
-                        else ->
-                            R.string.diagnostico_new_record }),
-                style = MaterialTheme.typography.labelLarge,
-                color = colors.primary) } } }
 
 // Hallazgos del checklist en una caja compacta, con las fotos del ingreso en miniatura.
 @Composable

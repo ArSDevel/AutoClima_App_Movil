@@ -30,8 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -70,7 +68,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.layout.layout
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.LaunchedEffect
@@ -173,12 +170,10 @@ private fun RegistroContent(
     onEscanearPlacaClick: () -> Unit = {}) {
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var salidaPendiente by rememberSaveable { mutableStateOf<SalidaRegistro?>(null) }
-    // Paso visible del formulario: 0 cliente, 1 vehículo, 2 recepción.
+    // Paso visible del formulario: 0 vehículo, 1 cliente, 2 recepción.
     val paso = uiState.paso
-    val mensajePendiente = stringResource(R.string.dashboard_section_pending)
 
     // editable: el estado permite cambios; soloContacto: solo se corrigen teléfono y correo.
     val editable = !uiState.esEdicion || ReglasIngreso.editar(uiState.estadoIngreso)
@@ -243,8 +238,7 @@ private fun RegistroContent(
                                 DashboardMenuOption.FIRMA -> {
                                     solicitarSalida(SalidaRegistro.FIRMA) }
                                 DashboardMenuOption.HISTORIAL -> {
-                                    solicitarSalida(SalidaRegistro.HISTORIAL) }
-                                else -> snackbar.showSnackbar(mensajePendiente) } } } },
+                                    solicitarSalida(SalidaRegistro.HISTORIAL) } } } } },
                 onLogout = {
                     scope.launch { drawerState.close()
                         solicitarSalida(SalidaRegistro.CERRAR_SESION) } }) }) {
@@ -254,7 +248,6 @@ private fun RegistroContent(
             else { solicitarSalida(SalidaRegistro.VOLVER) } }
         Scaffold(
             containerColor = colors.background,
-            snackbarHost = { SnackbarHost(snackbar) },
             topBar = {
                 if (uiState.esEdicion) {
                     // Editar: una sola pantalla, con el estado a la derecha de la cabecera.
@@ -375,34 +368,14 @@ private fun RegistroContent(
                                 onSeleccionarFoto = onSeleccionarFoto,
                                 onQuitarFoto = onQuitarFoto) }
                         else -> {
-                            // Avisos breves en una franja de color suave.
-                            if (uiState.esEdicion && paso < 2) {
-                                AvisoRegistro(texto = stringResource(R.string.registro_shared_warning)) }
-                            if (soloContacto) {
-                                AvisoRegistro(texto = stringResource(R.string.registro_contact_only)) }
-                            if (!editable) {
-                                Text(text = stringResource(R.string.registro_read_only),
-                                    color = colors.error) }
                             when (paso) {
                                 0 -> {
-                                    CampoRegistroTexto(etiqueta = R.string.registro_name,
-                                        obligatorio = true, valor = uiState.nombreCliente,
-                                        error = uiState.erroresCampos["nombre"],
-                                        habilitado = datosCompletosHabilitados,
-                                        onCambio = { onCampoChange(CampoRegistro.NOMBRE, it) })
-                                    CampoRegistroTexto(
-                                        etiqueta = R.string.dashboard_phone,
-                                        obligatorio = true, valor = uiState.telefonoCliente,
-                                        error = uiState.erroresCampos["telefono"],
-                                        habilitado = camposHabilitados, tipo = KeyboardType.Phone,
-                                        onCambio = { onCampoChange(CampoRegistro.TELEFONO, it) })
-                                    CampoRegistroTexto(
-                                        etiqueta = R.string.dashboard_email,
-                                        valor = uiState.emailCliente, error = uiState.erroresCampos["email"],
-                                        habilitado = camposHabilitados,
-                                        tipo = KeyboardType.Email,
-                                        onCambio = { onCampoChange(CampoRegistro.EMAIL, it) }) }
-                                1 -> {
+                                    // Avisa que los datos salieron de un registro anterior de esta placa.
+                                    uiState.autollenado?.let {
+                                        AvisoRegistro(texto = stringResource(R.string.registro_autofill_notice, it.nombre)) }
+                                    // La búsqueda de la placa falló: el técnico captura los datos a mano.
+                                    if (uiState.fallaAutollenado) {
+                                        AvisoRegistro(texto = stringResource(R.string.registro_autofill_error)) }
                                     CampoRegistroTexto(etiqueta = R.string.dashboard_plate,
                                         obligatorio = true, valor = uiState.placa,
                                         error = uiState.erroresCampos["placa"]
@@ -421,11 +394,11 @@ private fun RegistroContent(
                                                 shape = RoundedCornerShape(12.dp),
                                                 contentPadding = androidx.compose.foundation.layout.PaddingValues(
                                                     horizontal = 12.dp, vertical = 8.dp)) {
-                                                Icon(Icons.Default.PhotoCamera, contentDescription = "Escanear placa",
+                                                Icon(Icons.Default.PhotoCamera, contentDescription = stringResource(R.string.registro_scan_description),
                                                     modifier = Modifier.size(20.dp))
                                                 Spacer(modifier = Modifier.width(6.dp))
-                                                Text(text = "Escanear", style = MaterialTheme.typography.labelLarge) } },
-                                        ayuda = "También puedes escanear la placa con la cámara.",
+                                                Text(text = stringResource(R.string.registro_scan), style = MaterialTheme.typography.labelLarge) } },
+                                        ayuda = stringResource(R.string.registro_scan_hint),
                                         onCambio = { onCampoChange(CampoRegistro.PLACA, it) })
                                     CampoRegistroTexto(
                                         etiqueta = R.string.dashboard_model,
@@ -447,6 +420,27 @@ private fun RegistroContent(
                                         valor = uiState.numeroSerie, error = uiState.erroresCampos["numeroSerie"],
                                         habilitado = datosCompletosHabilitados,
                                         onCambio = { onCampoChange(CampoRegistro.SERIE, it) }) }
+                                1 -> {
+                                    // Recuerda de dónde salieron los datos cuando se llenaron con la placa.
+                                    uiState.autollenado?.let {
+                                        AvisoRegistro(texto = stringResource(R.string.registro_autofill_notice, it.nombre)) }
+                                    CampoRegistroTexto(etiqueta = R.string.registro_name,
+                                        obligatorio = true, valor = uiState.nombreCliente,
+                                        error = uiState.erroresCampos["nombre"],
+                                        habilitado = datosCompletosHabilitados,
+                                        onCambio = { onCampoChange(CampoRegistro.NOMBRE, it) })
+                                    CampoRegistroTexto(
+                                        etiqueta = R.string.dashboard_phone,
+                                        obligatorio = true, valor = uiState.telefonoCliente,
+                                        error = uiState.erroresCampos["telefono"],
+                                        habilitado = camposHabilitados, tipo = KeyboardType.Phone,
+                                        onCambio = { onCampoChange(CampoRegistro.TELEFONO, it) })
+                                    CampoRegistroTexto(
+                                        etiqueta = R.string.dashboard_email,
+                                        valor = uiState.emailCliente, error = uiState.erroresCampos["email"],
+                                        habilitado = camposHabilitados,
+                                        tipo = KeyboardType.Email,
+                                        onCambio = { onCampoChange(CampoRegistro.EMAIL, it) }) }
                                 else -> {
                                     FechaRegistro(valor = uiState.fechaEntrada,
                                         error = uiState.erroresCampos["fecha"],
@@ -644,8 +638,8 @@ private fun SugerenciasModelo(
 private fun PasosRegistro(paso: Int) {
     val colors = MaterialTheme.colorScheme
     val pasos = listOf(
-        R.string.registro_step_customer,
         R.string.registro_step_vehicle,
+        R.string.registro_step_customer,
         R.string.registro_step_reception)
     androidx.compose.material3.Surface(
         modifier = Modifier.fillMaxWidth(),

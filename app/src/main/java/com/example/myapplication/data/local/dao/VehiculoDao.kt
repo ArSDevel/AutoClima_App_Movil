@@ -18,6 +18,10 @@ interface VehiculoDao {
     @Query("SELECT * FROM vehiculo WHERE placa = :placa LIMIT 1")
     suspend fun buscarPorPlaca(placa: String): Vehiculo?
 
+    // Busca ignorando los guiones, porque el escáner entrega la placa sin ellos.
+    @Query("SELECT * FROM vehiculo WHERE REPLACE(placa, '-', '') = :placaSinGuiones LIMIT 1")
+    suspend fun buscarPorPlacaSinGuiones(placaSinGuiones: String): Vehiculo?
+
     // Obtiene la ficha actual del vehículo.
     @Query("SELECT * FROM vehiculo WHERE vehiculoId = :id")
     suspend fun obtener(id: Long): Vehiculo?

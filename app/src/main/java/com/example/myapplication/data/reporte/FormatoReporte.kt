@@ -16,6 +16,15 @@ object FormatoReporte {
             maximumFractionDigits = 2 }
         return formato.format(BigDecimal.valueOf(centavos, 2)) }
 
+    // Formas en que puede estar guardado un mismo teléfono, solo con dígitos.
+    // Un número de México admite 10 dígitos, con 52 o con 521 delante; cualquier otro se busca tal cual.
+    fun variantesTelefono(texto: String): List<String> {
+        val whatsapp = telefonoWhatsApp(texto) ?: return listOf(texto.filter { it.isDigit() })
+        if (whatsapp.length == 12 && whatsapp.startsWith("52")) {
+            val nacional = whatsapp.takeLast(10)
+            return listOf(nacional, "52$nacional", "521$nacional") }
+        return listOf(whatsapp) }
+
     // Número de WhatsApp con lada de país y solo dígitos.
     // Acepta 10 dígitos de México, con 52 o con 521 delante, o cualquier número con + y lada de país;
     // devuelve null si no es válido.

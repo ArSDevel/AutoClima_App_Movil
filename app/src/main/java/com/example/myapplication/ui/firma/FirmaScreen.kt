@@ -73,6 +73,7 @@ import coil.compose.AsyncImage
 import com.example.myapplication.R
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.reporte.FormatoReporte
+import com.example.myapplication.data.reporte.MAXIMO_FOTOS_REPORTE
 import com.example.myapplication.ui.components.BarraAccionInferior
 import com.example.myapplication.ui.components.DialogoAviso
 import com.example.myapplication.ui.components.EncabezadoAutoClimas
@@ -201,7 +202,7 @@ fun FirmaScreen(
     val ingresoEnvio = estado.ingreso
     if (mostrarEnvio && ingresoEnvio != null) {
         // Las fotos del acta son las evidencias del ingreso; el técnico decide en la hoja si se incluyen.
-        val fotosActa = estadoFotos.evidencias.sortedBy { it.id }.map { FotoReporte(File(it.rutaImagen), it.descripcion) }
+        val fotosActa = estadoFotos.evidencias.sortedBy { it.id }.take(MAXIMO_FOTOS_REPORTE).map { FotoReporte(File(it.rutaImagen), it.descripcion) }
         val mensaje = stringResource(R.string.send_message_delivery, ingresoEnvio.nombreCliente, ingresoEnvio.modelo, ingresoEnvio.placa)
         val datos = DatosReporte(
             ingresoId = ingresoEnvio.ingresoId, placa = ingresoEnvio.placa, modelo = ingresoEnvio.modelo,

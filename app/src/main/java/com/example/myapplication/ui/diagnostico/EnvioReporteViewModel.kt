@@ -10,6 +10,7 @@ import com.example.myapplication.data.reporte.DatosReporte
 import com.example.myapplication.data.reporte.EnvioReporte
 import com.example.myapplication.data.reporte.FormatoReporte
 import com.example.myapplication.data.reporte.GeneradorReportePdf
+import com.example.myapplication.data.reporte.MAXIMO_FOTOS_REPORTE
 import com.example.myapplication.data.reporte.ResultadoEnvio
 import com.example.myapplication.data.reporte.SolicitudEnvio
 import kotlinx.coroutines.CancellationException
@@ -90,7 +91,7 @@ class EnvioReporteViewModel(
                 error = "El teléfono del cliente no es válido. Corrígelo desde Editar.") }
             return }
         // Con Evidencias encendido, las fotos van dentro del mismo PDF: todo se manda en un solo envío.
-        val fotos = if (actual.incluirFotos) datos.fotos.filter { it.archivo.isFile }.take(MAXIMO_FOTOS) else emptyList()
+        val fotos = if (actual.incluirFotos) datos.fotos.filter { it.archivo.isFile }.take(MAXIMO_FOTOS_REPORTE) else emptyList()
 
         _uiState.update { it.copy(fase = FaseEnvio.PREPARANDO, error = null) }
         viewModelScope.launch {
@@ -137,8 +138,4 @@ class EnvioReporteViewModel(
             TipoReporte.COTIZACION -> "cotización en PDF"
             TipoReporte.ACTA -> "acta de entrega en PDF" }
         val conFotos = when (fotos) { 0 -> ""; 1 -> " con 1 foto de evidencia"; else -> " con $fotos fotos de evidencia" }
-        return "Se abrió WhatsApp para enviar: $documento$conFotos." }
-
-    private companion object {
-        // Tope de fotos que se pasan al PDF; el generador dibuja como máximo nueve.
-        const val MAXIMO_FOTOS = 10 } }
+        return "Se abrió WhatsApp para enviar: $documento$conFotos." } }

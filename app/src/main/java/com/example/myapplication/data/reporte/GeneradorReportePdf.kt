@@ -407,7 +407,7 @@ class GeneradorReportePdf(private val contexto: Context) {
         private fun fotos() {
             val anchoCelda = (anchoUtil - 16f) / 3
             val altoImagen = 84f
-            d.fotos.take(MAXIMO_FOTOS).chunked(3).forEach { fila ->
+            d.fotos.take(MAXIMO_FOTOS_REPORTE).chunked(3).forEach { fila ->
                 val pies = fila.mapIndexed { i, foto ->
                     capa(foto.pie.ifBlank { contexto.getString(R.string.pdf_photo_n, i + 1) }, pSuave, anchoCelda.toInt(), 2) }
                 val altura = altoImagen + 4f + (pies.maxOfOrNull { it.height } ?: 0) + 8f
@@ -463,8 +463,4 @@ class GeneradorReportePdf(private val contexto: Context) {
             lienzo.save()
             lienzo.translate(x, arriba)
             capa.draw(lienzo)
-            lienzo.restore() } }
-
-    private companion object {
-        // Límite de fotografías por documento para que el PDF no crezca sin control.
-        const val MAXIMO_FOTOS = 9 } }
+            lienzo.restore() } } }

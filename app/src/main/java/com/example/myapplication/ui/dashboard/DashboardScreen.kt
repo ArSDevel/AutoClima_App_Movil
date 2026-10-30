@@ -35,8 +35,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -46,7 +44,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -135,10 +132,8 @@ fun DashboardContent(
     val colors = MaterialTheme.colorScheme
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val snackbarState = remember { SnackbarHostState() }
     var mostrarFiltros by rememberSaveable { mutableStateOf(false) }
 
-    val mensajePendiente = stringResource(R.string.dashboard_section_pending)
     ModalNavigationDrawer(
         modifier = modifier.fillMaxSize(),
         drawerState = drawerState,
@@ -156,13 +151,10 @@ fun DashboardContent(
                             DashboardMenuOption.EVIDENCIAS,
                             DashboardMenuOption.FIRMA,
                             DashboardMenuOption.HISTORIAL -> {
-                                onMenuSeleccionado(opcion) }
-                            // Las opciones que este listado no atiende muestran el aviso de sección pendiente.
-                            else -> snackbarState.showSnackbar(mensajePendiente) } } },
+                                onMenuSeleccionado(opcion) } } } },
                 onLogout = onLogout) }) {
         Scaffold(
             containerColor = colors.background,
-            snackbarHost = { SnackbarHost(snackbarState) },
             topBar = {
                 Column {
                     EncabezadoAutoClimas(

@@ -100,9 +100,6 @@
     <string name="dashboard_menu_signature">Firma</string>
     <string name="dashboard_menu_history">Historial</string>
 
-    <!-- Menú lateral: presentación y disponibilidad -->
-    <string name="dashboard_section_pending">Esta sección está pendiente de integración.</string>
-
     <!-- Registro y edición: encabezado -->
     <string name="registro_title_new">Nuevo ingreso</string>
     <string name="registro_title_edit">Editar</string>
@@ -182,7 +179,6 @@
     <string name="checklist_answer_required">Selecciona Sí o No para continuar.</string>
 
     <!-- Secciones del checklist -->
-    <string name="checklist_section_progress">%1$d de %2$d respondidas</string>
 
     <string name="checklist_section_refrigerant_title">Refrigerante y fugas</string>
     <string name="checklist_section_refrigerant_description">Registra los resultados de la revisión del refrigerante y la detección de fugas.</string>
@@ -197,8 +193,6 @@
     <string name="checklist_title">Checklist de revisión</string>
     <string name="checklist_retry">Reintentar</string>
     <string name="checklist_not_found">El ingreso ya no existe.</string>
-    <string name="checklist_ingreso_number">Ingreso n.º %1$d</string>
-    <string name="checklist_instructions">Responde cada pregunta según la revisión realizada. Sí y No cuentan como respuestas; ninguna opción está seleccionada inicialmente.</string>
     <string name="checklist_read_only">Modo de consulta. La edición del checklist está disponible únicamente durante la revisión o la reparación.</string>
 
     <!-- Preguntas -->
@@ -217,9 +211,6 @@
     <string name="checklist_save">Guardar checklist</string>
     <string name="checklist_save_changes">Guardar cambios</string>
     <string name="checklist_saving">Guardando…</string>
-    <string name="checklist_unsaved_changes">Hay cambios sin guardar.</string>
-    <string name="checklist_saved_record">Checklist guardado, sin cambios pendientes.</string>
-    <string name="checklist_new_record">Checklist nuevo, todavía sin guardar.</string>
     <string name="checklist_saved_title">Checklist guardado</string>
     <string name="checklist_saved_message">Quedó registrado en el historial.</string>
     <string name="checklist_back_to_detail">Volver</string>
@@ -272,7 +263,6 @@
     <string name="diagnostico_loading">Cargando reporte…</string>
     <string name="diagnostico_load_error_title">No se pudo abrir el diagnóstico</string>
     <string name="diagnostico_not_found">El ingreso ya no existe.</string>
-    <string name="diagnostico_report_description">Reporte del vehículo con los hallazgos de la revisión, las observaciones del mecánico y la cotización.</string>
 
     <!-- Disponibilidad de edición -->
     <string name="diagnostico_requires_checklist">Guarda primero el checklist para poder editar.</string>
@@ -285,9 +275,6 @@
     <string name="diagnostico_save">Guardar diagnóstico</string>
     <string name="diagnostico_save_changes">Guardar cambios</string>
     <string name="diagnostico_saving">Guardando…</string>
-    <string name="diagnostico_unsaved_changes">Hay cambios sin guardar.</string>
-    <string name="diagnostico_saved_record">Notas y cotización guardadas, sin cambios pendientes.</string>
-    <string name="diagnostico_new_record">Diagnóstico todavía sin guardar.</string>
     <string name="diagnostico_saved_title">Diagnóstico guardado</string>
     <string name="diagnostico_saved_message">Quedó registrado en el historial.</string>
     <string name="diagnostico_stay">Quedarme</string>
@@ -432,8 +419,19 @@
     <string name="registro_step_reception">Recepción</string>
     <string name="registro_name">Nombre</string>
     <string name="registro_optional">Opcional</string>
+    <string name="registro_autofill_notice">Placa ya registrada: se cargaron los datos de %1$s. Puedes corregirlos.</string>
+    <string name="registro_autofill_error">No se pudieron buscar los datos de la placa. Captúralos a mano.</string>
     <string name="registro_scan">Escanear</string>
-    <string name="registro_scan_pending">Escáner de placa en desarrollo</string>
+    <string name="registro_scan_description">Escanear placa</string>
+    <string name="registro_scan_hint">También puedes escanear la placa con la cámara.</string>
+    <string name="scanner_title">Escanear matrícula</string>
+    <string name="scanner_aim">Apunta la cámara hacia la matrícula</string>
+    <string name="scanner_detected">Placa detectada: %1$s</string>
+    <string name="scanner_use">Usar matrícula</string>
+    <string name="scanner_back">Volver</string>
+    <string name="scanner_permission">Se necesita permiso para utilizar la cámara.</string>
+    <string name="scanner_allow">Dar permiso</string>
+    <string name="scanner_camera_error">No se pudo abrir la cámara. Cierra otras aplicaciones que la usen e inténtalo de nuevo.</string>
     <string name="registro_back">Atrás</string>
     <string name="detalle_delete_title">¿Eliminar %1$s?</string>
     <string name="registro_discard_contact">Perderás los cambios del teléfono y el correo.</string>

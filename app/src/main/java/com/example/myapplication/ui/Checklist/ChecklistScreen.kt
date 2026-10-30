@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -401,83 +400,3 @@ fun ChecklistScreen(
             onPrincipal = { viewModel.consumirGuardadoExitoso()
                 onVolver() },
             onDismiss = viewModel::consumirGuardadoExitoso) } }
-
-// Presenta el vehículo y el avance real de las respuestas; ninguna pantalla lo usa por ahora porque la cabecera
-// muestra el avance.
-// El progreso no representa un diagnóstico ni un cambio de estado.
-@Composable
-private fun EncabezadoChecklist(
-    estado: ChecklistUiState) {
-    val ingreso = estado.ingreso ?: return
-    val colors = MaterialTheme.colorScheme
-
-    Surface(
-        shape = MaterialTheme.shapes.large,
-        color = colors.surface,
-        tonalElevation = 0.dp) {
-        Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    color = colors.primaryContainer,
-                    contentColor = colors.onPrimaryContainer) {
-                    Icon(
-                        imageVector = Icons.Default.DirectionsCar,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(12.dp)
-                            .size(28.dp)) }
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(
-                        text = ingreso.placa,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = colors.primary)
-
-                    Text(
-                        text = ingreso.modelo,
-                        style = MaterialTheme.typography.bodyLarge)
-
-                    Text(
-                        text = stringResource(
-                            R.string.checklist_ingreso_number,
-                            ingreso.ingresoId),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = colors.onSurfaceVariant) } }
-
-            Text(
-                text = stringResource(R.string.checklist_instructions),
-                style = MaterialTheme.typography.bodyMedium,
-                color = colors.onSurfaceVariant)
-
-            LinearProgressIndicator(
-                progress = { estado.progreso },
-                modifier = Modifier.fillMaxWidth())
-
-            Text(
-                text = stringResource(
-                    R.string.checklist_section_progress,
-                    estado.preguntasRespondidas,
-                    estado.totalPreguntas),
-                style = MaterialTheme.typography.labelLarge,
-                color = colors.primary)
-
-            Text(
-                text = stringResource(
-                    when {
-                        estado.tieneCambiosSinGuardar ->
-                            R.string.checklist_unsaved_changes
-
-                        estado.checklistId != null ->
-                            R.string.checklist_saved_record
-
-                        else ->
-                            R.string.checklist_new_record }),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant) } } }

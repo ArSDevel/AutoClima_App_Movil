@@ -10,6 +10,7 @@ import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.model.DatosEntrega
 import com.example.myapplication.data.local.model.ReglasIngreso
 import com.example.myapplication.data.local.model.RequisitosEntrega
+import com.example.myapplication.data.reporte.FormatoReporte
 import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import java.util.Locale
@@ -84,7 +85,7 @@ class DashboardRepository(
 
             // Comprobamos el teléfono cuando se está modificando.
             if (telefono != cliente.telefono) {
-                val otroCliente = clienteDao.buscarPorTelefono(telefono)
+                val otroCliente = clienteDao.buscarPorTelefono(FormatoReporte.variantesTelefono(telefono))
                 require(otroCliente == null || otroCliente.clienteId == cliente.clienteId) {
                     "El teléfono ya está asociado a otro cliente." } }
 

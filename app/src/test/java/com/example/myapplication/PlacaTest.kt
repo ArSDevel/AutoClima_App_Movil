@@ -25,6 +25,13 @@ class PlacaTest {
         assertEquals("ABC-123", FormularioIngreso.normalizarPlaca("abc 123".replace(' ', '-')))
         assertEquals("ABC123", FormularioIngreso.normalizarPlaca("ab.c 123")) }
 
+    // El escáner entrega la placa sin guiones; debe reconocerse la misma que se guardó con ellos.
+    @Test
+    fun mismaPlaca_ignoraGuionesYMayusculas() {
+        assertTrue(FormularioIngreso.mismaPlaca("ABC-123-D", "ABC123D"))
+        assertTrue(FormularioIngreso.mismaPlaca("abc123d", "ABC-123-D"))
+        assertFalse(FormularioIngreso.mismaPlaca("ABC-123", "ABC-123-D")) }
+
     @Test
     fun formulario_marcaLaPlacaInvalida() {
         val errores = FormularioIngreso(placa = "ABCDEFG", modelo = "Versa", nombre = "Ana", telefono = "5512345678").errores()
