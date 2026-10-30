@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.navigation
 
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
@@ -38,6 +39,7 @@ import com.example.myapplication.ui.camara.CamaraIngresoViewModel
 import com.example.myapplication.ui.camara.CamaraIngresoViewModelFactory
 import com.example.myapplication.ui.camara.EvidenciasIngresoScreen
 import com.example.myapplication.ui.camara.PantallaCamara
+import com.example.myapplication.ui.camara.PantallaEscanerPlaca
 import com.example.myapplication.ui.camara.SeleccionIngresoEvidenciasScreen
 import com.example.myapplication.ui.checklist.ChecklistScreen
 import com.example.myapplication.ui.checklist.ChecklistViewModel
@@ -59,10 +61,8 @@ import com.example.myapplication.ui.login.LoginViewModel
 import com.example.myapplication.ui.registro.RegistroScreen
 import com.example.myapplication.ui.registro.RegistroViewModel
 import com.example.myapplication.ui.registro.RegistroViewModelFactory
-import com.example.myapplication.ui.camara.PantallaEscanerPlaca
 
 // Coordina la navegación y las dependencias de cada pantalla.
-
 @Composable
 fun AutoClimaApp() {
     val contexto = LocalContext.current.applicationContext
@@ -357,15 +357,13 @@ fun AutoClimaApp() {
                             mutableStateOf(false) }
 
                         var mostrarEscanerPlaca by rememberSaveable {
-                            mutableStateOf(false) }
-
+                            mutableStateOf(false)
+                        }
 
                         var mostrarAvisoGaleria by rememberSaveable {
                             mutableStateOf(false) }
 
-                        BackHandler(
-                            enabled = mostrarCamara || mostrarEscanerPlaca
-                        ) {
+                        BackHandler(enabled = mostrarCamara || mostrarEscanerPlaca) {
                             if (mostrarEscanerPlaca) {
                                 mostrarEscanerPlaca = false
                             } else {
@@ -374,8 +372,6 @@ fun AutoClimaApp() {
                         }
 
                         if (mostrarEscanerPlaca) {
-
-
                             PantallaEscanerPlaca(
                                 onPlacaConfirmada = { placa ->
                                     registroViewModel.onPlacaChange(placa)
@@ -385,9 +381,7 @@ fun AutoClimaApp() {
                                     mostrarEscanerPlaca = false
                                 }
                             )
-
                         } else if (mostrarCamara) {
-
                             PantallaCamara(
                                 onNavigateToGallery = {
                                     val id = key.ingresoId
@@ -396,50 +390,33 @@ fun AutoClimaApp() {
                                         mostrarCamara = false
                                         abrirEvidencias(id)
                                     } else {
-                                        mostrarAvisoGaleria = true
-                                    }
-                                },
+                                        mostrarAvisoGaleria = true } },
                                 onPhotoTaken = { archivo ->
                                     // Devuelve la captura al mismo formulario.
                                     registroViewModel.onFotoTomada(
-                                        archivo.absolutePath
-                                    )
-                                    mostrarCamara = false
-                                },
+                                        archivo.absolutePath)
+                                    mostrarCamara = false },
                                 onVolver = {
-                                    mostrarCamara = false
-                                }
-                            )
-
+                                    mostrarCamara = false })
                         } else {
-
                             RegistroScreen(
                                 viewModel = registroViewModel,
                                 tecnicoId = actor,
                                 onTomarFotoClick = {
-                                    mostrarCamara = true
-                                },
-                                onLogout = {
-                                    cerrarSesion()
-                                },
-                                onMenuSeleccionado = { opcion ->
-                                    if (opcion != DashboardMenuOption.REGISTRO) {
-                                        seleccionarMenu(opcion)
-                                    }
-                                },
-                                // Si se llegó desde el detalle del mismo ingreso,
-                                // se ofrece solo un botón.
-                                onVerIngreso = if (vieneDelDetalle) null else { id ->
-                                    abrirDetalle(id)
-                                },
-                                onVolver = {
-                                    volverUnaPantalla()
-                                },
+                                    mostrarCamara = true },
                                 onEscanearPlacaClick = {
                                     mostrarEscanerPlaca = true
-                                }
-                            )
-                        }
+                                },
+                                onLogout = { cerrarSesion() },
+                                onMenuSeleccionado = { opcion ->
+                                    if (
+                                        opcion != DashboardMenuOption.REGISTRO
+                                    ) {
+                                        seleccionarMenu(opcion) } },
+                                // Si se llegó desde el detalle del mismo ingreso, "Ver detalle" y "Atrás"
+                                // llevarían al mismo lugar: se ofrece solo un botón.
+                                onVerIngreso = if (vieneDelDetalle) null else { id -> abrirDetalle(id) },
+                                onVolver = { volverUnaPantalla() }) }
 
                         if (mostrarAvisoGaleria) {
                             AlertDialog(
