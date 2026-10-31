@@ -90,3 +90,19 @@ data class EntregaRoute(
     val userId: String,
     val ingresoId: Long
 ) : NavKey
+
+// Lista de usuarios con acceso a la app.
+@Serializable
+data class UsuariosRoute(val userId: String) : NavKey
+
+// Formulario para agregar un usuario con la sesión abierta.
+@Serializable
+data class NuevoUsuarioRoute(val userId: String) : NavKey
+
+// Edición de un usuario; tecnicoId es el usuario que se edita, que puede ser el de la sesión.
+@Serializable
+data class EditarUsuarioRoute(val userId: String, val tecnicoId: Long) : NavKey
+
+// Restablecer la contraseña con el código de recuperación; se abre desde el inicio de sesión, sin sesión.
+@Serializable
+data object RecuperarPasswordRoute : NavKey

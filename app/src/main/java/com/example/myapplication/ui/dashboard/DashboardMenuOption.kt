@@ -8,4 +8,5 @@ enum class DashboardMenuOption {
     EVIDENCIAS,
     DIAGNOSTICO,
     FIRMA,
-    HISTORIAL }
+    HISTORIAL,
+    USUARIOS }

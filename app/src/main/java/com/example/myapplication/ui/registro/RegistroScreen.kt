@@ -108,6 +108,7 @@ fun RegistroScreen(
                 CampoRegistro.TELEFONO -> viewModel.onTelefonoClienteChange(valor)
                 CampoRegistro.EMAIL -> viewModel.onEmailClienteChange(valor)
                 CampoRegistro.FECHA -> viewModel.onFechaEntradaChange(valor)
+                CampoRegistro.TECNICO -> viewModel.onTecnicoEncargadoChange(valor)
                 CampoRegistro.MOTIVO -> viewModel.onMotivoIngresoChange(valor)
                 CampoRegistro.CONDICION -> viewModel.onCondicionInicialChange(valor)
             }
@@ -134,8 +135,7 @@ fun RegistroScreen(
 
 // Solo se utilizan para organizar los callbacks de esta pantalla.
 private enum class CampoRegistro {
-    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, MOTIVO, CONDICION
-}
+    PLACA, MODELO, COLOR, SERIE, NOMBRE, TELEFONO, EMAIL, FECHA, TECNICO, MOTIVO, CONDICION }
 // A dónde se quiere ir al salir del formulario.
 private enum class SalidaRegistro {
     // Volver a la pantalla anterior (flecha, ×, atrás del sistema).
@@ -146,6 +146,7 @@ private enum class SalidaRegistro {
     EVIDENCIAS,
     FIRMA,
     HISTORIAL,
+    USUARIOS,
     CERRAR_SESION }
 
 // Contenido del registro: tres pasos al crear y una sola pantalla al editar.
@@ -204,6 +205,8 @@ private fun RegistroContent(
                 onMenuSeleccionado(DashboardMenuOption.FIRMA) }
             SalidaRegistro.HISTORIAL -> {
                 onMenuSeleccionado(DashboardMenuOption.HISTORIAL) }
+            SalidaRegistro.USUARIOS -> {
+                onMenuSeleccionado(DashboardMenuOption.USUARIOS) }
             SalidaRegistro.CERRAR_SESION -> {
                 onLogout() } } }
 
@@ -238,7 +241,9 @@ private fun RegistroContent(
                                 DashboardMenuOption.FIRMA -> {
                                     solicitarSalida(SalidaRegistro.FIRMA) }
                                 DashboardMenuOption.HISTORIAL -> {
-                                    solicitarSalida(SalidaRegistro.HISTORIAL) } } } } },
+                                    solicitarSalida(SalidaRegistro.HISTORIAL) }
+                                DashboardMenuOption.USUARIOS -> {
+                                    solicitarSalida(SalidaRegistro.USUARIOS) } } } } },
                 onLogout = {
                     scope.launch { drawerState.close()
                         solicitarSalida(SalidaRegistro.CERRAR_SESION) } }) }) {
@@ -447,6 +452,12 @@ private fun RegistroContent(
                                         habilitado = datosCompletosHabilitados,
                                         onCambio = { onCampoChange(CampoRegistro.FECHA, it) })
                                     CampoRegistroTexto(
+                                        etiqueta = R.string.registro_assigned_technician,
+                                        obligatorio = true, valor = uiState.tecnicoEncargado,
+                                        error = uiState.erroresCampos["tecnicoEncargado"],
+                                        habilitado = datosCompletosHabilitados,
+                                        onCambio = { onCampoChange(CampoRegistro.TECNICO, it) })
+                                    CampoRegistroTexto(
                                         etiqueta = R.string.registro_reason,
                                         obligatorio = true, valor = uiState.motivoIngreso,
                                         error = uiState.erroresCampos["motivo"],
@@ -567,6 +578,10 @@ private fun ContenidoEdicion(
             FechaRegistro(valor = uiState.fechaEntrada, error = uiState.erroresCampos["fecha"],
                 habilitado = datosCompletosHabilitados,
                 onCambio = { onCampoChange(CampoRegistro.FECHA, it) })
+            CampoRegistroTexto(etiqueta = R.string.registro_assigned_technician, obligatorio = true,
+                valor = uiState.tecnicoEncargado, error = uiState.erroresCampos["tecnicoEncargado"],
+                habilitado = datosCompletosHabilitados,
+                onCambio = { onCampoChange(CampoRegistro.TECNICO, it) })
             CampoRegistroTexto(etiqueta = R.string.registro_reason, obligatorio = true, valor = uiState.motivoIngreso,
                 error = uiState.erroresCampos["motivo"], habilitado = datosCompletosHabilitados,
                 onCambio = { onCampoChange(CampoRegistro.MOTIVO, it) })

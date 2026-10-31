@@ -77,3 +77,9 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
         db.execSQL("""ALTER TABLE ingreso
             ADD COLUMN tecnicoEncargado TEXT NOT NULL DEFAULT ''
             """.trimIndent()) } }
+
+// Versión 11 a 12: agrega el código de recuperación de contraseña. Los usuarios existentes quedan sin código hasta que
+// generen uno desde su perfil.
+val MIGRATION_11_12 = object : Migration(11, 12) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE tecnico ADD COLUMN recuperacionHash TEXT") } }

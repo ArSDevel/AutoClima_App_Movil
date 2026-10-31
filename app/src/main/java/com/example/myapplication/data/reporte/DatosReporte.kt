@@ -49,4 +49,6 @@ data class DatosReporte(
     val tecnicoId: Long?,
     val tecnicoNombre: String? = null,
     val firma: FirmaReporte? = null,
-    val entrega: DatosEntrega? = null)
+    val entrega: DatosEntrega? = null,
+    // Técnico encargado de la reparación, capturado en Registro. Puede venir vacío en ingresos anteriores.
+    val tecnicoEncargado: String? = null)

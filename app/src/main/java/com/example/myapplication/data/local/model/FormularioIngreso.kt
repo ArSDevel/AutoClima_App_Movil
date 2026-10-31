@@ -19,7 +19,8 @@ data class FormularioIngreso(
     val email: String = "",
     val fecha: String = fechaActual(),
     val motivo: String = "",
-    val condicion: String = "") {
+    val condicion: String = "",
+    val tecnicoEncargado: String = "") {
     // Devuelve los errores identificados por nombre de campo.
     // En edición de contacto únicamente valida teléfono y correo.
     // ahora es el instante de referencia para comprobar que la fecha de entrada no sea futura.
@@ -48,6 +49,12 @@ data class FormularioIngreso(
             if (fechaEntrada == null) { errores["fecha"] = "Escribe una fecha válida con formato dd/MM/aaaa." }
             else if (esPosteriorAHoy(fechaEntrada, ahora)) { errores["fecha"] = "La fecha de entrada no puede ser posterior a hoy." }
 
+            val tecnicoLimpio = tecnicoEncargado.trim()
+            if (tecnicoLimpio.isEmpty()) { errores["tecnicoEncargado"] = "Escribe el nombre del técnico encargado." }
+            else if (tecnicoLimpio.length < 2 || tecnicoLimpio.none { it.isLetter() }) {
+                errores["tecnicoEncargado"] = "Escribe un nombre válido, con letras." }
+            else if (tecnicoLimpio.length > MAXIMO_TECNICO) { errores["tecnicoEncargado"] = "El nombre admite hasta $MAXIMO_TECNICO caracteres." }
+
             val motivoLimpio = motivo.trim()
             if (motivoLimpio.isEmpty()) { errores["motivo"] = "Escribe el motivo del ingreso." }
             else if (motivoLimpio.length > MAXIMO_MOTIVO) { errores["motivo"] = "El motivo admite hasta $MAXIMO_MOTIVO caracteres." }
@@ -65,6 +72,7 @@ data class FormularioIngreso(
     companion object {
         // Longitudes máximas de cada campo, aplicadas en el formulario y de nuevo en el repositorio.
         const val MAXIMO_NOMBRE = 80
+        const val MAXIMO_TECNICO = 80
         const val MAXIMO_MODELO = 60
         const val MAXIMO_COLOR = 30
         const val MAXIMO_MOTIVO = 200

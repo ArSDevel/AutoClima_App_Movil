@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,7 +75,8 @@ import com.example.myapplication.ui.theme.MyApplicationTheme
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier,
+    onOlvidePassword: () -> Unit = {}) {
     // Obtenemos el estado actual del ViewModel.
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     // Mantiene actualizado el callback sin reiniciar el efecto.
@@ -86,7 +88,7 @@ fun LoginScreen(
     // Renderizado del contenido visual.
     LoginContent(uiState = uiState, onIdChanged = viewModel::onIdChanged,
         onPasswordChanged = viewModel::onPasswordChanged, onLoginClick = viewModel::login,
-        modifier = modifier) }
+        modifier = modifier, onOlvidePassword = onOlvidePassword) }
 
 // Componente que construye los elementos visuales
 // del formulario de Login.
@@ -96,7 +98,8 @@ fun LoginContent(
     onIdChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onLoginClick: () -> Unit,
-    modifier: Modifier = Modifier) {
+    modifier: Modifier = Modifier,
+    onOlvidePassword: () -> Unit = {}) {
     // Colores normalizados, bordes y tipografía para la UI.
     val colors = MaterialTheme.colorScheme
     val shapes = MaterialTheme.shapes
@@ -250,7 +253,11 @@ fun LoginContent(
                                 } else { stringResource(R.string.login_button) },
                                 style = typography.labelLarge,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) } } } } } } }
+                                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) } }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    // Para quien olvidó su contraseña y tiene su código de recuperación.
+                    TextButton(onClick = onOlvidePassword, enabled = formularioHabilitado) {
+                        Text(text = stringResource(R.string.login_forgot_password), style = typography.labelLarge) } } } } } }
 
 
 // Vista previa del inicio de sesión en modo claro.

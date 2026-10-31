@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CheckBox
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material.icons.outlined.Draw
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.PhotoCamera
@@ -107,7 +108,8 @@ fun DashboardDrawer(
                     DashboardMenuOption.EVIDENCIAS,
                     DashboardMenuOption.DIAGNOSTICO,
                     DashboardMenuOption.FIRMA,
-                    DashboardMenuOption.HISTORIAL
+                    DashboardMenuOption.HISTORIAL,
+                    DashboardMenuOption.USUARIOS
                 ).forEach { opcion ->
                     OpcionPrincipalDrawer(
                         opcion = opcion,
@@ -167,7 +169,8 @@ private fun etiquetaDrawer(opcion: DashboardMenuOption): Int {
         DashboardMenuOption.EVIDENCIAS -> R.string.dashboard_menu_evidence
         DashboardMenuOption.DIAGNOSTICO -> R.string.dashboard_menu_diagnosis
         DashboardMenuOption.FIRMA -> R.string.dashboard_menu_signature
-        DashboardMenuOption.HISTORIAL -> R.string.dashboard_menu_history } }
+        DashboardMenuOption.HISTORIAL -> R.string.dashboard_menu_history
+        DashboardMenuOption.USUARIOS -> R.string.dashboard_menu_users } }
 
 // Icono de cada opción del menú.
 private fun iconoDrawer(
@@ -180,7 +183,8 @@ private fun iconoDrawer(
         DashboardMenuOption.EVIDENCIAS -> Icons.Outlined.PhotoCamera
         DashboardMenuOption.DIAGNOSTICO -> Icons.Outlined.Description
         DashboardMenuOption.FIRMA -> Icons.Outlined.Draw
-        DashboardMenuOption.HISTORIAL -> Icons.Outlined.Schedule } }
+        DashboardMenuOption.HISTORIAL -> Icons.Outlined.Schedule
+        DashboardMenuOption.USUARIOS -> Icons.Outlined.Group } }
 
 // Vista previa del menú en modo claro.
 @Preview(

@@ -1,11 +1,9 @@
 package com.example.myapplication.data.local
 
 import android.content.Context
-import android.util.Log
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.myapplication.data.local.dao.ChecklistDao
 import com.example.myapplication.data.local.dao.ClienteDao
 import com.example.myapplication.data.local.dao.DiagnosticoDao
@@ -24,11 +22,6 @@ import com.example.myapplication.data.local.entity.Firma
 import com.example.myapplication.data.local.entity.Ingreso
 import com.example.myapplication.data.local.entity.Tecnico
 import com.example.myapplication.data.local.entity.Vehiculo
-import com.example.myapplication.util.PasswordHasher
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 // Base de datos local; exportSchema guarda el esquema de cada versión para validar las migraciones.
 @Database(entities = [
@@ -42,7 +35,7 @@ import kotlinx.coroutines.launch
         ConceptoCotizacion::class,
         Evidencia::class,
         Firma::class],
-    version = 11,
+    version = 12,
     exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tecnicoDao(): TecnicoDao
@@ -69,40 +62,17 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "autoclima_diag.db")
                     // Rutas disponibles:
-                    // versión 5 a 10, pasando por la 6 y la 9
-                    // versión 6 a 10, pasando por la 9
-                    // versión 8 a 10, pasando por la 9
-                    // versión 9 a 10
+                    // versión 5 a 12, pasando por la 6, la 9, la 10 y la 11
+                    // versión 6 a 12, pasando por la 9, la 10 y la 11
+                    // versión 8 a 12, pasando por la 9, la 10 y la 11
+                    // versión 9 a 12, pasando por la 10 y la 11
+                    // versión 10 a 12, pasando por la 11
+                    // versión 11 a 12
                     .addMigrations(MIGRATION_5_6,
                         MIGRATION_6_9,
                         MIGRATION_8_9,
                         MIGRATION_9_10,
-                        MIGRATION_10_11)
-                    .addCallback(object : Callback() {
-                        // Solo se ejecuta al crear una base nueva.
-                        // Una actualización conserva los técnicos existentes.
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-                            Log.d("CargaInicial",
-                                "Se ejecutó onCreate")
-                            sembrarUsuarioInicial(contextoAplicacion) } })
+                        MIGRATION_10_11,
+                        MIGRATION_11_12)
                     .build()
-                    .also { INSTANCE = it } } }
-        // Conserva el técnico de prueba para instalaciones nuevas; la inserción corre en segundo plano para no
-        // bloquear la creación de la base.
-        private fun sembrarUsuarioInicial(
-            context: Context
-        ) { CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val dao = getInstance(context).tecnicoDao()
-                    val id = dao.insertar(
-                        Tecnico(nombre = "Erik",
-                            usuario = "erik",
-                            passwordHash = PasswordHasher.hash("1234")))
-                    Log.d("CargaInicial",
-                        "Técnico insertado con ID: $id")
-                } catch (cancelacion: CancellationException) {
-                    throw cancelacion
-                } catch (error: Exception) {
-                    Log.e("CargaInicial", "Falló la inserción del técnico",
-                        error) } } } } }
+                    .also { INSTANCE = it } } } } }

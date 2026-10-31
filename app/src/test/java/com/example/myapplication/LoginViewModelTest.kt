@@ -2,11 +2,14 @@ package com.example.myapplication
 
 import com.example.myapplication.data.local.dao.TecnicoDao
 import com.example.myapplication.data.local.entity.Tecnico
+import com.example.myapplication.data.local.model.UsuarioListado
 import com.example.myapplication.ui.login.LoginViewModel
 import com.example.myapplication.util.PasswordHasher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -35,7 +38,46 @@ class FakeTecnicoDao : TecnicoDao {
         return tecnico.tecnicoId }
 
     override suspend fun obtener(id: Long): Tecnico? {
-        return tecnicos.find { it.tecnicoId == id } } }
+        return tecnicos.find { it.tecnicoId == id } }
+
+    override fun observarCantidad(): Flow<Int> = flowOf(tecnicos.size)
+
+    override suspend fun contarPorUsuario(usuario: String): Int {
+        return tecnicos.count { it.usuario.equals(usuario, ignoreCase = true) } }
+
+    override fun observarListado(): Flow<List<UsuarioListado>> {
+        return flowOf(tecnicos.map { UsuarioListado(it.tecnicoId, it.nombre, it.usuario, ingresos = 0, actividad = 0) }) }
+
+    override suspend fun eliminarSinActividad(id: Long, actualId: Long): Int {
+        if (id == actualId) return 0
+        return if (tecnicos.removeAll { it.tecnicoId == id }) 1 else 0 }
+
+    override suspend fun contarPorUsuarioExcepto(usuario: String, id: Long): Int {
+        return tecnicos.count { it.usuario.equals(usuario, ignoreCase = true) && it.tecnicoId != id } }
+
+    private fun reemplazar(id: Long, cambio: (Tecnico) -> Tecnico): Int {
+        val posicion = tecnicos.indexOfFirst { it.tecnicoId == id }
+        if (posicion < 0) return 0
+        tecnicos[posicion] = cambio(tecnicos[posicion])
+        return 1 }
+
+    override suspend fun actualizarDatos(id: Long, nombre: String, usuario: String): Int =
+        reemplazar(id) { it.copy(nombre = nombre, usuario = usuario) }
+
+    override suspend fun actualizarPassword(id: Long, passwordHash: String): Int =
+        reemplazar(id) { it.copy(passwordHash = passwordHash) }
+
+    override suspend fun actualizarRecuperacion(id: Long, recuperacionHash: String): Int =
+        reemplazar(id) { it.copy(recuperacionHash = recuperacionHash) }
+
+    override suspend fun restablecerConCodigo(id: Long, passwordHash: String, recuperacionNuevo: String,
+                                              recuperacionActual: String): Int {
+        val actual = tecnicos.find { it.tecnicoId == id } ?: return 0
+        if (actual.recuperacionHash != recuperacionActual) return 0
+        return reemplazar(id) { it.copy(passwordHash = passwordHash, recuperacionHash = recuperacionNuevo) } }
+
+    // Para las pruebas: lo que quedó guardado de un técnico.
+    fun guardado(id: Long): Tecnico? = tecnicos.find { it.tecnicoId == id } }
 
 // Pruebas del inicio de sesión; el dispatcher de pruebas reemplaza al principal para controlar las corrutinas del ViewModel.
 @OptIn(ExperimentalCoroutinesApi::class)

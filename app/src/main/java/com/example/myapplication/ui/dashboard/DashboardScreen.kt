@@ -150,7 +150,8 @@ fun DashboardContent(
                             DashboardMenuOption.DIAGNOSTICO,
                             DashboardMenuOption.EVIDENCIAS,
                             DashboardMenuOption.FIRMA,
-                            DashboardMenuOption.HISTORIAL -> {
+                            DashboardMenuOption.HISTORIAL,
+                            DashboardMenuOption.USUARIOS -> {
                                 onMenuSeleccionado(opcion) } } } },
                 onLogout = onLogout) }) {
         Scaffold(

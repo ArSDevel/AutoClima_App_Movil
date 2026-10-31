@@ -14,7 +14,7 @@ class FormularioIngresoTest {
     // Formulario con los datos mínimos válidos; cada prueba cambia solo el campo que verifica.
     private fun valido() = FormularioIngreso(
         placa = "KLM-482-B", modelo = "Nissan Versa", nombre = "Marta Ruiz", telefono = "55 1234 5678",
-        motivo = "No enfría el aire")
+        motivo = "No enfría el aire", tecnicoEncargado = "Carlos Pérez")
 
     @Test
     fun formularioCompleto_noTieneErrores() {
@@ -23,7 +23,18 @@ class FormularioIngresoTest {
     @Test
     fun camposObligatorios_seSeñalan() {
         val errores = FormularioIngreso().errores()
-        assertTrue(errores.keys.containsAll(listOf("placa", "modelo", "nombre", "telefono", "motivo"))) }
+        assertTrue(errores.keys.containsAll(listOf("placa", "modelo", "nombre", "telefono", "tecnicoEncargado", "motivo"))) }
+
+    @Test
+    fun tecnicoEncargado_esObligatorioConLetrasYLongitudMaxima() {
+        assertEquals("Escribe el nombre del técnico encargado.",
+            valido().copy(tecnicoEncargado = "  ").errores()["tecnicoEncargado"])
+        assertTrue(valido().copy(tecnicoEncargado = "12").errores().containsKey("tecnicoEncargado"))
+        assertTrue(valido().copy(tecnicoEncargado = "A").errores().containsKey("tecnicoEncargado"))
+        assertTrue(valido().copy(tecnicoEncargado = "a".repeat(FormularioIngreso.MAXIMO_TECNICO + 1))
+            .errores().containsKey("tecnicoEncargado"))
+        assertFalse(valido().copy(tecnicoEncargado = "a".repeat(FormularioIngreso.MAXIMO_TECNICO))
+            .errores().containsKey("tecnicoEncargado")) }
 
     @Test
     fun telefono_debeTener10Digitos() {

@@ -93,7 +93,7 @@ class LoginViewModel(
                 // contra el hash guardado.
                 // El cálculo se realiza fuera del hilo principal.
                 val esPasswordCorrecto = withContext(Dispatchers.Default) {
-                    PasswordHasher.hash(passwordActual) == tecnico.passwordHash }
+                    PasswordHasher.verificar(passwordActual, tecnico.passwordHash) }
 
                 // Contraseña incorrecta.
                 if (!esPasswordCorrecto) {
@@ -102,6 +102,10 @@ class LoginViewModel(
 
                 // 3. Comprueba que el técnico tenga un identificador válido.
                 check(tecnico.tecnicoId > 0) { "El técnico no tiene un identificador válido." }
+
+                // Las contraseñas guardadas con el formato anterior se actualizan a uno con sal al iniciar sesión.
+                if (PasswordHasher.requiereActualizar(tecnico.passwordHash)) {
+                    actualizarFormatoPassword(tecnico.tecnicoId, passwordActual) }
 
                 // Login exitoso.
                 // Guarda los datos del técnico y limpia la contraseña
@@ -123,6 +127,19 @@ class LoginViewModel(
                         tecnicoId = null,
                         nombreTecnico = null,
                         idError = "No fue posible iniciar sesión. Intenta nuevamente.") } } } }
+
+    // Vuelve a guardar la contraseña con sal. Si falla, el inicio de sesión sigue y se reintenta la próxima vez.
+    private suspend fun actualizarFormatoPassword(tecnicoId: Long, password: String) {
+        try {
+            val nuevoHash = withContext(Dispatchers.Default) { PasswordHasher.hash(password) }
+            tecnicoDao.actualizarPassword(tecnicoId, nuevoHash)
+        } catch (cancelacion: CancellationException) {
+            throw cancelacion
+        } catch (_: Exception) { } }
+
+    // Actualiza el nombre que muestra el menú después de editar el perfil con la sesión abierta.
+    fun actualizarNombre(nombre: String) {
+        _uiState.update { if (it.isLoggedIn) it.copy(nombreTecnico = nombre) else it } }
 
     // Restablece el estado de la sesión al presionar "Cerrar Sesión".
     // También cancela una autenticación pendiente y limpia

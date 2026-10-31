@@ -1,5 +1,6 @@
 package com.example.myapplication.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -24,4 +25,7 @@ data class Ingreso(
     // Se guarda el nombre de EstadoIngreso como texto.
     val estado: String = EstadoIngreso.REGISTRADO.name,
     // Ruta de la foto principal; las demás viven en la tabla de evidencias.
-    val fotoPath: String? = null)
+    val fotoPath: String? = null,
+    // Técnico encargado de la reparación; los ingresos anteriores a la migración quedan con el valor vacío.
+    @ColumnInfo(defaultValue = "''")
+    val tecnicoEncargado: String = "")

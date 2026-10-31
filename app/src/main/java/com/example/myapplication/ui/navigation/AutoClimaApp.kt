@@ -1,6 +1,9 @@
 package com.example.myapplication.ui.navigation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -11,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
@@ -66,7 +70,18 @@ import com.example.myapplication.ui.diagnostico.DiagnosticoViewModel
 import com.example.myapplication.ui.diagnostico.DiagnosticoViewModelFactory
 import com.example.myapplication.ui.diagnostico.SeleccionIngresoDiagnosticoScreen
 import com.example.myapplication.ui.login.LoginScreen
+import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.login.LoginViewModel
+import com.example.myapplication.ui.usuarios.AvisoUsuarios
+import com.example.myapplication.ui.usuarios.EditarUsuarioScreen
+import com.example.myapplication.ui.usuarios.EditarUsuarioViewModel
+import com.example.myapplication.ui.usuarios.NuevoUsuarioScreen
+import com.example.myapplication.ui.usuarios.RecuperarPasswordScreen
+import com.example.myapplication.ui.usuarios.RecuperarPasswordViewModel
+import com.example.myapplication.ui.usuarios.NuevoUsuarioViewModel
+import com.example.myapplication.ui.usuarios.PrimerUsoFlow
+import com.example.myapplication.ui.usuarios.UsuariosScreen
+import com.example.myapplication.ui.usuarios.UsuariosViewModel
 import com.example.myapplication.ui.registro.RegistroScreen
 import com.example.myapplication.ui.registro.RegistroViewModel
 import com.example.myapplication.ui.registro.RegistroViewModelFactory
@@ -141,6 +156,22 @@ fun AutoClimaApp() {
             tecnicoId != null &&
             tecnicoId > 0 &&
             uiState.id.isNotBlank()
+
+    // Primer uso: se decide una sola vez al arrancar. Sin usuarios se muestra la bienvenida y la creación del primero;
+    // se conserva aunque el usuario ya exista para poder mostrar la confirmación antes del inicio de sesión.
+    val cantidadUsuarios by remember(tecnicoDao) { tecnicoDao.observarCantidad() }
+        .collectAsStateWithLifecycle(initialValue = null)
+    var primerUso by rememberSaveable { mutableStateOf<Boolean?>(null) }
+    LaunchedEffect(cantidadUsuarios) {
+        if (primerUso == null && cantidadUsuarios != null) {
+            primerUso = cantidadUsuarios == 0 } }
+    val primerUsoViewModel: NuevoUsuarioViewModel = viewModel(
+        key = "primer_uso",
+        factory = remember(tecnicoDao) {
+            fabricaViewModel { NuevoUsuarioViewModel(tecnicoDao, generarCodigoRecuperacion = true) } })
+
+    // Lo último que pasó con los usuarios (creado o editado), para avisarlo en la lista. Guarda el tipo y el usuario.
+    var avisoUsuarios by rememberSaveable { mutableStateOf<Pair<Boolean, String>?>(null) }
 
     val dashboardFactory = remember(dashboardRepository) {
         DashboardViewModelFactory(
@@ -296,6 +327,18 @@ fun AutoClimaApp() {
         if (backStack.lastOrNull() != destino) {
             backStack.add(destino) } }
 
+    // Abre el formulario para agregar un usuario.
+    fun abrirNuevoUsuario() {
+        if (!sesionValida) return
+        if (backStack.lastOrNull() is NuevoUsuarioRoute) return
+        backStack.add(NuevoUsuarioRoute(userId = uiState.id)) }
+
+    // Abre la edición de un usuario; el de la sesión también se edita desde aquí.
+    fun abrirEditarUsuario(tecnicoDestinoId: Long) {
+        if (!sesionValida || tecnicoDestinoId <= 0) return
+        if (backStack.lastOrNull() is EditarUsuarioRoute) return
+        backStack.add(EditarUsuarioRoute(userId = uiState.id, tecnicoId = tecnicoDestinoId)) }
+
     // Abre la pantalla que corresponde a la opción del menú.
     fun seleccionarMenu(opcion: DashboardMenuOption) {
         when (opcion) {
@@ -323,8 +366,22 @@ fun AutoClimaApp() {
                     SeleccionIngresoFirmaRoute(
                         userId = uiState.id)) }
 
-            DashboardMenuOption.HISTORIAL -> abrirSelector(HistorialRoute(uiState.id)) } }
+            DashboardMenuOption.HISTORIAL -> abrirSelector(HistorialRoute(uiState.id))
 
+            DashboardMenuOption.USUARIOS -> abrirSelector(UsuariosRoute(uiState.id)) } }
+
+    when (primerUso) {
+        // Todavía no se sabe si hay usuarios: solo el fondo, para no mostrar el inicio de sesión un instante.
+        null -> Box(
+            modifier = Modifier.fillMaxSize().background(AutoClimasGradients.loginBackground))
+
+        true -> PrimerUsoFlow(
+            viewModel = primerUsoViewModel,
+            onTerminar = { usuario ->
+                loginViewModel.onIdChanged(usuario)
+                primerUso = false })
+
+        false ->
     // Hace llegar el nombre del técnico al menú lateral sin pasarlo por cada pantalla.
     androidx.compose.runtime.CompositionLocalProvider(
         com.example.myapplication.ui.components.LocalNombreTecnico provides uiState.nombreTecnico) {
@@ -339,6 +396,9 @@ fun AutoClimaApp() {
                 // Verifica que la entrada pertenezca a la sesión actual.
                 val usuarioRuta = when (key) {
                     is HistorialRoute -> key.userId
+                    is UsuariosRoute -> key.userId
+                    is NuevoUsuarioRoute -> key.userId
+                    is EditarUsuarioRoute -> key.userId
                     is DashboardRoute -> key.userId
                     is RegistroRoute -> key.userId
                     is DetalleIngresoRoute -> key.userId
@@ -354,7 +414,7 @@ fun AutoClimaApp() {
                     else -> null }
 
                 if (
-                    key != LoginRoute &&
+                    key != LoginRoute && key != RecuperarPasswordRoute &&
                     (!sesionValida || usuarioRuta != uiState.id)) {
                     return@NavEntry }
 
@@ -362,7 +422,22 @@ fun AutoClimaApp() {
                     LoginRoute -> {
                         LoginScreen(
                             viewModel = loginViewModel,
-                            onLoginSuccess = {}) }
+                            onLoginSuccess = {},
+                            onOlvidePassword = {
+                                if (backStack.lastOrNull() != RecuperarPasswordRoute) {
+                                    backStack.add(RecuperarPasswordRoute) } }) }
+
+                    RecuperarPasswordRoute -> {
+                        val recuperarViewModel: RecuperarPasswordViewModel = viewModel(
+                            factory = remember { fabricaViewModel { RecuperarPasswordViewModel(tecnicoDao) } })
+
+                        RecuperarPasswordScreen(
+                            viewModel = recuperarViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onTerminar = { usuario ->
+                                // Regresa al inicio de sesión con el usuario ya escrito.
+                                volverUnaPantalla()
+                                if (usuario.isNotEmpty()) loginViewModel.onIdChanged(usuario) }) }
 
                     is DashboardRoute -> {
                         val dashboardViewModel: DashboardViewModel =
@@ -707,6 +782,51 @@ fun AutoClimaApp() {
                             onVolver = { volverUnaPantalla() },
                             onIrAIngresos = { volverAlDashboard() }) }
 
+                    is UsuariosRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val usuariosViewModel: UsuariosViewModel = viewModel(
+                            factory = remember(actor) {
+                                fabricaViewModel { UsuariosViewModel(tecnicoDao, actor) } })
+
+                        UsuariosScreen(
+                            viewModel = usuariosViewModel,
+                            aviso = avisoUsuarios?.let { (creado, usuario) ->
+                                if (creado) AvisoUsuarios.Creado(usuario) else AvisoUsuarios.Editado(usuario) },
+                            onAvisoMostrado = { avisoUsuarios = null },
+                            onNuevoUsuario = { abrirNuevoUsuario() },
+                            onEditarUsuario = { abrirEditarUsuario(it) },
+                            onVolver = { volverUnaPantalla() },
+                            onMenuSeleccionado = { seleccionarMenu(it) },
+                            onLogout = { cerrarSesion() }) }
+
+                    is NuevoUsuarioRoute -> {
+                        val nuevoUsuarioViewModel: NuevoUsuarioViewModel = viewModel(
+                            factory = remember { fabricaViewModel { NuevoUsuarioViewModel(tecnicoDao) } })
+
+                        NuevoUsuarioScreen(
+                            viewModel = nuevoUsuarioViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onCreado = { usuario ->
+                                avisoUsuarios = true to usuario
+                                volverUnaPantalla() }) }
+
+                    is EditarUsuarioRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val editarViewModel: EditarUsuarioViewModel = viewModel(
+                            factory = remember(actor, key.tecnicoId) {
+                                fabricaViewModel { EditarUsuarioViewModel(tecnicoDao, actor, key.tecnicoId) } })
+
+                        EditarUsuarioScreen(
+                            viewModel = editarViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onGuardado = { editado ->
+                                // El menú muestra el nombre de la sesión: se actualiza si se editó el propio.
+                                if (editado.esPropio) loginViewModel.actualizarNombre(editado.nombre)
+                                avisoUsuarios = false to editado.nombre
+                                volverUnaPantalla() }) }
+
                     is EvidenciasIngresoRoute -> {
                         val actor = tecnicoId ?: return@NavEntry
 
@@ -725,4 +845,4 @@ fun AutoClimaApp() {
                             tecnicoId = actor,
                             onVolver = { volverUnaPantalla() }) }
 
-                    else -> error("Ruta no reconocida: $key") } } }) } }
+                    else -> error("Ruta no reconocida: $key") } } }) } } }

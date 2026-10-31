@@ -579,4 +579,126 @@
     <string name="send_type_quote">Cotización</string>
     <string name="send_type_delivery">Acta</string>
     <string name="send_message_delivery">Hola %1$s, te compartimos el acta de entrega de tu %2$s (%3$s).</string>
+
+    <!-- Usuarios: primer uso, lista, alta y baja -->
+    <string name="dashboard_menu_users">Usuarios</string>
+    <string name="bienvenida_title">Bienvenido a AutoClimas</string>
+    <string name="bienvenida_subtitle">Todo el servicio de cada vehículo, en un solo lugar.</string>
+    <string name="bienvenida_feature_register_title">Registra cada ingreso</string>
+    <string name="bienvenida_feature_register_text">Datos del cliente, vehículo y checklist de recepción.</string>
+    <string name="bienvenida_feature_evidence_title">Guarda evidencias</string>
+    <string name="bienvenida_feature_evidence_text">Fotos del vehículo antes y después del servicio.</string>
+    <string name="bienvenida_feature_delivery_title">Entrega con reporte</string>
+    <string name="bienvenida_feature_delivery_text">Firma del cliente y reporte en PDF para compartir.</string>
+    <string name="bienvenida_start">Comenzar</string>
+    <string name="bienvenida_next_step">Siguiente paso: crear tu usuario</string>
+    <string name="primer_uso_title">Crea tu usuario</string>
+    <string name="primer_uso_subtitle">Es la primera vez que abres la app. Crea el acceso para empezar a registrar ingresos.</string>
+    <string name="primer_uso_create">Crear cuenta</string>
+    <string name="primer_uso_created_title">Cuenta creada</string>
+    <string name="primer_uso_created_text">Ya puedes iniciar sesión con el usuario %1$s.</string>
+    <string name="primer_uso_created_hint">Más adelante podrás agregar a otros técnicos desde el menú, en la opción Usuarios.</string>
+    <string name="primer_uso_code_title">Tu código de recuperación</string>
+    <string name="primer_uso_code_text">Anótalo ahora: no se vuelve a mostrar. Lo necesitarás si olvidas tu contraseña.</string>
+    <string name="primer_uso_enter">Entrar a AutoClimas</string>
+
+    <string name="usuarios_title">Usuarios</string>
+    <plurals name="usuarios_subtitle">
+        <item quantity="one">%d técnico con acceso</item>
+        <item quantity="other">%d técnicos con acceso</item>
+    </plurals>
+    <string name="usuarios_intro">Todos los usuarios pueden iniciar sesión y registrar ingresos. Solo se puede eliminar a quien aún no tiene registros.</string>
+    <string name="usuarios_loading">Cargando usuarios…</string>
+    <string name="usuarios_error_load">No fue posible cargar los usuarios.</string>
+    <string name="usuarios_current_chip">Tú</string>
+    <string name="usuarios_user_line">Usuario: %1$s</string>
+    <string name="usuarios_no_entries">Sin ingresos todavía</string>
+    <plurals name="usuarios_entries">
+        <item quantity="one">%d ingreso registrado</item>
+        <item quantity="other">%d ingresos registrados</item>
+    </plurals>
+    <string name="usuarios_new_button">Nuevo usuario</string>
+    <string name="usuarios_delete_description">Eliminar usuario %1$s</string>
+    <string name="usuarios_delete_title">¿Eliminar a %1$s?</string>
+    <string name="usuarios_delete_text">Se borrará el usuario %1$s y ya no podrá iniciar sesión. Esta acción no se puede deshacer.</string>
+    <string name="usuarios_delete_confirm">Eliminar</string>
+    <string name="usuarios_delete_cancel">Cancelar</string>
+    <string name="usuarios_blocked_title">No se puede eliminar a %1$s</string>
+    <plurals name="usuarios_blocked_text">
+        <item quantity="one">%1$s tiene %2$d ingreso registrado. Para conservar el historial y los reportes, solo se pueden eliminar usuarios sin registros.</item>
+        <item quantity="other">%1$s tiene %2$d ingresos registrados. Para conservar el historial y los reportes, solo se pueden eliminar usuarios sin registros.</item>
+    </plurals>
+    <string name="usuarios_blocked_text_activity">%1$s tiene movimientos en el historial. Para conservarlos, solo se pueden eliminar usuarios sin registros.</string>
+    <string name="usuarios_blocked_ok">Entendido</string>
+    <string name="usuarios_deleted">Usuario eliminado: %1$s</string>
+    <string name="usuarios_created">Usuario creado: %1$s</string>
+    <string name="usuarios_error_delete">No fue posible eliminar el usuario. Intenta nuevamente.</string>
+
+    <string name="usuarios_new_title">Nuevo usuario</string>
+    <string name="usuarios_new_info">Seguirás con tu sesión abierta. La persona nueva entrará con su propio usuario desde el inicio de sesión.</string>
+    <string name="usuarios_new_create">Crear usuario</string>
+    <string name="usuarios_saving">Guardando…</string>
+    <string name="usuarios_field_name">Nombre completo</string>
+    <string name="usuarios_field_name_hint">Nombre y apellido</string>
+    <string name="usuarios_field_user">Usuario</string>
+    <string name="usuarios_field_user_hint">Con este usuario iniciará sesión</string>
+    <string name="usuarios_field_user_help">No puede repetirse con otro usuario.</string>
+    <string name="usuarios_field_password">Contraseña</string>
+    <string name="usuarios_field_password_hint">Mínimo 6 caracteres</string>
+    <string name="usuarios_field_confirm">Confirmar contraseña</string>
+    <string name="usuarios_field_confirm_hint">Repite la contraseña</string>
+    <string name="usuarios_rule_length">Al menos 6 caracteres</string>
+    <string name="usuarios_rule_different">Distinta del usuario</string>
+    <string name="usuarios_rule_met">Cumplida</string>
+    <string name="usuarios_rule_unmet">Sin cumplir</string>
+    <string name="usuarios_error_nombre">Escribe el nombre completo.</string>
+    <string name="usuarios_error_usuario_vacio">El usuario no puede estar vacío.</string>
+    <string name="usuarios_error_usuario_espacios">El usuario no puede llevar espacios.</string>
+    <string name="usuarios_error_usuario_corto">Escribe al menos 3 caracteres.</string>
+    <string name="usuarios_error_usuario_largo">Escribe máximo 30 caracteres.</string>
+    <string name="usuarios_error_usuario_repetido">Ese usuario ya existe. Elige otro.</string>
+    <string name="usuarios_error_confirm">Las contraseñas no coinciden.</string>
+    <string name="usuarios_error_guardar">No fue posible guardar el usuario. Intenta nuevamente.</string>
+
+    <!-- Editar usuario, código de recuperación y contraseña olvidada -->
+    <string name="usuarios_error_password_actual">La contraseña actual no es correcta.</string>
+    <string name="usuarios_intro_edit">Toca un usuario para editar sus datos o cambiar su contraseña.</string>
+    <string name="usuarios_edit_description">Editar usuario %1$s</string>
+    <string name="usuarios_saved">Cambios guardados: %1$s</string>
+    <string name="usuarios_banner_no_code">Aún no tienes un código de recuperación. Genéralo para poder restablecer tu contraseña si la olvidas.</string>
+    <string name="usuarios_banner_action">Generar código</string>
+    <string name="usuarios_edit_title">Editar usuario</string>
+    <string name="usuarios_edit_save">Guardar cambios</string>
+    <string name="usuarios_edit_not_found">No se encontró el usuario. Regresa a la lista e intenta de nuevo.</string>
+    <string name="usuarios_edit_user_locked">No puedes cambiar tu propio usuario mientras tienes la sesión abierta.</string>
+    <string name="usuarios_edit_password_section">Contraseña</string>
+    <string name="usuarios_edit_password_own">Para cambiarla escribe la actual y la nueva. Si no quieres cambiarla, deja estos campos vacíos.</string>
+    <string name="usuarios_edit_password_other">Si olvidó su contraseña, escribe una nueva para restablecerla. Si no quieres cambiarla, deja estos campos vacíos.</string>
+    <string name="usuarios_field_password_current">Contraseña actual</string>
+    <string name="usuarios_field_password_current_hint">Tu contraseña de hoy</string>
+    <string name="usuarios_field_password_new">Contraseña nueva</string>
+    <string name="usuarios_edit_code_section">Código de recuperación</string>
+    <string name="usuarios_edit_code_set">Ya tienes un código. Si lo perdiste, genera uno nuevo: el anterior dejará de servir.</string>
+    <string name="usuarios_edit_code_unset">Todavía no tienes un código. Con él podrás restablecer tu contraseña si la olvidas.</string>
+    <string name="usuarios_edit_code_generate">Generar código nuevo</string>
+    <string name="usuarios_code_ask_title">Confirma tu contraseña</string>
+    <string name="usuarios_code_ask_text">Escribe tu contraseña actual para generar un código de recuperación nuevo.</string>
+    <string name="usuarios_code_ask_confirm">Generar</string>
+    <string name="usuarios_code_title">Tu código de recuperación</string>
+    <string name="usuarios_code_text">Anótalo y guárdalo en un lugar seguro. Es lo único que te permite restablecer tu contraseña si la olvidas y no se vuelve a mostrar.</string>
+    <string name="usuarios_code_copy">Copiar código</string>
+    <string name="usuarios_code_copied">Código copiado</string>
+    <string name="usuarios_code_done">Ya lo anoté</string>
+
+    <string name="login_forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="recuperar_title">Restablecer contraseña</string>
+    <string name="recuperar_subtitle">Escribe tu usuario y el código de recuperación que guardaste. Si no lo tienes, pide a otro técnico que restablezca tu contraseña desde Usuarios.</string>
+    <string name="recuperar_field_code">Código de recuperación</string>
+    <string name="recuperar_field_code_hint">XXXX-XXXX-XXXX</string>
+    <string name="recuperar_button">Restablecer contraseña</string>
+    <string name="recuperar_back">Volver al inicio de sesión</string>
+    <string name="recuperar_error_datos">El usuario o el código de recuperación no son correctos.</string>
+    <string name="recuperar_done_title">Contraseña restablecida</string>
+    <string name="recuperar_done_text">Ya puedes iniciar sesión con el usuario %1$s y tu contraseña nueva. Este es tu código de recuperación nuevo; el anterior ya no sirve.</string>
+    <string name="recuperar_done_button">Ir a iniciar sesión</string>
 </resources>
