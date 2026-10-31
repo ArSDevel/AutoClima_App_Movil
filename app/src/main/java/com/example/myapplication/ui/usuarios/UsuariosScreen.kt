@@ -237,11 +237,11 @@ private fun ConfirmarEliminar(
 private fun NoSePuedeEliminar(usuario: UsuarioListado, onEntendido: () -> Unit) {
     val recursos = LocalContext.current.resources
     val texto = if (usuario.ingresos > 0) {
-        recursos.getQuantityString(R.plurals.usuarios_blocked_text, usuario.ingresos, usuario.usuario, usuario.ingresos)
-    } else { stringResource(R.string.usuarios_blocked_text_activity, usuario.usuario) }
+        recursos.getQuantityString(R.plurals.usuarios_blocked_text, usuario.ingresos, usuario.nombre, usuario.ingresos)
+    } else { stringResource(R.string.usuarios_blocked_text_activity, usuario.nombre) }
     AlertDialog(
         onDismissRequest = onEntendido,
-        icon = { Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary) },
+        icon = { Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
         title = { Text(stringResource(R.string.usuarios_blocked_title, usuario.nombre)) },
         text = { Text(texto) },
         confirmButton = { TextButton(onClick = onEntendido) { Text(stringResource(R.string.usuarios_blocked_ok)) } }) }

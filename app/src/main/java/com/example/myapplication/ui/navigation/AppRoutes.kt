@@ -106,3 +106,7 @@ data class EditarUsuarioRoute(val userId: String, val tecnicoId: Long) : NavKey
 // Restablecer la contraseña con el código de recuperación; se abre desde el inicio de sesión, sin sesión.
 @Serializable
 data object RecuperarPasswordRoute : NavKey
+
+// Exportar y restaurar respaldos.
+@Serializable
+data class RespaldoRoute(val userId: String) : NavKey

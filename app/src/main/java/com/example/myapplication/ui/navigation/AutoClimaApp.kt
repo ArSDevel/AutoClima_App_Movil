@@ -32,6 +32,8 @@ import com.example.myapplication.ui.historial.HistorialViewModel
 import com.example.myapplication.ui.historial.HistorialViewModelFactory
 import com.example.myapplication.data.local.repository.HistorialRepository
 import com.example.myapplication.R
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import com.example.myapplication.data.local.AppDatabase
 import com.example.myapplication.data.local.repository.DashboardRepository
 import com.example.myapplication.data.local.repository.DiagnosticoRepository
@@ -72,6 +74,9 @@ import com.example.myapplication.ui.diagnostico.SeleccionIngresoDiagnosticoScree
 import com.example.myapplication.ui.login.LoginScreen
 import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.login.LoginViewModel
+import com.example.myapplication.data.respaldo.ServicioRespaldo
+import com.example.myapplication.ui.respaldo.RespaldoScreen
+import com.example.myapplication.ui.respaldo.RespaldoViewModel
 import com.example.myapplication.ui.usuarios.AvisoUsuarios
 import com.example.myapplication.ui.usuarios.EditarUsuarioScreen
 import com.example.myapplication.ui.usuarios.EditarUsuarioViewModel
@@ -170,6 +175,13 @@ fun AutoClimaApp() {
         factory = remember(tecnicoDao) {
             fabricaViewModel { NuevoUsuarioViewModel(tecnicoDao, generarCodigoRecuperacion = true) } })
 
+    // Respaldo: exporta y restaura; el mismo servicio sirve a la pantalla de Respaldo y a la bienvenida.
+    val servicioRespaldo = remember(contexto) { ServicioRespaldo(contexto) }
+    val respaldoPrimerUsoViewModel: RespaldoViewModel = viewModel(
+        key = "respaldo_primer_uso",
+        factory = remember(servicioRespaldo) {
+            fabricaViewModel { RespaldoViewModel(servicioRespaldo, contexto.contentResolver) } })
+
     // Lo último que pasó con los usuarios (creado o editado), para avisarlo en la lista. Guarda el tipo y el usuario.
     var avisoUsuarios by rememberSaveable { mutableStateOf<Pair<Boolean, String>?>(null) }
 
@@ -204,6 +216,13 @@ fun AutoClimaApp() {
                 backStack.clear()
                 backStack.add(
                     DashboardRoute(userId = uiState.id)) } } }
+
+    // Una vez por semana, con la sesión abierta, se guarda una copia automática dentro del teléfono.
+    LaunchedEffect(sesionValida) {
+        if (sesionValida) {
+            try { withContext(Dispatchers.IO) { servicioRespaldo.crearCopiaAutomaticaSiToca() } }
+            catch (cancelacion: kotlinx.coroutines.CancellationException) { throw cancelacion }
+            catch (_: Exception) { } } }
 
     // Cierra la sesión y deja solo la pantalla de inicio de sesión.
     fun cerrarSesion() {
@@ -368,7 +387,9 @@ fun AutoClimaApp() {
 
             DashboardMenuOption.HISTORIAL -> abrirSelector(HistorialRoute(uiState.id))
 
-            DashboardMenuOption.USUARIOS -> abrirSelector(UsuariosRoute(uiState.id)) } }
+            DashboardMenuOption.USUARIOS -> abrirSelector(UsuariosRoute(uiState.id))
+
+            DashboardMenuOption.RESPALDO -> abrirSelector(RespaldoRoute(uiState.id)) } }
 
     when (primerUso) {
         // Todavía no se sabe si hay usuarios: solo el fondo, para no mostrar el inicio de sesión un instante.
@@ -377,6 +398,7 @@ fun AutoClimaApp() {
 
         true -> PrimerUsoFlow(
             viewModel = primerUsoViewModel,
+            respaldoViewModel = respaldoPrimerUsoViewModel,
             onTerminar = { usuario ->
                 loginViewModel.onIdChanged(usuario)
                 primerUso = false })
@@ -399,6 +421,7 @@ fun AutoClimaApp() {
                     is UsuariosRoute -> key.userId
                     is NuevoUsuarioRoute -> key.userId
                     is EditarUsuarioRoute -> key.userId
+                    is RespaldoRoute -> key.userId
                     is DashboardRoute -> key.userId
                     is RegistroRoute -> key.userId
                     is DetalleIngresoRoute -> key.userId
@@ -810,6 +833,19 @@ fun AutoClimaApp() {
                             onCreado = { usuario ->
                                 avisoUsuarios = true to usuario
                                 volverUnaPantalla() }) }
+
+                    is RespaldoRoute -> {
+                        val actor = tecnicoId ?: return@NavEntry
+
+                        val respaldoViewModel: RespaldoViewModel = viewModel(
+                            factory = remember(servicioRespaldo, actor) {
+                                fabricaViewModel { RespaldoViewModel(servicioRespaldo, contexto.contentResolver, actor) } })
+
+                        RespaldoScreen(
+                            viewModel = respaldoViewModel,
+                            onVolver = { volverUnaPantalla() },
+                            onMenuSeleccionado = { seleccionarMenu(it) },
+                            onLogout = { cerrarSesion() }) }
 
                     is EditarUsuarioRoute -> {
                         val actor = tecnicoId ?: return@NavEntry

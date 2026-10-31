@@ -1,6 +1,15 @@
 package com.example.myapplication.ui.usuarios
 
 import androidx.activity.compose.BackHandler
+import com.example.myapplication.ui.respaldo.TIPOS_ZIP
+import com.example.myapplication.ui.respaldo.RespaldoViewModel
+import com.example.myapplication.ui.respaldo.DialogosRespaldo
+import androidx.compose.runtime.remember
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -74,8 +83,18 @@ private const val PASO_CREADA = 2
 @Composable
 fun PrimerUsoFlow(
     viewModel: NuevoUsuarioViewModel,
+    respaldoViewModel: RespaldoViewModel,
     onTerminar: (usuario: String) -> Unit) {
     val estado by viewModel.uiState.collectAsStateWithLifecycle()
+    val estadoRespaldo by respaldoViewModel.uiState.collectAsStateWithLifecycle()
+    val elegirRespaldo = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) respaldoViewModel.elegirRespaldo(uri) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val textoMensaje = estadoRespaldo.mensaje?.let { stringResource(it) }
+    LaunchedEffect(textoMensaje) {
+        if (textoMensaje != null) {
+            snackbarHostState.showSnackbar(textoMensaje)
+            respaldoViewModel.mensajeVisto() } }
     var paso by rememberSaveable { mutableIntStateOf(PASO_BIENVENIDA) }
 
     // Pasa a la confirmación en cuanto se guarda el usuario.
@@ -86,8 +105,11 @@ fun PrimerUsoFlow(
         if (paso == PASO_CREADA && estado.creado == null) onTerminar("") }
     BackHandler(enabled = paso == PASO_FORMULARIO && !estado.guardando) { paso = PASO_BIENVENIDA }
 
+    Box {
     when (paso) {
-        PASO_BIENVENIDA -> BienvenidaScreen(onComenzar = { paso = PASO_FORMULARIO })
+        PASO_BIENVENIDA -> BienvenidaScreen(
+            onComenzar = { paso = PASO_FORMULARIO },
+            onRestaurar = { elegirRespaldo.launch(TIPOS_ZIP) })
         PASO_FORMULARIO -> CrearPrimerUsuarioScreen(
             estado = estado,
             onNombreChange = viewModel::onNombreChange,
@@ -98,11 +120,14 @@ fun PrimerUsoFlow(
         else -> CuentaCreadaScreen(
             usuario = estado.creado?.usuario.orEmpty(),
             codigoRecuperacion = estado.creado?.codigoRecuperacion,
-            onEntrar = { onTerminar(estado.creado?.usuario.orEmpty()) }) } }
+            onEntrar = { onTerminar(estado.creado?.usuario.orEmpty()) }) }
+    // Mensajes y diálogos de la restauración, por encima de cualquier paso.
+    SnackbarHost(snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
+    DialogosRespaldo(viewModel = respaldoViewModel, estado = estadoRespaldo) } }
 
 // Pantalla de bienvenida con lo que hace la app.
 @Composable
-fun BienvenidaScreen(onComenzar: () -> Unit, modifier: Modifier = Modifier) {
+fun BienvenidaScreen(onComenzar: () -> Unit, modifier: Modifier = Modifier, onRestaurar: (() -> Unit)? = null) {
     TarjetaCentral(modifier = modifier) {
         LogoAutoClimas(
             descripcion = stringResource(R.string.login_logo_description),
@@ -124,7 +149,12 @@ fun BienvenidaScreen(onComenzar: () -> Unit, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(12.dp))
         Text(text = stringResource(R.string.bienvenida_next_step),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant) } }
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        // Para quien cambió de celular: recuperar los datos de un respaldo en lugar de empezar de cero.
+        if (onRestaurar != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            TextButton(onClick = onRestaurar) {
+                Text(text = stringResource(R.string.respaldo_restore_welcome), style = MaterialTheme.typography.labelLarge) } } } }
 
 // Pantalla para crear el primer usuario.
 @Composable

@@ -701,4 +701,132 @@
     <string name="recuperar_done_title">Contraseña restablecida</string>
     <string name="recuperar_done_text">Ya puedes iniciar sesión con el usuario %1$s y tu contraseña nueva. Este es tu código de recuperación nuevo; el anterior ya no sirve.</string>
     <string name="recuperar_done_button">Ir a iniciar sesión</string>
+
+    <!-- Respaldo -->
+    <string name="dashboard_menu_backup">Respaldo</string>
+    <string name="respaldo_title">Respaldo</string>
+    <string name="respaldo_export_title">Exportar respaldo</string>
+    <string name="respaldo_export_text">Guarda una copia de todos tus datos (ingresos, clientes, vehículos, fotos y firmas) en un archivo. Guárdalo en un lugar de confianza: contiene información de tus clientes.</string>
+    <string name="respaldo_save">Guardar en el teléfono</string>
+    <string name="respaldo_share">Compartir</string>
+    <string name="respaldo_share_subject">Respaldo de AutoClimas</string>
+    <string name="respaldo_share_chooser">Compartir respaldo</string>
+    <string name="respaldo_exporting">Preparando el respaldo…</string>
+    <string name="respaldo_exported">Respaldo guardado.</string>
+    <string name="respaldo_restore_title">Restaurar respaldo</string>
+    <string name="respaldo_restore_text">Recupera los datos desde un archivo de respaldo. Si este celular ya tiene datos, podrás combinarlos con los del respaldo o reemplazarlos.</string>
+    <string name="respaldo_choose">Elegir respaldo</string>
+    <string name="respaldo_checking">Revisando el respaldo…</string>
+    <string name="respaldo_restoring">Restaurando…</string>
+    <string name="respaldo_confirm_title">¿Restaurar este respaldo?</string>
+    <string name="respaldo_confirm_date">Respaldo del %1$s</string>
+    <string name="respaldo_confirm_counts">Ingresos: %1$d · Vehículos: %2$d · Clientes: %3$d · Usuarios: %4$d</string>
+    <string name="respaldo_confirm_text">Se restaurarán estos datos y la app se cerrará. Después ábrela de nuevo e inicia sesión con un usuario del respaldo.</string>
+    <string name="respaldo_confirm_yes">Restaurar</string>
+    <string name="respaldo_has_data_title">Este celular ya tiene datos</string>
+        <string name="respaldo_done_title">Restauración completa</string>
+    <string name="respaldo_done_text">La app se cerrará. Ábrela de nuevo e inicia sesión con un usuario del respaldo.</string>
+    <string name="respaldo_done_button">Cerrar la app</string>
+    <string name="respaldo_restore_welcome">¿Ya tienes un respaldo? Restaurar</string>
+    <string name="respaldo_error_generico">No fue posible completar la operación. Inténtalo de nuevo.</string>
+    <string name="respaldo_error_no_valido">El archivo no es un respaldo válido de AutoClimas o está dañado.</string>
+    <string name="respaldo_error_espacio">No hay espacio suficiente en el teléfono para restaurar el respaldo.</string>
+    <string name="respaldo_error_version_nueva">Este respaldo es de una versión más nueva de la app. Actualiza AutoClimas e inténtalo de nuevo.</string>
+    <string name="respaldo_error_version_vieja">Este respaldo es de una versión demasiado antigua para restaurarse.</string>
+
+    <!-- Respaldo: combinar, reemplazar y borrar todo -->
+    <string name="respaldo_analyzing">Comparando con tus datos…</string>
+    <string name="respaldo_combining">Combinando…</string>
+    <string name="respaldo_deleting">Borrando datos…</string>
+    <string name="respaldo_checking_password">Comprobando contraseña…</string>
+    <string name="respaldo_choose_text">¿Qué quieres hacer?</string>
+    <string name="respaldo_merge">Combinar</string>
+    <string name="respaldo_merge_hint">Agrega lo que falta del respaldo. No borra nada de este celular, salvo los ingresos que tú elijas reemplazar.</string>
+    <string name="respaldo_replace">Reemplazar todo</string>
+    <string name="respaldo_replace_hint">Borra lo que hay en este celular y deja solo lo del respaldo.</string>
+    <string name="respaldo_compare_backup">Respaldo (%1$s)</string>
+    <string name="respaldo_compare_now">Ahora en este celular</string>
+    <string name="respaldo_replace_title">Reemplazar todos los datos</string>
+    <string name="respaldo_replace_warning">Esta acción no se puede deshacer. Lo que hay ahora en el celular y no esté en el respaldo se perderá.</string>
+    <string name="respaldo_replace_confirm">Reemplazar</string>
+    <string name="respaldo_word_replace">REEMPLAZAR</string>
+    <string name="respaldo_type_word">Escribe %1$s para continuar</string>
+    <string name="respaldo_your_password">Tu contraseña</string>
+    <string name="respaldo_export_before">Guardar un respaldo de lo que hay ahora</string>
+    <string name="respaldo_back">Volver</string>
+    <string name="respaldo_preview_title">Esto es lo que pasaría</string>
+    <plurals name="respaldo_preview_new">
+        <item quantity="one">%d ingreso nuevo</item>
+        <item quantity="other">%d ingresos nuevos</item>
+    </plurals>
+    <string name="respaldo_preview_new_detail">Vehículos nuevos: %1$d · Clientes nuevos: %2$d</string>
+    <string name="respaldo_preview_new_action">Se agregan con todo su historial, fotos y firma.</string>
+    <plurals name="respaldo_preview_same">
+        <item quantity="one">%d ingreso igual</item>
+        <item quantity="other">%d ingresos iguales</item>
+    </plurals>
+    <string name="respaldo_preview_same_action">No se toca nada.</string>
+    <plurals name="respaldo_preview_diff">
+        <item quantity="one">%d ingreso distinto</item>
+        <item quantity="other">%d ingresos distintos</item>
+    </plurals>
+    <string name="respaldo_preview_diff_hint">Están en el celular y en el respaldo, pero uno avanzó más. Cada ingreso se queda completo del lado que elijas; el otro se descarta.</string>
+    <string name="respaldo_mode_recent">Gana el más reciente</string>
+    <string name="respaldo_mode_phone">Siempre el celular</string>
+    <string name="respaldo_mode_backup">Siempre el respaldo</string>
+    <string name="respaldo_keep_phone">Dejar el del celular</string>
+    <string name="respaldo_use_backup">Usar el del respaldo</string>
+    <string name="respaldo_side_phone">Celular: %1$s</string>
+    <string name="respaldo_side_backup">Respaldo: %1$s</string>
+    <string name="respaldo_side_line">%1$s · %2$s · %3$s · %4$s</string>
+    <plurals name="respaldo_photos">
+        <item quantity="one">%d foto</item>
+        <item quantity="other">%d fotos</item>
+    </plurals>
+    <string name="respaldo_with_signature">con firma</string>
+    <string name="respaldo_without_signature">sin firma</string>
+    <string name="respaldo_merge_confirm_title">¿Combinar los datos?</string>
+    <plurals name="respaldo_merge_confirm_new">
+        <item quantity="one">Se agregará %d ingreso nuevo.</item>
+        <item quantity="other">Se agregarán %d ingresos nuevos.</item>
+    </plurals>
+    <plurals name="respaldo_merge_confirm_replaced">
+        <item quantity="one">%d ingreso del celular será reemplazado por el del respaldo.</item>
+        <item quantity="other">%d ingresos del celular serán reemplazados por los del respaldo.</item>
+    </plurals>
+    <string name="respaldo_merge_confirm_warning">Esta acción no se puede deshacer.</string>
+    <string name="respaldo_merge_confirm_yes">Combinar</string>
+    <string name="respaldo_merge_done_title">Combinación lista</string>
+    <plurals name="respaldo_merge_done_added">
+        <item quantity="one">Se agregó %d ingreso.</item>
+        <item quantity="other">Se agregaron %d ingresos.</item>
+    </plurals>
+    <plurals name="respaldo_merge_done_updated">
+        <item quantity="one">Se actualizó %d ingreso con la versión del respaldo.</item>
+        <item quantity="other">Se actualizaron %d ingresos con la versión del respaldo.</item>
+    </plurals>
+    <plurals name="respaldo_merge_done_same">
+        <item quantity="one">%d ingreso se quedó como estaba.</item>
+        <item quantity="other">%d ingresos se quedaron como estaban.</item>
+    </plurals>
+    <string name="respaldo_merge_done_extra">También llegaron — Vehículos: %1$d · Clientes: %2$d · Usuarios: %3$d.</string>
+    <string name="respaldo_danger_title">Borrar todo</string>
+    <string name="respaldo_danger_text">Elimina todos los datos de la app y deja solo tu usuario. Úsalo, por ejemplo, para empezar de cero.</string>
+    <string name="respaldo_wipe_button">Borrar todo, conservar mi usuario</string>
+    <string name="respaldo_wipe_title">Borrar todos los datos</string>
+    <string name="respaldo_wipe_text">Se borrarán todos los ingresos, clientes, vehículos, fotos, firmas, reportes, copias automáticas y los demás usuarios.</string>
+    <string name="respaldo_wipe_keeps">Se conservará únicamente tu usuario, con su contraseña y su código de recuperación.</string>
+    <string name="respaldo_wipe_confirm">Borrar todo</string>
+    <string name="respaldo_word_wipe">BORRAR</string>
+    <string name="respaldo_wipe_warning">Esta acción no se puede deshacer. Si quieres conservar una copia, guárdala antes.</string>
+    <string name="respaldo_deleted_all">Se borraron todos los datos.</string>
+    <string name="respaldo_last_never">Todavía no has hecho un respaldo. Guarda uno ahora para no perder tus datos.</string>
+    <string name="respaldo_last_today">Último respaldo: hoy.</string>
+    <plurals name="respaldo_last_days">
+        <item quantity="one">Último respaldo: hace %d día.</item>
+        <item quantity="other">Último respaldo: hace %d días.</item>
+    </plurals>
+    <string name="respaldo_auto_title">Copias automáticas</string>
+    <string name="respaldo_auto_text">Cada semana la app guarda una copia dentro del teléfono (se conservan las últimas 4). Sirven si algo falla, pero no sustituyen un respaldo fuera del teléfono.</string>
+    <string name="respaldo_auto_restore">Restaurar</string>
 </resources>

@@ -147,6 +147,7 @@ private enum class SalidaRegistro {
     FIRMA,
     HISTORIAL,
     USUARIOS,
+    RESPALDO,
     CERRAR_SESION }
 
 // Contenido del registro: tres pasos al crear y una sola pantalla al editar.
@@ -207,6 +208,8 @@ private fun RegistroContent(
                 onMenuSeleccionado(DashboardMenuOption.HISTORIAL) }
             SalidaRegistro.USUARIOS -> {
                 onMenuSeleccionado(DashboardMenuOption.USUARIOS) }
+            SalidaRegistro.RESPALDO -> {
+                onMenuSeleccionado(DashboardMenuOption.RESPALDO) }
             SalidaRegistro.CERRAR_SESION -> {
                 onLogout() } } }
 
@@ -243,7 +246,9 @@ private fun RegistroContent(
                                 DashboardMenuOption.HISTORIAL -> {
                                     solicitarSalida(SalidaRegistro.HISTORIAL) }
                                 DashboardMenuOption.USUARIOS -> {
-                                    solicitarSalida(SalidaRegistro.USUARIOS) } } } } },
+                                    solicitarSalida(SalidaRegistro.USUARIOS) }
+                                DashboardMenuOption.RESPALDO -> {
+                                    solicitarSalida(SalidaRegistro.RESPALDO) } } } } },
                 onLogout = {
                     scope.launch { drawerState.close()
                         solicitarSalida(SalidaRegistro.CERRAR_SESION) } }) }) {

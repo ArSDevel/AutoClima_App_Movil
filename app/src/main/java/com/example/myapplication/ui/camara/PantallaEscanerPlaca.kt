@@ -11,12 +11,14 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -81,8 +83,9 @@ fun PantallaEscanerPlaca(
     LaunchedEffect(Unit) {
         if (!permisoConcedido) { permisoLauncher.launch(Manifest.permission.CAMERA) } }
 
+    // La app dibuja bajo las barras del sistema: se deja su espacio para que el título no quede debajo del reloj.
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).safeDrawingPadding().padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = stringResource(R.string.scanner_title), style = MaterialTheme.typography.headlineSmall)
 

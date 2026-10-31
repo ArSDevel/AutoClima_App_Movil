@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Solo la carpeta temporal donde se prepara el reporte antes de enviarlo. -->
+<!-- Solo las carpetas temporales donde se preparan el reporte y el respaldo antes de enviarlos. -->
 <paths>
     <cache-path name="reportes" path="reportes/" />
+    <!-- Respaldo preparado para compartir. -->
+    <cache-path name="respaldos" path="respaldos/" />
 </paths>

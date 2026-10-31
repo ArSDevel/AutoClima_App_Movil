@@ -37,11 +37,15 @@ android {
     }
 }
 
+// Room guarda aquí el esquema de cada versión de la base de datos; sirve para probar las migraciones.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
 
-    implementation(libs.accompanist.permissions)
     implementation(libs.androidx.activity.compose)
 
     // CameraX
@@ -51,9 +55,6 @@ dependencies {
     implementation(libs.androidx.camera.view)
 
     // Compose
-    implementation(libs.androidx.compose.adaptive)
-    implementation(libs.androidx.compose.adaptive.layout)
-    implementation(libs.androidx.compose.adaptive.navigation3)
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.material3)
@@ -61,9 +62,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
 
-    // Android y almacenamiento
+    // Android
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.datastore.preferences)
 
     // Lifecycle y navegación
     implementation(libs.androidx.lifecycle.runtime.compose)
@@ -79,16 +79,10 @@ dependencies {
 
     // Otras dependencias
     implementation(libs.coil.compose)
-    implementation(libs.converter.moshi)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.serialization.core)
-    implementation(libs.logging.interceptor)
     implementation(libs.material)
-    implementation(libs.moshi.kotlin)
-    implementation(libs.okhttp)
-    implementation(libs.play.services.location)
-    implementation(libs.retrofit)
 
     // Reconocimiento de matrículas
     implementation("com.google.mlkit:text-recognition:16.0.1")
@@ -111,5 +105,4 @@ dependencies {
 
     // KSP
     ksp(libs.androidx.room.compiler)
-    ksp(libs.moshi.kotlin.codegen)
 }
