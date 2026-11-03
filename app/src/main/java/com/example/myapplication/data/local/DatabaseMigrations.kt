@@ -90,3 +90,28 @@ val MIGRATION_12_13 = object : Migration(12, 13) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("""UPDATE tabla_evidencias SET descripcion = ''
             WHERE descripcion = 'Fotografía del vehículo adjuntada desde Registro.'""".trimIndent()) } }
+
+// Versión 13 a 14: el vehículo deja de tener kilometraje y observaciones, que nunca se capturaban. El SQLite de Android 7
+// no puede borrar columnas, así que se crea la tabla sin ellas, se copian los datos y se reemplaza la anterior.
+// Durante una migración las claves foráneas están apagadas (Room las enciende al abrir la base), por eso borrar la
+// tabla vieja no arrastra los ingresos que dependen de ella.
+val MIGRATION_13_14 = object : Migration(13, 14) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""CREATE TABLE IF NOT EXISTS vehiculo_nueva (
+                vehiculoId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                clienteId INTEGER NOT NULL,
+                placa TEXT NOT NULL,
+                modelo TEXT NOT NULL,
+                color TEXT,
+                numeroSerie TEXT,
+                FOREIGN KEY (clienteId)
+                    REFERENCES cliente (clienteId)
+                    ON UPDATE NO ACTION
+                    ON DELETE CASCADE
+            )""".trimIndent())
+        db.execSQL("""INSERT INTO vehiculo_nueva (vehiculoId, clienteId, placa, modelo, color, numeroSerie)
+            SELECT vehiculoId, clienteId, placa, modelo, color, numeroSerie FROM vehiculo""".trimIndent())
+        db.execSQL("DROP TABLE vehiculo")
+        db.execSQL("ALTER TABLE vehiculo_nueva RENAME TO vehiculo")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_vehiculo_clienteId ON vehiculo (clienteId)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_vehiculo_placa ON vehiculo (placa)") } }

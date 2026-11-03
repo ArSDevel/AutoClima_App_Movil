@@ -15,7 +15,6 @@ data class EstadoIngresoColors(
     val enReparacion: Color,
     val listoParaFirma: Color,
     val listoParaEntrega: Color,
-    val noDisponible: Color,
     val entregado: Color,
     val cancelado: Color)
 
@@ -26,7 +25,6 @@ internal val LightEstadoIngresoColors = EstadoIngresoColors(
     enReparacion = IngresoReparacionLight,
     listoParaFirma = IngresoFirmaLight,
     listoParaEntrega = IngresoEntregaLight,
-    noDisponible = IngresoSinEstadoLight,
     entregado = IngresoEntregadoLight,
     cancelado = IngresoCanceladoLight)
 
@@ -37,7 +35,6 @@ internal val DarkEstadoIngresoColors = EstadoIngresoColors(
     enReparacion = IngresoReparacionDark,
     listoParaFirma = IngresoFirmaDark,
     listoParaEntrega = IngresoEntregaDark,
-    noDisponible = IngresoSinEstadoDark,
     entregado = IngresoEntregadoDark,
     cancelado = IngresoCanceladoDark)
 

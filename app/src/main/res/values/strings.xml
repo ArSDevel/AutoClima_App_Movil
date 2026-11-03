@@ -72,7 +72,6 @@
     <string name="dashboard_status_delivery">Listo para entrega</string>
     <string name="dashboard_status_delivered">Entregado</string>
     <string name="dashboard_status_cancelled">Cancelado</string>
-    <string name="dashboard_status_unknown">Estado no disponible</string>
 
     <!-- Acciones: trabajo técnico -->
     <string name="dashboard_action_start_review">Iniciar revisión</string>
@@ -89,7 +88,6 @@
     <string name="dashboard_action_edit">Editar</string>
     <string name="dashboard_action_cancel">Cancelar ingreso</string>
     <string name="dashboard_action_delete">Eliminar</string>
-    <string name="dashboard_action_regularize">Regularizar estado</string>
 
     <!-- Menú lateral: secciones -->
     <string name="dashboard_menu_home">Ingresos</string>

@@ -120,8 +120,7 @@ class RegistroRepository(
                 ?: vehiculoDao.insertar(
                     Vehiculo(clienteId = clienteId, placa = placaLimpia,
                         modelo = modeloLimpio, color = colorLimpio,
-                        numeroSerie = serieLimpia, kilometraje = null,
-                        observaciones = null))
+                        numeroSerie = serieLimpia))
 
             val ingresoId = ingresoDao.insertar(
                 Ingreso(vehiculoId = vehiculoId, tecnicoId = tecnicoId,

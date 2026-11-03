@@ -9,13 +9,12 @@ enum class EstadoIngreso {
     LISTO_PARA_FIRMA,
     LISTO_PARA_ENTREGA,
     ENTREGADO,
-    CANCELADO,
-    // Para registros sin estado o con un valor desconocido.
-    NO_DISPONIBLE;
+    CANCELADO;
     companion object {
-        // Convierte el valor almacenado en un estado conocido.
-        // Si es null o no coincide con ningún estado, devuelve NO_DISPONIBLE.
+        // Convierte el valor almacenado en un estado.
+        // La app solo guarda estos siete valores. Si llegara otro, por ejemplo desde un archivo modificado a mano,
+        // se trata como Registrado para que el ingreso se pueda abrir y seguir su flujo normal.
         fun desdeValor(valor: String?): EstadoIngreso {
             return entries.firstOrNull { estado ->
                 estado.name == valor
-            } ?: NO_DISPONIBLE } } }
+            } ?: REGISTRADO } } }

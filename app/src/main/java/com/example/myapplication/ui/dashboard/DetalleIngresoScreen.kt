@@ -121,15 +121,13 @@ fun DetalleIngresoScreen(
         onAbrirEvidencias = onAbrirEvidencias,
         onAbrirFirma = onAbrirFirma,
         onAbrirEntrega = onAbrirEntrega,
-        onConfirmar = { accion, motivo, destino ->
+        onConfirmar = { accion, motivo ->
             when (accion) {
                 IngresoAccion.INICIAR_REVISION -> viewModel.iniciarRevision(tecnicoId)
                 IngresoAccion.INICIAR_REPARACION -> viewModel.iniciarReparacion(tecnicoId)
                 IngresoAccion.ENVIAR_A_FIRMA -> viewModel.enviarAFirma(tecnicoId)
                 IngresoAccion.DEVOLVER_A_REPARACION -> viewModel.devolverAReparacion(motivo, tecnicoId)
                 IngresoAccion.CANCELAR -> viewModel.cancelar(motivo, tecnicoId)
-                IngresoAccion.REGULARIZAR_ESTADO ->
-                    viewModel.regularizarEstado(destino = destino, motivo = motivo, tecnicoId = tecnicoId)
                 IngresoAccion.ELIMINAR -> viewModel.eliminar(tecnicoId)
                 else -> error("La acción no corresponde a una confirmación del detalle.") } }) }
 
@@ -145,7 +143,7 @@ private fun DetalleIngresoContent(
     onReintentar: () -> Unit,
     onLimpiarError: () -> Unit,
     onConsumirExito: () -> Unit,
-    onConfirmar: (IngresoAccion, String, EstadoIngreso) -> Unit,
+    onConfirmar: (IngresoAccion, String) -> Unit,
     onAbrirChecklist: (Long) -> Unit,
     onAbrirDiagnostico: (Long) -> Unit,
     onAbrirEvidencias: (Long) -> Unit = {},
@@ -157,7 +155,6 @@ private fun DetalleIngresoContent(
 
     var accionPendiente by rememberSaveable { mutableStateOf<IngresoAccion?>(null) }
     var motivo by rememberSaveable { mutableStateOf("") }
-    var destinoRegularizacion by rememberSaveable { mutableStateOf(EstadoIngreso.REGISTRADO) }
 
     // Las acciones se bloquean mientras carga, procesa una operación o falta el expediente.
     val accionesHabilitadas = !uiState.cargando && !uiState.procesando && !uiState.operacionExitosa &&
@@ -168,7 +165,6 @@ private fun DetalleIngresoContent(
         if (!accionesHabilitadas) return
         onLimpiarError()
         motivo = ""
-        destinoRegularizacion = EstadoIngreso.REGISTRADO
         accionPendiente = accion }
 
     // Cierra la confirmación y limpia el motivo escrito.
@@ -196,7 +192,6 @@ private fun DetalleIngresoContent(
     val puedeCancelar = estadoActual != null && ReglasIngreso.cancelar(estadoActual)
     val puedeEliminar = estadoActual != null && ReglasIngreso.eliminar(
         estado = estadoActual, tieneActividadPosterior = uiState.tieneActividadPosterior)
-    val puedeRegularizar = estadoActual != null && ReglasIngreso.regularizarEstado(estadoActual)
     val puedeIniciarRevision = estadoActual != null && ReglasIngreso.iniciarRevision(estadoActual)
     // El checklist y el diagnóstico se deducen del historial, porque cada guardado deja su evento.
     val tieneChecklist = uiState.historial.any { it.accion == "CHECKLIST" }
@@ -209,7 +204,6 @@ private fun DetalleIngresoContent(
         ReglasIngreso.enviarAFirma(estadoActual) -> IngresoAccion.ENVIAR_A_FIRMA
         ReglasIngreso.firmar(estadoActual) -> IngresoAccion.FIRMAR
         ReglasIngreso.entregar(estadoActual) -> IngresoAccion.ENTREGAR
-        puedeRegularizar -> IngresoAccion.REGULARIZAR_ESTADO
         else -> null }
     // Texto que explica por qué el botón principal está desactivado.
     val requisitoFaltante: Int? = when {
@@ -285,8 +279,7 @@ private fun DetalleIngresoContent(
                                     IngresoAccion.INICIAR_REPARACION -> R.string.dashboard_action_start_repair
                                     IngresoAccion.ENVIAR_A_FIRMA -> R.string.dashboard_action_to_signature
                                     IngresoAccion.FIRMAR -> R.string.dashboard_action_sign
-                                    IngresoAccion.ENTREGAR -> R.string.dashboard_action_deliver
-                                    else -> R.string.dashboard_action_regularize }),
+                                    else -> R.string.dashboard_action_deliver }),
                                 style = MaterialTheme.typography.titleMedium) } } } } }
     ) { padding ->
         LazyColumn(
@@ -395,9 +388,8 @@ private fun DetalleIngresoContent(
     val accion = accionPendiente
     if (accion != null && ingreso != null && !uiState.eliminado) {
         // Avanzar de etapa no pide motivo: el paso anterior ya se comprueba y el historial guarda un texto automático.
-        // El motivo se escribe solo cuando el ingreso retrocede, se cancela o se corrige un estado desconocido.
-        val requiereMotivo = accion == IngresoAccion.DEVOLVER_A_REPARACION || accion == IngresoAccion.CANCELAR ||
-                accion == IngresoAccion.REGULARIZAR_ESTADO
+        // El motivo se escribe solo cuando el ingreso retrocede o se cancela.
+        val requiereMotivo = accion == IngresoAccion.DEVOLVER_A_REPARACION || accion == IngresoAccion.CANCELAR
         if (accion == IngresoAccion.ELIMINAR) {
             // Eliminar es un cuadro con aviso, no una hoja.
             AlertDialog(
@@ -418,7 +410,7 @@ private fun DetalleIngresoContent(
                 confirmButton = {
                     Button(
                         enabled = accionesHabilitadas,
-                        onClick = { onConfirmar(accion, "", destinoRegularizacion) },
+                        onClick = { onConfirmar(accion, "") },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = colors.error, contentColor = colors.onError)
                     ) { Text(stringResource(R.string.dashboard_action_delete)) } },
@@ -443,14 +435,6 @@ private fun DetalleIngresoContent(
                             fontWeight = FontWeight.ExtraBold,
                             modifier = Modifier.weight(1f, fill = false))
                         PildoraEstado(estado = EstadoIngreso.desdeValor(ingreso.estado)) }
-                    if (accion == IngresoAccion.REGULARIZAR_ESTADO) {
-                        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf(EstadoIngreso.REGISTRADO, EstadoIngreso.EN_REVISION).forEach { destino ->
-                                FilterChip(selected = destinoRegularizacion == destino,
-                                    enabled = !uiState.procesando,
-                                    onClick = { destinoRegularizacion = destino
-                                        onLimpiarError() },
-                                    label = { Text(stringResource(etiquetaEstadoDetalle(destino)))}) } } }
                     if (requiereMotivo) {
                         OutlinedTextField(
                             value = motivo,
@@ -479,7 +463,7 @@ private fun DetalleIngresoContent(
                         ) { Text(stringResource(R.string.detalle_back)) }
                         Button(
                             enabled = accionesHabilitadas && (!requiereMotivo || motivo.isNotBlank()),
-                            onClick = { onConfirmar(accion, motivo.trim(), destinoRegularizacion) },
+                            onClick = { onConfirmar(accion, motivo.trim()) },
                             modifier = Modifier.weight(1f).heightIn(min = 56.dp),
                             shape = RoundedCornerShape(16.dp),
                             colors = if (accion == IngresoAccion.CANCELAR) ButtonDefaults.buttonColors(
@@ -510,8 +494,7 @@ private fun etiquetaEstadoDetalle(estado: EstadoIngreso): Int {
         EstadoIngreso.LISTO_PARA_FIRMA -> R.string.dashboard_status_signature
         EstadoIngreso.LISTO_PARA_ENTREGA -> R.string.dashboard_status_delivery
         EstadoIngreso.ENTREGADO -> R.string.dashboard_status_delivered
-        EstadoIngreso.CANCELADO -> R.string.dashboard_status_cancelled
-        EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown } }
+        EstadoIngreso.CANCELADO -> R.string.dashboard_status_cancelled } }
 
 // Título de la confirmación de cada acción.
 @StringRes
@@ -523,7 +506,6 @@ private fun tituloConfirmacion(accion: IngresoAccion): Int {
         IngresoAccion.DEVOLVER_A_REPARACION -> R.string.dashboard_action_return_repair
         IngresoAccion.CANCELAR -> R.string.dashboard_action_cancel
         IngresoAccion.ELIMINAR -> R.string.dashboard_action_delete
-        IngresoAccion.REGULARIZAR_ESTADO -> R.string.dashboard_action_regularize
         else -> error("Acción sin diálogo de confirmación.") } }
 
 // Fecha y hora con el formato del dispositivo.
@@ -576,8 +558,8 @@ private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean, nombreTecnico:
 @Composable
 private fun PasosIngreso(estado: EstadoIngreso) {
     val colors = MaterialTheme.colorScheme
-    // CANCELADO y NO_DISPONIBLE no forman parte del avance normal.
-    if (estado == EstadoIngreso.CANCELADO || estado == EstadoIngreso.NO_DISPONIBLE) {
+    // CANCELADO no forma parte del avance normal.
+    if (estado == EstadoIngreso.CANCELADO) {
         PildoraEstado(estado = estado)
         return }
     val actual = when (estado) {
@@ -689,7 +671,7 @@ private fun DetalleClaroPreview() {
             onLimpiarError = {},
             onConsumirExito = {},
             onAbrirChecklist = {},
-            onConfirmar = { _, _, _ -> }) } }
+            onConfirmar = { _, _ -> }) } }
 
 // Vista previa del detalle en modo oscuro.
 @Preview(
@@ -709,7 +691,7 @@ private fun DetalleOscuroPreview() {
             onAbrirDiagnostico = {},
             onConsumirExito = {},
             onAbrirChecklist = {},
-            onConfirmar = { _, _, _ -> }) } }
+            onConfirmar = { _, _ -> }) } }
 
 // Datos de ejemplo para las vistas previas del detalle.
 private fun estadoDetallePreview(): DetalleIngresoUiState {

@@ -14,6 +14,4 @@ enum class IngresoAccion {
     ENTREGAR,
     // Administración del ingreso
     CANCELAR,
-    ELIMINAR,
-    // Corrección de registros con estado desconocido
-    REGULARIZAR_ESTADO }
+    ELIMINAR }

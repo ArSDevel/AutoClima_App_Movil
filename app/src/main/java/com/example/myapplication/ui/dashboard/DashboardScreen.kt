@@ -211,7 +211,7 @@ fun DashboardContent(
                                     texto = stringResource(R.string.dashboard_filter_all),
                                     seleccionado = uiState.estadoSeleccionado == null,
                                     onClick = { onEstadoChange(null) }) }
-                            items(EstadoIngreso.entries.filter { it != EstadoIngreso.NO_DISPONIBLE }) { estado ->
+                            items(EstadoIngreso.entries) { estado ->
                                 ChipEstado(
                                     texto = stringResource(etiquetaEstado(estado)),
                                     seleccionado = uiState.estadoSeleccionado == estado,

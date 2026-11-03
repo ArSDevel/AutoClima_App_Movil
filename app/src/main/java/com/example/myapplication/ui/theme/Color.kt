@@ -100,8 +100,6 @@ internal val IngresoEntregaLight = Color(0xFF0E7490)
 internal val IngresoEntregadoLight = Color(0xFF0F766E)
 // Rojo: ingreso cancelado.
 internal val IngresoCanceladoLight = Color(0xFFB4233D)
-// Neutro: estado sin identificar.
-internal val IngresoSinEstadoLight = Color(0xFF64748B)
 
 // Estados de los ingresos: tema oscuro
 internal val IngresoRegistradoDark = Color(0xFF4C8DFF)
@@ -111,4 +109,3 @@ internal val IngresoFirmaDark = Color(0xFF35B978)
 internal val IngresoEntregaDark = Color(0xFF29AEC2)
 internal val IngresoEntregadoDark = Color(0xFF2CC5A0)
 internal val IngresoCanceladoDark = Color(0xFFF05268)
-internal val IngresoSinEstadoDark = Color(0xFF94A3B8)

@@ -15,8 +15,7 @@ object ReglasIngreso {
     fun soloContacto(estado: EstadoIngreso): Boolean {
         return estado in setOf(
             EstadoIngreso.LISTO_PARA_FIRMA,
-            EstadoIngreso.LISTO_PARA_ENTREGA,
-            EstadoIngreso.NO_DISPONIBLE) }
+            EstadoIngreso.LISTO_PARA_ENTREGA) }
 
     // Un ingreso se puede editar si permite edición completa o solo de contacto.
     fun editar(estado: EstadoIngreso): Boolean {
@@ -56,10 +55,6 @@ object ReglasIngreso {
     fun entregar(estado: EstadoIngreso): Boolean {
         return estado == EstadoIngreso.LISTO_PARA_ENTREGA }
 
-    // Un ingreso con estado desconocido se puede regularizar.
-    fun regularizarEstado(estado: EstadoIngreso): Boolean {
-        return estado == EstadoIngreso.NO_DISPONIBLE }
-
     // Un ingreso entregado o cancelado ya no admite cambios.
     fun estaCerrado(estado: EstadoIngreso): Boolean {
         return estado in setOf(
@@ -72,13 +67,13 @@ object ReglasIngreso {
     fun puedeCambiarEstado(origen: EstadoIngreso, destino: EstadoIngreso): Boolean {
         return when (destino) {
             EstadoIngreso.CANCELADO -> cancelar(origen)
-            EstadoIngreso.EN_REVISION -> iniciarRevision(origen) || regularizarEstado(origen)
-            EstadoIngreso.REGISTRADO -> regularizarEstado(origen)
+            EstadoIngreso.EN_REVISION -> iniciarRevision(origen)
+            // Registrado es el primer estado: no se llega a él desde otro.
+            EstadoIngreso.REGISTRADO -> false
             EstadoIngreso.EN_REPARACION -> devolverAReparacion(origen) || iniciarReparacion(origen)
             EstadoIngreso.LISTO_PARA_FIRMA -> enviarAFirma(origen)
             EstadoIngreso.LISTO_PARA_ENTREGA -> firmar(origen)
-            EstadoIngreso.ENTREGADO -> entregar(origen)
-            EstadoIngreso.NO_DISPONIBLE -> false } }
+            EstadoIngreso.ENTREGADO -> entregar(origen) } }
 
     // Detiene la operación si el cambio no está permitido o no se proporcionó un motivo.
     fun validarTransicion(origen: EstadoIngreso, destino: EstadoIngreso, motivo: String) {

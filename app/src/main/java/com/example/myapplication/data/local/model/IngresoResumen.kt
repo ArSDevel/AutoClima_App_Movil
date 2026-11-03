@@ -12,7 +12,7 @@ data class IngresoResumen(
     val telefonoCliente: String,
     val emailCliente: String?,
     val fechaEntrada: Long,
-    val estado: String = EstadoIngreso.NO_DISPONIBLE.name,
+    val estado: String = EstadoIngreso.REGISTRADO.name,
     val motivoIngreso: String? = null,
     val condicionInicial: String? = null,
     val fotoPath: String? = null,

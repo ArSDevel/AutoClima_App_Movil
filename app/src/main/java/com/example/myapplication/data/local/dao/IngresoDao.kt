@@ -19,8 +19,7 @@ interface IngresoDao {
     suspend fun insertar(ingreso: Ingreso): Long
 
     // Observa los ingresos con los datos del vehículo y del cliente.
-    // Busca por placa, serie, modelo o cliente. Con estadoFiltro en null muestra todos los estados,
-    // y NO_DISPONIBLE incluye los valores de estado desconocidos.
+    // Busca por placa, serie, modelo o cliente. Con estadoFiltro en null muestra todos los estados.
     // Las fechas van en milisegundos: fechaDesde incluye el instante y fechaHastaExclusiva lo excluye;
     // null omite ese límite. Los órdenes son RECIENTES, ANTIGUOS y PLACA_ASCENDENTE,
     // y cualquier otro valor usa el orden por fecha reciente.
@@ -37,11 +36,7 @@ interface IngresoDao {
                 OR INSTR(LOWER(COALESCE(v.numeroSerie, '')),LOWER(:textoBusqueda)) > 0
                 OR INSTR(LOWER(v.modelo),LOWER(:textoBusqueda)) > 0
                 OR INSTR(LOWER(c.nombre),LOWER(:textoBusqueda)) > 0)
-            AND (:estadoFiltro IS NULL OR i.estado = :estadoFiltro
-                OR (:estadoFiltro = 'NO_DISPONIBLE'AND (
-                        i.estado IS NULL OR i.estado NOT IN (
-                            'REGISTRADO', 'EN_REVISION','EN_REPARACION', 'LISTO_PARA_FIRMA', 'LISTO_PARA_ENTREGA',
-                            'ENTREGADO','CANCELADO'))))
+            AND (:estadoFiltro IS NULL OR i.estado = :estadoFiltro)
             AND (:fechaDesde IS NULL OR i.fecha >= :fechaDesde)
             AND (:fechaHastaExclusiva IS NULL OR i.fecha < :fechaHastaExclusiva)
         ORDER BY CASE

@@ -34,8 +34,7 @@ data class DetalleIngresoUiState(
         get() = accionEnCurso != null
 
     // Estado del ingreso mostrado.
-    // null significa que todavía no hay un ingreso disponible;
-    // NO_DISPONIBLE corresponde a un ingreso con estado desconocido.
+    // null significa que todavía no hay un ingreso disponible.
     val estadoActual: EstadoIngreso?
         get() = ingreso?.let {
             EstadoIngreso.desdeValor(it.estado) }

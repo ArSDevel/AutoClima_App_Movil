@@ -101,17 +101,6 @@ class DetalleIngresoViewModel(
             repository.cancelar(ingresoId = ingresoId, motivo = motivo,
                 tecnicoId = tecnicoId) } }
 
-    // Permite corregir un estado desconocido.
-    // El repositorio comprueba también el estado actual
-    // y que la transición esté permitida.
-    fun regularizarEstado(destino: EstadoIngreso, motivo: String, tecnicoId: Long) {
-        ejecutarOperacion(accion = IngresoAccion.REGULARIZAR_ESTADO) {
-            require(destino == EstadoIngreso.REGISTRADO || destino == EstadoIngreso.EN_REVISION) {
-                "Selecciona Registrado o En revisión." }
-
-            repository.cambiarEstado(ingresoId = ingresoId, destino = destino,
-                motivo = motivo, tecnicoId = tecnicoId) } }
-
     // Elimina el ingreso si todavía no tiene actividad.
     fun eliminar(tecnicoId: Long) {
         ejecutarOperacion(accion = IngresoAccion.ELIMINAR) {

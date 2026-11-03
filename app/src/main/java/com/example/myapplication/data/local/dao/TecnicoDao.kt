@@ -19,9 +19,6 @@ interface TecnicoDao {
     @Query(" SELECT * FROM tecnico WHERE usuario = :usuario LIMIT 1")
     suspend fun buscarPorUsuario(usuario: String): Tecnico?
 
-    // Comprueba usuario y hash de contraseña juntos; devuelve null si no coinciden.
-    @Query("SELECT * FROM tecnico WHERE usuario = :usuario AND passwordHash = :passwordHash LIMIT 1")
-    suspend fun login(usuario: String, passwordHash: String): Tecnico?
 
     // Permite comprobar que el técnico de la sesión existe.
     @Query("SELECT * FROM tecnico WHERE tecnicoId = :id")

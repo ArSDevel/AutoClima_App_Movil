@@ -1,0 +1,747 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 14,
+    "identityHash": "84476ee606d4b7179ebc5529fa157776",
+    "entities": [
+      {
+        "tableName": "tecnico",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tecnicoId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `usuario` TEXT NOT NULL, `passwordHash` TEXT NOT NULL, `recuperacionHash` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "tecnicoId",
+            "columnName": "tecnicoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "usuario",
+            "columnName": "usuario",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "passwordHash",
+            "columnName": "passwordHash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recuperacionHash",
+            "columnName": "recuperacionHash",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "tecnicoId"
+          ]
+        }
+      },
+      {
+        "tableName": "cliente",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`clienteId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `nombre` TEXT NOT NULL, `telefono` TEXT NOT NULL, `email` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "clienteId",
+            "columnName": "clienteId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nombre",
+            "columnName": "nombre",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telefono",
+            "columnName": "telefono",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "clienteId"
+          ]
+        }
+      },
+      {
+        "tableName": "vehiculo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`vehiculoId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `clienteId` INTEGER NOT NULL, `placa` TEXT NOT NULL, `modelo` TEXT NOT NULL, `color` TEXT, `numeroSerie` TEXT, FOREIGN KEY(`clienteId`) REFERENCES `cliente`(`clienteId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "vehiculoId",
+            "columnName": "vehiculoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "clienteId",
+            "columnName": "clienteId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placa",
+            "columnName": "placa",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modelo",
+            "columnName": "modelo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "numeroSerie",
+            "columnName": "numeroSerie",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "vehiculoId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_vehiculo_clienteId",
+            "unique": false,
+            "columnNames": [
+              "clienteId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_vehiculo_clienteId` ON `${TABLE_NAME}` (`clienteId`)"
+          },
+          {
+            "name": "index_vehiculo_placa",
+            "unique": true,
+            "columnNames": [
+              "placa"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_vehiculo_placa` ON `${TABLE_NAME}` (`placa`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "cliente",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "clienteId"
+            ],
+            "referencedColumns": [
+              "clienteId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "ingreso",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`ingresoId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `vehiculoId` INTEGER NOT NULL, `tecnicoId` INTEGER NOT NULL, `fecha` INTEGER NOT NULL, `motivoIngreso` TEXT, `condicionInicial` TEXT, `estado` TEXT NOT NULL, `fotoPath` TEXT, `tecnicoEncargado` TEXT NOT NULL DEFAULT '', FOREIGN KEY(`vehiculoId`) REFERENCES `vehiculo`(`vehiculoId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`tecnicoId`) REFERENCES `tecnico`(`tecnicoId`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "ingresoId",
+            "columnName": "ingresoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "vehiculoId",
+            "columnName": "vehiculoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tecnicoId",
+            "columnName": "tecnicoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivoIngreso",
+            "columnName": "motivoIngreso",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "condicionInicial",
+            "columnName": "condicionInicial",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "estado",
+            "columnName": "estado",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fotoPath",
+            "columnName": "fotoPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tecnicoEncargado",
+            "columnName": "tecnicoEncargado",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "ingresoId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ingreso_vehiculoId",
+            "unique": false,
+            "columnNames": [
+              "vehiculoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ingreso_vehiculoId` ON `${TABLE_NAME}` (`vehiculoId`)"
+          },
+          {
+            "name": "index_ingreso_tecnicoId",
+            "unique": false,
+            "columnNames": [
+              "tecnicoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ingreso_tecnicoId` ON `${TABLE_NAME}` (`tecnicoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "vehiculo",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "vehiculoId"
+            ],
+            "referencedColumns": [
+              "vehiculoId"
+            ]
+          },
+          {
+            "table": "tecnico",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tecnicoId"
+            ],
+            "referencedColumns": [
+              "tecnicoId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "checklist_diagnostico",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`checklistId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ingresoId` INTEGER NOT NULL, `faltaGasRefrigerante` INTEGER NOT NULL, `fugaVisibleMangueras` INTEGER NOT NULL, `fugasDetectadasLuzUV` INTEGER NOT NULL, `compresorEmbragaAlEncender` INTEGER NOT NULL, `compresorDanadoOAmarrado` INTEGER NOT NULL, `bandaCompresorDesgastada` INTEGER NOT NULL, `funcionanAbanicosRadiador` INTEGER NOT NULL, `filtroCabinaSucioUObstruido` INTEGER NOT NULL, `condensadorObstruido` INTEGER NOT NULL, `comentarios` TEXT, `fecha` INTEGER NOT NULL, FOREIGN KEY(`ingresoId`) REFERENCES `ingreso`(`ingresoId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "checklistId",
+            "columnName": "checklistId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingresoId",
+            "columnName": "ingresoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "faltaGasRefrigerante",
+            "columnName": "faltaGasRefrigerante",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fugaVisibleMangueras",
+            "columnName": "fugaVisibleMangueras",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fugasDetectadasLuzUV",
+            "columnName": "fugasDetectadasLuzUV",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "compresorEmbragaAlEncender",
+            "columnName": "compresorEmbragaAlEncender",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "compresorDanadoOAmarrado",
+            "columnName": "compresorDanadoOAmarrado",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bandaCompresorDesgastada",
+            "columnName": "bandaCompresorDesgastada",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "funcionanAbanicosRadiador",
+            "columnName": "funcionanAbanicosRadiador",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filtroCabinaSucioUObstruido",
+            "columnName": "filtroCabinaSucioUObstruido",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "condensadorObstruido",
+            "columnName": "condensadorObstruido",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comentarios",
+            "columnName": "comentarios",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "checklistId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_checklist_diagnostico_ingresoId",
+            "unique": true,
+            "columnNames": [
+              "ingresoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_checklist_diagnostico_ingresoId` ON `${TABLE_NAME}` (`ingresoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ingreso",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ingresoId"
+            ],
+            "referencedColumns": [
+              "ingresoId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "evento_ingreso",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`eventoId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ingresoId` INTEGER NOT NULL, `fecha` INTEGER NOT NULL, `tecnicoId` INTEGER NOT NULL, `accion` TEXT NOT NULL, `estadoAnterior` TEXT NOT NULL, `estadoNuevo` TEXT NOT NULL, `motivo` TEXT NOT NULL, FOREIGN KEY(`ingresoId`) REFERENCES `ingreso`(`ingresoId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "eventoId",
+            "columnName": "eventoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingresoId",
+            "columnName": "ingresoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tecnicoId",
+            "columnName": "tecnicoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accion",
+            "columnName": "accion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estadoAnterior",
+            "columnName": "estadoAnterior",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "estadoNuevo",
+            "columnName": "estadoNuevo",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "motivo",
+            "columnName": "motivo",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "eventoId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_evento_ingreso_ingresoId",
+            "unique": false,
+            "columnNames": [
+              "ingresoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_evento_ingreso_ingresoId` ON `${TABLE_NAME}` (`ingresoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ingreso",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ingresoId"
+            ],
+            "referencedColumns": [
+              "ingresoId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "diagnostico",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`diagnosticoId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ingresoId` INTEGER NOT NULL, `observaciones` TEXT NOT NULL, `tecnicoId` INTEGER NOT NULL, `fechaCreacion` INTEGER NOT NULL, `fechaActualizacion` INTEGER NOT NULL, FOREIGN KEY(`ingresoId`) REFERENCES `ingreso`(`ingresoId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "diagnosticoId",
+            "columnName": "diagnosticoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingresoId",
+            "columnName": "ingresoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "observaciones",
+            "columnName": "observaciones",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tecnicoId",
+            "columnName": "tecnicoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaCreacion",
+            "columnName": "fechaCreacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fechaActualizacion",
+            "columnName": "fechaActualizacion",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "diagnosticoId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_diagnostico_ingresoId",
+            "unique": true,
+            "columnNames": [
+              "ingresoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_diagnostico_ingresoId` ON `${TABLE_NAME}` (`ingresoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ingreso",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ingresoId"
+            ],
+            "referencedColumns": [
+              "ingresoId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "concepto_cotizacion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`conceptoId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `diagnosticoId` INTEGER NOT NULL, `descripcion` TEXT NOT NULL, `importeCentavos` INTEGER NOT NULL, `orden` INTEGER NOT NULL, FOREIGN KEY(`diagnosticoId`) REFERENCES `diagnostico`(`diagnosticoId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "conceptoId",
+            "columnName": "conceptoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "diagnosticoId",
+            "columnName": "diagnosticoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "descripcion",
+            "columnName": "descripcion",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "importeCentavos",
+            "columnName": "importeCentavos",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orden",
+            "columnName": "orden",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "conceptoId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_concepto_cotizacion_diagnosticoId",
+            "unique": false,
+            "columnNames": [
+              "diagnosticoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_concepto_cotizacion_diagnosticoId` ON `${TABLE_NAME}` (`diagnosticoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "diagnostico",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "diagnosticoId"
+            ],
+            "referencedColumns": [
+              "diagnosticoId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "tabla_evidencias",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `rutaImagen` TEXT NOT NULL, `ingresoId` INTEGER, `tecnicoId` INTEGER, `fecha` INTEGER, `descripcion` TEXT NOT NULL DEFAULT '', FOREIGN KEY(`ingresoId`) REFERENCES `ingreso`(`ingresoId`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rutaImagen",
+            "columnName": "rutaImagen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingresoId",
+            "columnName": "ingresoId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "tecnicoId",
+            "columnName": "tecnicoId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "descripcion",
+            "columnName": "descripcion",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tabla_evidencias_ingresoId",
+            "unique": false,
+            "columnNames": [
+              "ingresoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tabla_evidencias_ingresoId` ON `${TABLE_NAME}` (`ingresoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ingreso",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ingresoId"
+            ],
+            "referencedColumns": [
+              "ingresoId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "firma",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`firmaId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `ingresoId` INTEGER NOT NULL, `rutaImagen` TEXT NOT NULL, `tecnicoId` INTEGER NOT NULL, `fecha` INTEGER NOT NULL, FOREIGN KEY(`ingresoId`) REFERENCES `ingreso`(`ingresoId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "firmaId",
+            "columnName": "firmaId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ingresoId",
+            "columnName": "ingresoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rutaImagen",
+            "columnName": "rutaImagen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tecnicoId",
+            "columnName": "tecnicoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fecha",
+            "columnName": "fecha",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "firmaId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_firma_ingresoId",
+            "unique": true,
+            "columnNames": [
+              "ingresoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_firma_ingresoId` ON `${TABLE_NAME}` (`ingresoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "ingreso",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "ingresoId"
+            ],
+            "referencedColumns": [
+              "ingresoId"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '84476ee606d4b7179ebc5529fa157776')"
+    ]
+  }
+}

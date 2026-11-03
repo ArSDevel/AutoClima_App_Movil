@@ -187,8 +187,7 @@ fun colorEstado(estado: EstadoIngreso): Color {
         EstadoIngreso.LISTO_PARA_FIRMA -> colores.listoParaFirma
         EstadoIngreso.LISTO_PARA_ENTREGA -> colores.listoParaEntrega
         EstadoIngreso.ENTREGADO -> colores.entregado
-        EstadoIngreso.CANCELADO -> colores.cancelado
-        EstadoIngreso.NO_DISPONIBLE -> colores.noDisponible } }
+        EstadoIngreso.CANCELADO -> colores.cancelado } }
 
 // Texto corto de cada estado del ingreso.
 @StringRes
@@ -200,8 +199,7 @@ fun etiquetaEstado(estado: EstadoIngreso): Int {
         EstadoIngreso.LISTO_PARA_FIRMA -> R.string.dashboard_status_signature
         EstadoIngreso.LISTO_PARA_ENTREGA -> R.string.dashboard_status_delivery
         EstadoIngreso.ENTREGADO -> R.string.dashboard_status_delivered
-        EstadoIngreso.CANCELADO -> R.string.dashboard_status_cancelled
-        EstadoIngreso.NO_DISPONIBLE -> R.string.dashboard_status_unknown } }
+        EstadoIngreso.CANCELADO -> R.string.dashboard_status_cancelled } }
 
 // Tarjeta compacta para elegir un ingreso: foto, placa, vehículo y cliente, y estado.
 @Composable

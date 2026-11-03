@@ -267,7 +267,7 @@ private fun RegistroContent(
                         onVolver = { solicitarSalida(SalidaRegistro.VOLVER) },
                         habilitado = !uiState.cargando,
                         acciones = {
-                            if (uiState.estadoIngreso != EstadoIngreso.NO_DISPONIBLE || uiState.formularioDisponible) {
+                            if (uiState.formularioDisponible) {
                                 PildoraEstado(estado = uiState.estadoIngreso, sobreCabecera = true) } })
                 } else {
                 Column {

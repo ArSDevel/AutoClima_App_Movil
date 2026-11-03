@@ -22,6 +22,4 @@ data class Vehiculo(
     // Marca y modelo juntos, por ejemplo "Nissan Versa".
     val modelo: String,
     val color: String?,
-    val numeroSerie: String?,
-    val kilometraje: Int?,
-    val observaciones: String?)
+    val numeroSerie: String?)

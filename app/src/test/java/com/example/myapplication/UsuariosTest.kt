@@ -41,9 +41,6 @@ internal class DaoUsuarios : TecnicoDao {
 
     override suspend fun buscarPorUsuario(usuario: String): Tecnico? = tecnicos.value.find { it.usuario == usuario }
 
-    override suspend fun login(usuario: String, passwordHash: String): Tecnico? =
-        tecnicos.value.find { it.usuario == usuario && it.passwordHash == passwordHash }
-
     override suspend fun obtener(id: Long): Tecnico? = tecnicos.value.find { it.tecnicoId == id }
 
     override fun observarCantidad(): Flow<Int> = tecnicos.map { it.size }
