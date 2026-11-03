@@ -49,6 +49,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.fechaYHoraDelDispositivo
 import com.example.myapplication.ui.checklist.components.PreguntaChecklist
 import com.example.myapplication.ui.checklist.components.SeccionChecklist
 
@@ -367,6 +368,14 @@ fun ChecklistScreen(
                                             R.string.checklist_comments)) },
                                 minLines = 4,
                                 shape = MaterialTheme.shapes.medium) }
+
+                        // Cuándo se guardó por última vez el checklist, si ya existe uno guardado.
+                        estado.fechaUltimoGuardado?.let { guardado ->
+                            item(key = "ultimo_guardado") {
+                                Text(
+                                    text = stringResource(R.string.checklist_saved_on, fechaYHoraDelDispositivo(guardado)),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant) } }
 
                         estado.errorGuardado?.let { mensaje ->
                             item(key = "error_guardado") {

@@ -1,112 +1,23 @@
 package com.example.myapplication.ui.checklist
 
-import com.example.myapplication.ui.components.EncabezadoAutoClimas
-import com.example.myapplication.ui.components.TarjetaSeleccionIngreso
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.SeleccionIngresoScreen
 import com.example.myapplication.ui.dashboard.DashboardViewModel
 
 // Permite elegir el ingreso antes de abrir su checklist.
 // Utiliza un ViewModel propio de esta entrada de navegación.
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SeleccionIngresoChecklistScreen(
     viewModel: DashboardViewModel,
     onVolver: () -> Unit,
     onSeleccionarIngreso: (Long) -> Unit) {
-    val estado by viewModel.uiState.collectAsStateWithLifecycle()
-
-    Scaffold(
-        topBar = {
-            EncabezadoAutoClimas(
-                titulo = stringResource(R.string.checklist_selector_title),
-                onVolver = onVolver) }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentAlignment = Alignment.TopCenter) {
-            Column(
-                modifier = Modifier
-                    .widthIn(max = 840.dp)
-                    .fillMaxSize()
-                    .padding(start = 16.dp,
-                        end = 16.dp,
-                        top = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)) {
-
-
-                com.example.myapplication.ui.dashboard.components.BuscadorIngreso(
-                    textoBusqueda = estado.textoBusqueda,
-                    onBusquedaChange = viewModel::cambiarBusqueda)
-
-                when {
-                    estado.cargando -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                            contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator() } }
-
-                    estado.hayError -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 24.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                stringResource(
-                                    R.string.checklist_selector_error))
-
-                            Button(onClick = viewModel::reintentar) {
-                                Text(
-                                    stringResource(
-                                        R.string.checklist_retry)) } } }
-
-                    estado.ingresos.isEmpty() -> {
-                        Text(
-                            text = stringResource(
-                                if (estado.textoBusqueda.isBlank()) {
-                                    R.string.checklist_selector_empty
-                                } else {
-                                    R.string.checklist_selector_no_results }),
-                            modifier = Modifier.padding(vertical = 24.dp),
-                            style = MaterialTheme.typography.bodyLarge) }
-
-                    else -> {
-                        LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            contentPadding = PaddingValues(bottom = 24.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                            items(
-                                items = estado.ingresos,
-                                key = { it.ingresoId }
-                            ) { ingreso ->
-                                TarjetaSeleccionIngreso(
-                                    ingreso = ingreso,
-                                    onClick = { onSeleccionarIngreso(ingreso.ingresoId) }) } } } } } } } }
+    SeleccionIngresoScreen(
+        viewModel = viewModel,
+        titulo = R.string.checklist_selector_title,
+        textoError = R.string.checklist_selector_error,
+        textoReintentar = R.string.checklist_retry,
+        textoVacio = R.string.checklist_selector_empty,
+        textoSinResultados = R.string.checklist_selector_no_results,
+        onVolver = onVolver,
+        onSeleccionar = { onSeleccionarIngreso(it.ingresoId) }) }

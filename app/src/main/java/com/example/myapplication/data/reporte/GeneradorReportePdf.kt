@@ -19,12 +19,11 @@ import android.text.TextPaint
 import android.text.TextUtils
 import androidx.core.content.res.ResourcesCompat
 import com.example.myapplication.R
+import com.example.myapplication.util.FormatoFechas
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.OutputStream
-import java.text.DateFormat
-import java.util.Date
 import java.util.Locale
 import kotlin.math.max
 
@@ -103,8 +102,7 @@ class GeneradorReportePdf(private val contexto: Context) {
 
     // Fecha y hora corta en español de México.
     private fun fecha(milisegundos: Long): String {
-        return DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.forLanguageTag("es-MX"))
-            .format(Date(milisegundos)) }
+        return FormatoFechas.fechaYHora(milisegundos, Locale.forLanguageTag("es-MX")) }
 
     // Ajusta un texto de una sola línea al espacio disponible.
     private fun recortar(texto: String, pincel: TextPaint, disponible: Float): String {

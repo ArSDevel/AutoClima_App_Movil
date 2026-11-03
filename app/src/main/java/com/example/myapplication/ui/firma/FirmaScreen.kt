@@ -71,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.example.myapplication.R
+import com.example.myapplication.util.FormatoFechas
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.reporte.FormatoReporte
 import com.example.myapplication.data.reporte.MAXIMO_FOTOS_REPORTE
@@ -82,8 +83,6 @@ import com.example.myapplication.ui.components.TipoAviso
 import com.example.myapplication.ui.components.colorTituloSeccion
 import com.example.myapplication.ui.theme.estadoIngresoColors
 import java.io.File
-import java.text.DateFormat
-import java.util.Date
 
 // Firma del cliente al aceptar la cotización. Al confirmar, el ingreso pasa a listo para entrega.
 @Composable
@@ -326,6 +325,6 @@ private fun FirmaGuardada(ruta: String, fecha: Long) {
                 .border(1.dp, colors.outlineVariant, RoundedCornerShape(14.dp)))
         Text(
             text = stringResource(R.string.firma_signed_on,
-                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(fecha))),
+                FormatoFechas.fechaYHora(fecha)),
             style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 4.dp)) } }

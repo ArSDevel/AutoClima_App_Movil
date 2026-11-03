@@ -27,11 +27,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
+import com.example.myapplication.data.reporte.FormatoReporte
 import com.example.myapplication.data.local.model.FormularioDiagnostico
-import java.math.BigDecimal
-import java.text.NumberFormat
-import java.util.Currency
-import java.util.Locale
 
 // Presenta los conceptos y el total de la cotización.
 // Los cambios se delegan al ViewModel; aquí no se guarda en la base.
@@ -120,7 +117,7 @@ fun CotizacionDiagnostico(
                     Text(text = stringResource(R.string.diagnostico_quote_total),
                         style = MaterialTheme.typography.titleMedium)
                     Text(
-                        text = if (totalCentavos != null) formatearImporte(totalCentavos) else "—",
+                        text = if (totalCentavos != null) FormatoReporte.pesos(totalCentavos) else "—",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.ExtraBold) }
                 // Si falta algún importe, el aviso va aparte y en pequeño.
@@ -129,15 +126,3 @@ fun CotizacionDiagnostico(
                         text = stringResource(R.string.diagnostico_quote_invalid_total),
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurfaceVariant) } } } } }
-
-// Formatea centavos como pesos mexicanos sin convertir a Double; equivale a FormatoReporte.pesos.
-private fun formatearImporte(centavos: Long): String {
-    val formato = NumberFormat.getCurrencyInstance(
-        Locale("es", "MX")
-    ).apply {
-        currency = Currency.getInstance("MXN")
-        minimumFractionDigits = 2
-        maximumFractionDigits = 2 }
-
-    return formato.format(
-        BigDecimal.valueOf(centavos, 2)) }

@@ -11,13 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Checklist
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.History
@@ -39,12 +33,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.TipoEvento
+import com.example.myapplication.util.FormatoFechas
 import com.example.myapplication.data.local.model.EventoHistorial
 import com.example.myapplication.ui.theme.estadoIngresoColors
 import com.example.myapplication.ui.components.nombreCortoTecnico
-import java.text.DateFormat
 import java.util.Calendar
-import java.util.Date
 
 // Actividad en una sola línea; al tocarla se despliegan la nota y el acceso al ingreso.
 @Composable
@@ -56,14 +50,9 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
     val tecnico = nombreCortoTecnico(evento.nombreTecnico)
         ?: stringResource(R.string.historial_actor_unknown, evento.tecnicoId)
 
-    val (icono, color) = when (evento.accion) {
-        "ESTADO" -> Icons.AutoMirrored.Filled.ArrowForward to estados.enRevision
-        "EVIDENCIA", "FOTO_PRINCIPAL", "EVIDENCIA_ELIMINADA", "EVIDENCIA_EDITADA" -> Icons.Default.CameraAlt to estados.listoParaEntrega
-        "CHECKLIST" -> Icons.Default.Checklist to estados.registrado
-        "DIAGNOSTICO" -> Icons.Default.Description to estados.enReparacion
-        "EDITADO" -> Icons.Default.Edit to estados.registrado
-        "REPORTE" -> Icons.AutoMirrored.Filled.Send to estados.listoParaFirma
-        else -> Icons.Default.History to estados.registrado }
+    val tipo = TipoEvento.desde(evento.accion)
+    val icono = tipo?.icono ?: Icons.Default.History
+    val color = tipo?.color?.invoke(estados) ?: estados.registrado
     // Un cambio de estado se titula con el cambio mismo: "Revisión a Reparación".
     val titulo = if (evento.accion == "ESTADO" && evento.estadoNuevo.isNotBlank() && evento.estadoAnterior.isNotBlank()) {
         stringResource(R.string.detalle_event_transition,
@@ -121,11 +110,11 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
 // Muestra Hoy o Ayer con la hora; para otros días, la fecha corta.
 @Composable
 private fun fechaRelativa(milisegundos: Long): String {
-    val hora = DateFormat.getTimeInstance(DateFormat.SHORT).format(Date(milisegundos))
+    val hora = FormatoFechas.hora(milisegundos)
     return when (diasEntre(System.currentTimeMillis(), milisegundos)) {
         0 -> stringResource(R.string.historial_today) + " " + hora
         1 -> stringResource(R.string.historial_yesterday) + " " + hora
-        else -> DateFormat.getDateInstance(DateFormat.SHORT).format(Date(milisegundos)) + " " + hora } }
+        else -> FormatoFechas.fechaCorta(milisegundos) + " " + hora } }
 
 // Días de calendario entre dos instantes, de medianoche a medianoche, también al cruzar de mes o de año.
 // Se redondea porque un cambio de horario hace que un día dure 23 o 25 horas.

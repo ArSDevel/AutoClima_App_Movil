@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.registro
 
+import com.example.myapplication.ui.components.ERROR_INGRESO_INVALIDO
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.local.model.DatosPlacaRegistrada
@@ -56,7 +57,7 @@ class RegistroViewModel(
     private fun cargarIngreso(id: Long) {
         if (id <= 0) {
             _uiState.update {
-                it.copy(cargandoIngreso = false, errorCarga = "El identificador del ingreso no es válido.") }
+                it.copy(cargandoIngreso = false, errorCarga = ERROR_INGRESO_INVALIDO) }
             return }
 
         _uiState.update {

@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.camara
 
+import com.example.myapplication.ui.components.ERROR_INGRESO_INVALIDO
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.local.repository.EvidenciaRepository
@@ -38,7 +39,7 @@ class CamaraIngresoViewModel(
             _uiState.update {
                 it.copy(
                     cargando = false,
-                    errorCarga = "El identificador del ingreso no es válido.") }
+                    errorCarga = ERROR_INGRESO_INVALIDO) }
             return }
 
         _uiState.update {
@@ -87,8 +88,7 @@ class CamaraIngresoViewModel(
                 rutaPendiente = archivo.absolutePath,
                 descripcion = "",
                 errorGuardado = null,
-                guardadoExitoso = false,
-                evidenciaGuardadaId = null) } }
+                guardadoExitoso = false) } }
 
     // Actualiza la descripción de la foto que se va a guardar.
     fun cambiarDescripcion(valor: String) {
@@ -132,7 +132,7 @@ class CamaraIngresoViewModel(
 
         viewModelScope.launch {
             try {
-                val evidenciaId = repository.guardar(
+                repository.guardar(
                     ingresoId = ingresoId,
                     tecnicoId = tecnicoId,
                     archivo = File(ruta),
@@ -142,7 +142,6 @@ class CamaraIngresoViewModel(
                     it.copy(
                         rutaPendiente = null,
                         descripcion = "",
-                        evidenciaGuardadaId = evidenciaId,
                         guardadoExitoso = true) }
             } catch (cancelacion: CancellationException) {
                 throw cancelacion

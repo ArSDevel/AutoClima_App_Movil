@@ -1,12 +1,12 @@
 package com.example.myapplication.ui.dashboard
 
+import com.example.myapplication.ui.components.ingresoDeEjemplo
 import androidx.activity.compose.BackHandler
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import com.example.myapplication.data.repository.ChecklistRepository
@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -59,7 +58,7 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Tag
-import androidx.compose.material.icons.filled.Undo
+import androidx.compose.material.icons.automirrored.filled.Undo
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.ui.Alignment
@@ -80,20 +79,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.TipoEvento
+import com.example.myapplication.ui.components.fechaYHoraDelDispositivo
 import com.example.myapplication.data.local.entity.EventoIngreso
 import com.example.myapplication.data.local.model.EstadoIngreso
-import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.model.ReglasIngreso
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.ui.theme.estadoIngresoColors
-import java.text.DateFormat
-import java.util.Date
 
 // Conecta la pantalla con el ViewModel.
 // tecnicoId debe proceder de la sesión autenticada.
@@ -234,15 +231,14 @@ private fun DetalleIngresoContent(
                             DropdownMenu(expanded = menuAbierto, onDismissRequest = { menuAbierto = false }) {
                                 if (puedeEditar) {
                                     DropdownMenuItem(
-                                        text = { Text(stringResource(if (estadoActual != null &&
-                                            ReglasIngreso.soloContacto(estadoActual)) {
+                                        text = { Text(stringResource(if (ReglasIngreso.soloContacto(estadoActual)) {
                                             R.string.detalle_edit_contact } else { R.string.dashboard_action_edit })) },
                                         leadingIcon = { Icon(Icons.Default.Edit, contentDescription = null) },
                                         onClick = { menuAbierto = false; onEditar(ingreso.ingresoId) }) }
                                 if (puedeDevolver) {
                                     DropdownMenuItem(
                                         text = { Text(stringResource(R.string.dashboard_action_return_repair)) },
-                                        leadingIcon = { Icon(Icons.Default.Undo, contentDescription = null) },
+                                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = null) },
                                         onClick = { menuAbierto = false; solicitarAccion(IngresoAccion.DEVOLVER_A_REPARACION) }) }
                                 if (puedeCancelar) {
                                     DropdownMenuItem(
@@ -364,7 +360,7 @@ private fun DetalleIngresoContent(
                                 FilaDato(Icons.Default.Person, ingreso.nombreCliente, conDivisor = false)
                                 FilaDato(Icons.Default.Phone, ingreso.telefonoCliente)
                                 FilaDato(Icons.Default.Email, ingreso.emailCliente)
-                                FilaDato(Icons.Default.DateRange, fechaDetalle(ingreso.fechaEntrada))
+                                FilaDato(Icons.Default.DateRange, fechaYHoraDelDispositivo(ingreso.fechaEntrada))
                                 FilaDato(Icons.Default.Engineering,
                                     ingreso.tecnicoEncargado.takeIf { it.isNotBlank() }?.let {
                                         stringResource(R.string.detalle_assigned_technician, it) })
@@ -508,31 +504,11 @@ private fun tituloConfirmacion(accion: IngresoAccion): Int {
         IngresoAccion.ELIMINAR -> R.string.dashboard_action_delete
         else -> error("Acción sin diálogo de confirmación.") } }
 
-// Fecha y hora con el formato del dispositivo.
-@Composable
-private fun fechaDetalle(milisegundos: Long): String {
-    val locale = LocalConfiguration.current.locales[0]
-    return DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
-        DateFormat.SHORT, locale
-    ).format(Date(milisegundos)) }
-
 // Un evento del historial dentro de la línea de tiempo.
 @Composable
 private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean, nombreTecnico: String?) {
     val colors = MaterialTheme.colorScheme
-    val titulo = stringResource(
-        when (evento.accion) {
-            "CREADO" -> R.string.detalle_event_created
-            "EDITADO" -> R.string.detalle_event_edited
-            "ESTADO" -> R.string.detalle_event_state
-            "CHECKLIST" -> R.string.detalle_event_checklist
-            "EVIDENCIA" -> R.string.fotos_event_added
-            "FOTO_PRINCIPAL" -> R.string.fotos_event_main
-            "EVIDENCIA_ELIMINADA" -> R.string.fotos_event_deleted
-            "EVIDENCIA_EDITADA" -> R.string.fotos_event_description
-            "DIAGNOSTICO" -> R.string.detalle_event_diagnosis
-            "REPORTE" -> R.string.detalle_event_report
-            else -> R.string.detalle_event_other })
+    val titulo = stringResource(TipoEvento.desde(evento.accion)?.tituloDetalle ?: R.string.detalle_event_other)
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(modifier = Modifier.padding(top = 6.dp).size(12.dp).clip(CircleShape).background(colors.primary))
@@ -542,7 +518,7 @@ private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean, nombreTecnico:
         Column(modifier = Modifier.weight(1f).padding(bottom = if (ultimo) 0.dp else 8.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = titulo, style = MaterialTheme.typography.titleSmall)
-            Text(text = fechaDetalle(evento.fecha) + " · " +
+            Text(text = fechaYHoraDelDispositivo(evento.fecha) + " · " +
                     (nombreTecnico ?: stringResource(R.string.detalle_event_author, evento.tecnicoId)),
                 style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
             if (evento.accion == "ESTADO") {
@@ -697,17 +673,8 @@ private fun DetalleOscuroPreview() {
 private fun estadoDetallePreview(): DetalleIngresoUiState {
     return DetalleIngresoUiState(
         cargando = false,
-        ingreso = IngresoResumen(
-            ingresoId = 1L,
-            placa = "ABC-123",
-            modelo = "Honda Civic",
-            color = "Rojo",
-            numeroSerie = "SERIE-DE-EJEMPLO",
-            nombreCliente = "Cliente de ejemplo",
-            telefonoCliente = "8100000000",
-            emailCliente = null,
-            fechaEntrada = 1788955200000L,
-            estado = EstadoIngreso.REGISTRADO.name,
+        ingreso = ingresoDeEjemplo(
+            estado = EstadoIngreso.REGISTRADO,
             motivoIngreso = "El aire acondicionado no enfría.",
             condicionInicial = "Vehículo recibido para revisión."),
         historial = listOf(

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
+import com.example.myapplication.util.FormatoFechas
 import com.example.myapplication.ui.components.EncabezadoAutoClimas
 import com.example.myapplication.ui.dashboard.DashboardMenuOption
 import com.example.myapplication.ui.dashboard.components.DashboardDrawer
@@ -149,7 +150,7 @@ fun RespaldoScreen(
                                     Row(
                                         modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Text(fechaCorta(copia.fechaMs), style = MaterialTheme.typography.bodyMedium)
+                                        Text(FormatoFechas.fechaYHora(copia.fechaMs), style = MaterialTheme.typography.bodyMedium)
                                         TextButton(onClick = { viewModel.elegirCopia(copia) }, enabled = !estado.trabajando) {
                                             Text(stringResource(R.string.respaldo_auto_restore)) } } } } }
                         TarjetaRespaldo(

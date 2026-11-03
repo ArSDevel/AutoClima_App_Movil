@@ -59,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.fechaYHoraDelDispositivo
 import com.example.myapplication.ui.diagnostico.components.CotizacionDiagnostico
 import com.example.myapplication.ui.diagnostico.components.HojaEnvioReporte
 import com.example.myapplication.data.reporte.ConceptoReporte
@@ -256,7 +257,19 @@ fun DiagnosticoScreen(
                                             enabled = !estado.guardando && !estadoFotos.guardando,
                                             readOnly = !estado.puedeModificar,
                                             minLines = 3,
-                                            shape = MaterialTheme.shapes.small) } } }
+                                            shape = MaterialTheme.shapes.small)
+                                        // Fechas del diagnóstico ya guardado: cuándo se creó y cuándo cambió por última vez.
+                                        estado.fechaCreacion?.let { creado ->
+                                            val ultimo = estado.fechaUltimoGuardado ?: creado
+                                            Text(
+                                                text = if (ultimo == creado) {
+                                                    stringResource(R.string.diagnostico_saved_on,
+                                                        fechaYHoraDelDispositivo(creado))
+                                                } else {
+                                                    stringResource(R.string.diagnostico_created_updated,
+                                                        fechaYHoraDelDispositivo(creado), fechaYHoraDelDispositivo(ultimo)) },
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = colors.onSurfaceVariant) } } } }
 
                             item(key = "cotizacion") {
                                 CotizacionDiagnostico(

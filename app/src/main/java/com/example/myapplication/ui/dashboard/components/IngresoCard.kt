@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.dashboard.components
 
+import com.example.myapplication.ui.components.ingresoDeEjemplo
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,12 +33,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
+import com.example.myapplication.util.FormatoFechas
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.ui.components.PildoraEstado
 import com.example.myapplication.ui.theme.MyApplicationTheme
-import java.text.DateFormat
-import java.util.Date
 
 // Tarjeta compacta de un ingreso.
 // Al tocarla se abre el detalle. Las fotos y la edición tienen su icono.
@@ -55,7 +55,7 @@ fun IngresoCard(
     val locale = LocalConfiguration.current.locales[0]
     // Fecha corta con el idioma del dispositivo; solo se recalcula si cambia la fecha o el idioma.
     val fechaFormateada = remember(ingreso.fechaEntrada, locale) {
-        DateFormat.getDateInstance(DateFormat.MEDIUM, locale).format(Date(ingreso.fechaEntrada)) }
+        FormatoFechas.fecha(ingreso.fechaEntrada, locale) }
     val vehiculo = listOfNotNull(
         ingreso.modelo.takeIf { it.isNotBlank() },
         ingreso.color?.takeIf { it.isNotBlank() }
@@ -153,17 +153,7 @@ private fun DatoBreve(icono: ImageVector, texto: String) {
             overflow = TextOverflow.Ellipsis) } }
 
 // Datos exclusivos de las previews.
-private val ingresoEjemplo = IngresoResumen(
-    ingresoId = 1L,
-    placa = "ABC-123",
-    modelo = "Honda Civic",
-    color = "Rojo",
-    numeroSerie = "SERIE-DE-EJEMPLO",
-    nombreCliente = "Cliente de ejemplo",
-    telefonoCliente = "8100000000",
-    emailCliente = null,
-    fechaEntrada = 1788955200000L,
-    estado = EstadoIngreso.EN_REVISION.name)
+private val ingresoEjemplo = ingresoDeEjemplo(estado = EstadoIngreso.EN_REVISION)
 
 // Vista previa de la tarjeta en modo claro.
 @Preview(name = "Ingreso · claro", showBackground = true, widthDp = 360)

@@ -2,23 +2,14 @@ package com.example.myapplication.ui.historial.components
 
 import androidx.annotation.StringRes
 import com.example.myapplication.R
+import com.example.myapplication.ui.components.TipoEvento
 
-// Texto de cada tipo de actividad.
+// Texto de cada tipo de actividad. null es el filtro "todas" y FOTOS agrupa los eventos de fotografías.
 @StringRes
 fun etiquetaAccionHistorial(accion: String?): Int = when (accion) {
     null -> R.string.historial_all_actions
-    "CREADO" -> R.string.historial_created
-    "EDITADO" -> R.string.historial_edited
-    "ESTADO" -> R.string.historial_state
-    "CHECKLIST" -> R.string.historial_checklist
-    "DIAGNOSTICO" -> R.string.historial_diagnosis
-    "REPORTE" -> R.string.historial_report
     "FOTOS" -> R.string.historial_photos
-    "EVIDENCIA" -> R.string.historial_photo
-    "FOTO_PRINCIPAL" -> R.string.historial_main_photo
-    "EVIDENCIA_ELIMINADA" -> R.string.historial_deleted_photo
-    "EVIDENCIA_EDITADA" -> R.string.historial_edited_photo
-    else -> R.string.historial_other }
+    else -> TipoEvento.desde(accion)?.etiquetaHistorial ?: R.string.historial_other }
 
 // Texto de cada estado guardado en un evento.
 @StringRes

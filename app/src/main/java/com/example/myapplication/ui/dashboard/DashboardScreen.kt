@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.dashboard
 
+import com.example.myapplication.ui.components.ingresoDeEjemplo
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -62,7 +63,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.myapplication.R
 import com.example.myapplication.data.local.model.EstadoIngreso
-import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.model.ReglasIngreso
 import com.example.myapplication.ui.components.EncabezadoAutoClimas
 import com.example.myapplication.ui.components.colorEstado
@@ -413,28 +413,9 @@ private fun MensajeDashboard(
 
 // Datos exclusivos de las previews.
 private val ingresosPreview = listOf(
-    IngresoResumen(
-        ingresoId = 1L,
-        placa = "ABC-123",
-        modelo = "Honda Civic",
-        color = "Rojo",
-        numeroSerie = "SERIE-DE-EJEMPLO",
-        nombreCliente = "Cliente de ejemplo",
-        telefonoCliente = "8100000000",
-        emailCliente = "cliente@example.com",
-        fechaEntrada = 1788955200000L,
-        estado = EstadoIngreso.EN_REPARACION.name),
-    IngresoResumen(
-        ingresoId = 2L,
-        placa = "XYZ-456",
-        modelo = "Nissan Versa",
-        color = "Azul",
-        numeroSerie = null,
-        nombreCliente = "Otro cliente",
-        telefonoCliente = "8111111111",
-        emailCliente = null,
-        fechaEntrada = 1788955200000L,
-        estado = EstadoIngreso.LISTO_PARA_FIRMA.name))
+    ingresoDeEjemplo(ingresoId = 1L, emailCliente = "cliente@example.com", estado = EstadoIngreso.EN_REPARACION),
+    ingresoDeEjemplo(ingresoId = 2L, placa = "XYZ-456", modelo = "Nissan Versa", color = "Azul", numeroSerie = null,
+        nombreCliente = "Otro cliente", telefonoCliente = "8111111111", estado = EstadoIngreso.LISTO_PARA_FIRMA))
 
 private val estadoDashboardPreview = DashboardUiState(
     cargando = false,

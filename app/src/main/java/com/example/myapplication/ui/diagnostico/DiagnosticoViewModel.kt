@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.diagnostico
 
+import com.example.myapplication.ui.components.ERROR_INGRESO_INVALIDO
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.local.model.ConceptoCotizacionFormulario
@@ -44,7 +45,7 @@ class DiagnosticoViewModel(
         if (ingresoId <= 0) {
             _uiState.value = DiagnosticoUiState(
                 cargando = false,
-                errorCarga = "El identificador del ingreso no es válido.")
+                errorCarga = ERROR_INGRESO_INVALIDO)
             return }
 
         _uiState.update {
@@ -94,6 +95,8 @@ class DiagnosticoViewModel(
                     formulario = formulario,
                     fechaUltimoGuardado =
                         guardado?.diagnostico?.fechaActualizacion,
+                    fechaCreacion =
+                        guardado?.diagnostico?.fechaCreacion,
                     tecnicoUltimoGuardadoId =
                         guardado?.diagnostico?.tecnicoId,
                     cargando = false)
@@ -275,6 +278,7 @@ class DiagnosticoViewModel(
                         guardadoExitoso = true,
                         tieneCambiosSinGuardar = false,
                         fechaUltimoGuardado = null,
+                        fechaCreacion = null,
                         tecnicoUltimoGuardadoId = null) }
 
                 // Recupera la fecha y el autor realmente persistidos.
@@ -287,6 +291,8 @@ class DiagnosticoViewModel(
                         it.copy(
                             fechaUltimoGuardado =
                                 guardado?.diagnostico?.fechaActualizacion,
+                            fechaCreacion =
+                                guardado?.diagnostico?.fechaCreacion,
                             tecnicoUltimoGuardadoId =
                                 guardado?.diagnostico?.tecnicoId) }
                 } catch (cancelacion: CancellationException) {

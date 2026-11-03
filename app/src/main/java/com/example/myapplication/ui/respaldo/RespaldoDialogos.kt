@@ -32,9 +32,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
+import com.example.myapplication.util.FormatoFechas
 import com.example.myapplication.data.respaldo.ConteosDatos
-import java.text.DateFormat
-import java.util.Date
 import kotlin.system.exitProcess
 
 // Diálogos del respaldo que comparten la pantalla de Respaldo y la bienvenida: progreso, confirmaciones, elección entre
@@ -69,7 +68,7 @@ fun DialogosRespaldo(
                     title = { Text(stringResource(R.string.respaldo_confirm_title)) },
                     text = {
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(stringResource(R.string.respaldo_confirm_date, fechaCorta(manifiesto.fechaMs)))
+                            Text(stringResource(R.string.respaldo_confirm_date, FormatoFechas.fechaYHora(manifiesto.fechaMs)))
                             Text(stringResource(R.string.respaldo_confirm_counts, manifiesto.ingresos, manifiesto.vehiculos,
                                 manifiesto.clientes, manifiesto.usuarios))
                             Text(stringResource(R.string.respaldo_confirm_text)) } },
@@ -174,7 +173,7 @@ fun DialogosRespaldo(
 @Composable
 private fun Comparacion(fechaRespaldoMs: Long, respaldo: ConteosDatos, actual: ConteosDatos) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(stringResource(R.string.respaldo_compare_backup, fechaCorta(fechaRespaldoMs)),
+        Text(stringResource(R.string.respaldo_compare_backup, FormatoFechas.fechaYHora(fechaRespaldoMs)),
             style = MaterialTheme.typography.titleSmall)
         Text(stringResource(R.string.respaldo_confirm_counts, respaldo.ingresos, respaldo.vehiculos, respaldo.clientes, respaldo.usuarios))
         Text(stringResource(R.string.respaldo_compare_now), style = MaterialTheme.typography.titleSmall)
@@ -224,4 +223,4 @@ private fun ConfirmacionPeligrosa(
                 colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) { Text(botonConfirmar) } },
         dismissButton = { TextButton(onClick = onCancelar) { Text(stringResource(R.string.usuarios_delete_cancel)) } }) }
 
-internal fun fechaCorta(ms: Long): String = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(ms))
+

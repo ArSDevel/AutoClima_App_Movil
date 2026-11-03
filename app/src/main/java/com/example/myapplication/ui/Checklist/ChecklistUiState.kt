@@ -1,6 +1,6 @@
 package com.example.myapplication.ui.checklist
 
-import com.example.myapplication.data.local.model.EstadoIngreso
+import com.example.myapplication.ui.components.EstadoPantallaIngreso
 import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.repository.ChecklistRepository
 
@@ -9,7 +9,7 @@ import com.example.myapplication.data.repository.ChecklistRepository
 // pregunta pendiente de una respuesta explícita "No".
 data class ChecklistUiState(
     // Datos del ingreso que se está revisando.
-    val ingreso: IngresoResumen? = null,
+    override val ingreso: IngresoResumen? = null,
 
     // Identificador del checklist guardado.
     // null significa que todavía no existe uno.
@@ -37,9 +37,9 @@ data class ChecklistUiState(
     val fechaUltimoGuardado: Long? = null,
 
     // Carga inicial del ingreso y sus respuestas.
-    val cargando: Boolean = true,
-    val errorCarga: String? = null,
-    val ingresoNoEncontrado: Boolean = false,
+    override val cargando: Boolean = true,
+    override val errorCarga: String? = null,
+    override val ingresoNoEncontrado: Boolean = false,
 
     // Estado de la operación de guardado.
     val guardando: Boolean = false,
@@ -51,7 +51,7 @@ data class ChecklistUiState(
 
     // Activa los avisos de preguntas pendientes después
     // de intentar guardar un checklist incompleto.
-    val mostrarPreguntasPendientes: Boolean = false) {
+    val mostrarPreguntasPendientes: Boolean = false) : EstadoPantallaIngreso {
 
     // Agrupa las respuestas para calcular el avance.
     // No almacena una segunda copia del formulario.
@@ -86,14 +86,8 @@ data class ChecklistUiState(
 
     // Indica si el expediente se cargó correctamente.
     val formularioDisponible: Boolean
-        get() = !cargando &&
-                errorCarga == null &&
-                !ingresoNoEncontrado &&
-                ingreso != null
+        get() = ingresoCargado
 
-    val estadoActual: EstadoIngreso?
-        get() = ingreso?.let {
-            EstadoIngreso.desdeValor(it.estado) }
 
     // Respeta las mismas etapas que valida el repositorio.
     val permiteEdicion: Boolean

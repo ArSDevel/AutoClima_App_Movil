@@ -75,7 +75,6 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.myapplication.data.catalogo.CatalogoVehiculos
 import com.example.myapplication.ui.components.BarraAccionInferior
 import com.example.myapplication.ui.components.EncabezadoAutoClimas
-import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.ui.components.PildoraEstado
 import com.example.myapplication.ui.components.CampoBloqueado
 import androidx.compose.material.icons.filled.Lock
@@ -695,6 +694,20 @@ private fun PasosRegistro(paso: Int) {
                         color = if (actual || hecho) colors.primary else colors.onSurfaceVariant,
                         maxLines = 1) } } } } }
 
+// Cuerpo común de las vistas previas del registro; cada una solo cambia el estado y el tema.
+@Composable
+private fun VistaPreviaRegistro(uiState: RegistroUiState, oscuro: Boolean) {
+    MyApplicationTheme(darkTheme = oscuro) {
+        RegistroContent(
+            uiState = uiState,
+            onCampoChange = { _, _ -> },
+            onGuardar = {},
+            onNuevaCaptura = {},
+            onReintentarCarga = {},
+            onLogout = {},
+            onMenuSeleccionado = {},
+            onTomarFotoClick = {}) } }
+
 // Vista previa del registro en modo claro.
 @Preview(
     name = "Registro · teléfono",
@@ -708,20 +721,13 @@ private fun PasosRegistro(paso: Int) {
     heightDp = 850)
 @Composable
 private fun RegistroClaroPreview() {
-    MyApplicationTheme(darkTheme = false) {
-        RegistroContent(
-            uiState = RegistroUiState(
-                placa = "ABC-123",
-                nombreCliente = "Cliente de ejemplo",
-                modelo = "Honda Civic",
-                telefonoCliente = "8100000000"),
-            onCampoChange = { _, _ -> },
-            onGuardar = {},
-            onNuevaCaptura = {},
-            onReintentarCarga = {},
-            onLogout = {},
-            onMenuSeleccionado = {},
-            onTomarFotoClick = {}) } }
+    VistaPreviaRegistro(
+        uiState = RegistroUiState(
+            placa = "ABC-123",
+            nombreCliente = "Cliente de ejemplo",
+            modelo = "Honda Civic",
+            telefonoCliente = "8100000000"),
+        oscuro = false) }
 
 // Vista previa del registro en modo oscuro.
 @Preview(
@@ -731,16 +737,9 @@ private fun RegistroClaroPreview() {
     heightDp = 2000)
 @Composable
 private fun RegistroOscuroPreview() {
-    MyApplicationTheme(darkTheme = true) {
-        RegistroContent(
-            uiState = RegistroUiState(),
-            onCampoChange = { _, _ -> },
-            onGuardar = {},
-            onNuevaCaptura = {},
-            onReintentarCarga = {},
-            onLogout = {},
-            onMenuSeleccionado = {},
-            onTomarFotoClick = {}) } }
+    VistaPreviaRegistro(
+        uiState = RegistroUiState(),
+        oscuro = true) }
 
 // Vista previa mientras se carga un ingreso para editar.
 @Preview(
@@ -750,18 +749,11 @@ private fun RegistroOscuroPreview() {
     heightDp = 850)
 @Composable
 private fun RegistroCargandoPreview() {
-    MyApplicationTheme(darkTheme = false) {
-        RegistroContent(
-            uiState = RegistroUiState(
-                ingresoIdEnEdicion = 1L,
-                cargandoIngreso = true),
-            onCampoChange = { _, _ -> },
-            onGuardar = {},
-            onNuevaCaptura = {},
-            onReintentarCarga = {},
-            onLogout = {},
-            onMenuSeleccionado = {},
-            onTomarFotoClick = {}) } }
+    VistaPreviaRegistro(
+        uiState = RegistroUiState(
+            ingresoIdEnEdicion = 1L,
+            cargandoIngreso = true),
+        oscuro = false) }
 
 // Vista previa con error al cargar el ingreso.
 @Preview(
@@ -771,15 +763,8 @@ private fun RegistroCargandoPreview() {
     heightDp = 850)
 @Composable
 private fun RegistroErrorCargaPreview() {
-    MyApplicationTheme(darkTheme = true) {
-        RegistroContent(
-            uiState = RegistroUiState(
-                ingresoIdEnEdicion = 1L,
-                errorCarga = "No fue posible cargar el ingreso."),
-            onCampoChange = { _, _ -> },
-            onGuardar = {},
-            onNuevaCaptura = {},
-            onReintentarCarga = {},
-            onLogout = {},
-            onMenuSeleccionado = {},
-            onTomarFotoClick = {}) } }
+    VistaPreviaRegistro(
+        uiState = RegistroUiState(
+            ingresoIdEnEdicion = 1L,
+            errorCarga = "No fue posible cargar el ingreso."),
+        oscuro = true) }

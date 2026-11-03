@@ -1,8 +1,8 @@
 package com.example.myapplication.ui.diagnostico
 
+import com.example.myapplication.ui.components.EstadoPantallaIngreso
 import com.example.myapplication.data.local.entity.ChecklistDiagnostico
 import com.example.myapplication.data.local.model.ConceptoCotizacionFormulario
-import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.FormularioDiagnostico
 import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.repository.DiagnosticoRepository
@@ -24,7 +24,7 @@ enum class HallazgoDiagnostico {
 // No realiza consultas ni guarda cambios en la base de datos.
 data class DiagnosticoUiState(
     // Datos de recepción, vehículo y cliente.
-    val ingreso: IngresoResumen? = null,
+    override val ingreso: IngresoResumen? = null,
 
     // Respuestas y comentarios guardados en el checklist.
     // null significa que todavía no se dispone de uno.
@@ -39,12 +39,14 @@ data class DiagnosticoUiState(
 
     // Información del último guardado.
     val fechaUltimoGuardado: Long? = null,
+    // Cuándo se guardó por primera vez; la pantalla la muestra junto con el último guardado.
+    val fechaCreacion: Long? = null,
     val tecnicoUltimoGuardadoId: Long? = null,
 
     // Carga inicial.
-    val cargando: Boolean = true,
-    val errorCarga: String? = null,
-    val ingresoNoEncontrado: Boolean = false,
+    override val cargando: Boolean = true,
+    override val errorCarga: String? = null,
+    override val ingresoNoEncontrado: Boolean = false,
 
     // Guardado y validación.
     val guardando: Boolean = false,
@@ -53,7 +55,7 @@ data class DiagnosticoUiState(
     val guardadoExitoso: Boolean = false,
 
     // Permite advertir antes de abandonar el formulario.
-    val tieneCambiosSinGuardar: Boolean = false) {
+    val tieneCambiosSinGuardar: Boolean = false) : EstadoPantallaIngreso {
 
     // Accesos a los campos del formulario sin duplicar sus valores.
     val observaciones: String
@@ -62,17 +64,11 @@ data class DiagnosticoUiState(
     val conceptos: List<ConceptoCotizacionFormulario>
         get() = formulario.conceptos
 
-    val estadoActual: EstadoIngreso?
-        get() = ingreso?.let {
-            EstadoIngreso.desdeValor(it.estado) }
 
     // El reporte puede mostrarse aunque aún no exista un checklist.
     // En ese caso se indica que la revisión está pendiente.
     val reporteDisponible: Boolean
-        get() = !cargando &&
-                errorCarga == null &&
-                !ingresoNoEncontrado &&
-                ingreso != null
+        get() = ingresoCargado
 
     val tieneChecklist: Boolean
         get() = checklist != null

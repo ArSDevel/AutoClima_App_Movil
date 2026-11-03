@@ -33,6 +33,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +45,7 @@ import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.ui.theme.AutoClimasGradients
 import com.example.myapplication.ui.theme.LocalAutoClimasDark
 import com.example.myapplication.ui.theme.estadoIngresoColors
+import com.example.myapplication.util.FormatoFechas
 
 // Azul claro del subtítulo sobre la cabecera azul.
 private val TextoSecundarioCabecera = Color(0xFFDBEAFE)
@@ -348,3 +350,8 @@ fun nombreCortoTecnico(nombre: String?): String? {
 fun colorTituloSeccion(): Color {
     return if (LocalAutoClimasDark.current) MaterialTheme.colorScheme.primary
     else MaterialTheme.colorScheme.tertiary }
+
+// Fecha y hora con el idioma del dispositivo; la usan el detalle del ingreso y el diagnóstico.
+@Composable
+fun fechaYHoraDelDispositivo(milisegundos: Long): String {
+    return FormatoFechas.fechaYHora(milisegundos, LocalConfiguration.current.locales[0]) }

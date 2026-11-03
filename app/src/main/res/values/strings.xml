@@ -211,6 +211,7 @@
     <string name="checklist_save">Guardar checklist</string>
     <string name="checklist_save_changes">Guardar cambios</string>
     <string name="checklist_saving">Guardando…</string>
+    <string name="checklist_saved_on">Guardado el %1$s</string>
     <string name="checklist_saved_title">Checklist guardado</string>
     <string name="checklist_saved_message">Quedó registrado en el historial.</string>
     <string name="checklist_back_to_detail">Volver</string>
@@ -270,6 +271,8 @@
 
     <!-- Notas del mecánico -->
     <string name="diagnostico_notes_title">Diagnóstico</string>
+    <string name="diagnostico_saved_on">Guardado el %1$s</string>
+    <string name="diagnostico_created_updated">Creado el %1$s · Último cambio el %2$s</string>
 
     <!-- Guardado y envío -->
     <string name="diagnostico_save">Guardar diagnóstico</string>

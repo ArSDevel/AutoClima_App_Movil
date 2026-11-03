@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -29,6 +28,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.R
+import com.example.myapplication.util.FormatoFechas
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.respaldo.EstadoDeIngreso
 import com.example.myapplication.data.respaldo.IngresoComparado
@@ -137,4 +137,4 @@ private fun descripcion(lado: EstadoDeIngreso): String {
     val estado = stringResource(etiquetaEstado(EstadoIngreso.desdeValor(lado.estado)))
     val fotos = pluralStringResource(R.plurals.respaldo_photos, lado.fotos, lado.fotos)
     val firma = stringResource(if (lado.tieneFirma) R.string.respaldo_with_signature else R.string.respaldo_without_signature)
-    return stringResource(R.string.respaldo_side_line, estado, fechaCorta(lado.ultimoMovimiento), fotos, firma) }
+    return stringResource(R.string.respaldo_side_line, estado, FormatoFechas.fechaYHora(lado.ultimoMovimiento), fotos, firma) }

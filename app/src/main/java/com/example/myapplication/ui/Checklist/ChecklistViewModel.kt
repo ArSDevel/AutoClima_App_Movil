@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.checklist
 
+import com.example.myapplication.ui.components.ERROR_INGRESO_INVALIDO
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.local.repository.DashboardRepository
@@ -39,7 +40,7 @@ class ChecklistViewModel(
         if (ingresoId <= 0) {
             _uiState.value = ChecklistUiState(
                 cargando = false,
-                errorCarga = "El identificador del ingreso no es válido.")
+                errorCarga = ERROR_INGRESO_INVALIDO)
             return }
 
         _uiState.update {

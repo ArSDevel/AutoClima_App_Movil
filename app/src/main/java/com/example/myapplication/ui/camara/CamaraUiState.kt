@@ -1,18 +1,18 @@
 package com.example.myapplication.ui.camara
 
+import com.example.myapplication.ui.components.EstadoPantallaIngreso
 import com.example.myapplication.data.local.entity.Evidencia
-import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.model.IngresoResumen
 import com.example.myapplication.data.local.model.ReglasIngreso
 
 // Información que utilizan la cámara y la galería del ingreso.
 data class CamaraUiState(
     // Carga del expediente y de sus fotografías.
-    val cargando: Boolean = true,
-    val ingreso: IngresoResumen? = null,
+    override val cargando: Boolean = true,
+    override val ingreso: IngresoResumen? = null,
     val evidencias: List<Evidencia> = emptyList(),
-    val ingresoNoEncontrado: Boolean = false,
-    val errorCarga: String? = null,
+    override val ingresoNoEncontrado: Boolean = false,
+    override val errorCarga: String? = null,
 
     // Fotografía capturada que todavía debe registrarse.
     // Se conserva para reintentar si falla el guardado.
@@ -23,14 +23,9 @@ data class CamaraUiState(
     val guardando: Boolean = false,
     val errorGuardado: String? = null,
     val guardadoExitoso: Boolean = false,
-    val evidenciaGuardadaId: Long? = null,
     val mensajeGaleria: String? = null,
-    val errorGaleria: String? = null) {
+    val errorGaleria: String? = null) : EstadoPantallaIngreso {
 
-    // null indica que todavía no existe un expediente disponible.
-    val estadoActual: EstadoIngreso?
-        get() = ingreso?.let {
-            EstadoIngreso.desdeValor(it.estado) }
 
     // Las fotografías se agregan durante la recepción,
     // la revisión o la reparación del vehículo.
