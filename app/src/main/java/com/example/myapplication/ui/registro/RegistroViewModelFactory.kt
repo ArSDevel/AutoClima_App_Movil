@@ -9,12 +9,13 @@ import com.example.myapplication.data.repository.RegistroRepository
 class RegistroViewModelFactory(
     private val repo: RegistroRepository,
     private val dashboardRepository: DashboardRepository,
-    private val ingresoId: Long? = null
+    private val ingresoId: Long? = null,
+    private val nombreTecnicoInicial: String? = null
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(RegistroViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return RegistroViewModel(repo = repo, dashboardRepository = dashboardRepository,
-                ingresoId = ingresoId) as T }
+                ingresoId = ingresoId, nombreTecnicoInicial = nombreTecnicoInicial) as T }
 
         throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}") } }

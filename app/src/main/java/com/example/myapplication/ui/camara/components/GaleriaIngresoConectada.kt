@@ -54,6 +54,11 @@ fun GaleriaIngresoConectada(
                         estado.evidencias.firstOrNull { it.rutaImagen == ruta }?.let {
                             viewModel.eliminarEvidencia(it.id, tecnicoId) }
                     } else null,
+                    descripciones = estado.evidencias.associate { it.rutaImagen to it.descripcion },
+                    onEditarDescripcion = if (editable) { ruta, texto ->
+                        estado.evidencias.firstOrNull { it.rutaImagen == ruta }?.let {
+                            viewModel.actualizarDescripcion(it.id, texto, tecnicoId) }
+                    } else null,
                     // No se puede eliminar la última fotografía: el ingreso siempre conserva una.
                     permiteEliminar = { editable && estado.evidencias.size > 1 },
                     aviso = when {

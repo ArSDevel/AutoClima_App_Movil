@@ -83,3 +83,10 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
 val MIGRATION_11_12 = object : Migration(11, 12) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE tecnico ADD COLUMN recuperacionHash TEXT") } }
+
+// Versión 12 a 13: las fotos tomadas desde el registro llevaban un texto fijo como descripción y salía impreso en el
+// reporte. Se vacía para que el pie de foto sea el que escriba el técnico o, si no hay, el número de foto.
+val MIGRATION_12_13 = object : Migration(12, 13) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""UPDATE tabla_evidencias SET descripcion = ''
+            WHERE descripcion = 'Fotografía del vehículo adjuntada desde Registro.'""".trimIndent()) } }

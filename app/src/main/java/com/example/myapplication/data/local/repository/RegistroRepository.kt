@@ -217,7 +217,7 @@ class RegistroRepository(
                     ingresoId = ingreso.ingresoId,
                     tecnicoId = tecnicoId,
                     fecha = fecha,
-                    descripcion = "Fotografía del vehículo adjuntada desde Registro."))
+                    descripcion = ""))
         } else {
             require(existente.ingresoId == ingreso.ingresoId) {
                 "La fotografía ya está registrada y no pertenece a este ingreso." }

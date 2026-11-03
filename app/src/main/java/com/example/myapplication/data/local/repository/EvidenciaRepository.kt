@@ -158,6 +158,27 @@ class EvidenciaRepository(
                         estadoAnterior = ingreso.estado, estadoNuevo = ingreso.estado,
                         motivo = "Se seleccionó la evidencia n.º $evidenciaId como fotografía principal.")) } } }
 
+    // La descripción se ve en la galería y sale como pie de foto en el reporte. Solo se cambia mientras el ingreso admite
+    // cambios en sus fotografías; el evento deja constancia de quién la editó.
+    suspend fun actualizarDescripcion(ingresoId: Long, evidenciaId: Int, descripcion: String, tecnicoId: Long) {
+        val descripcionLimpia = descripcion.trim()
+        require(descripcionLimpia.length <= 300) { "La descripción debe tener como máximo 300 caracteres." }
+        withContext(Dispatchers.IO) {
+            baseDeDatos.withTransaction {
+                val ingreso = validarOperacion(ingresoId, tecnicoId)
+                val evidencia = requireNotNull(evidenciaDao.obtener(evidenciaId)) {
+                    "La fotografía ya no existe." }
+                require(evidencia.ingresoId == ingresoId) { "La fotografía no pertenece a este ingreso." }
+                if (evidencia.descripcion == descripcionLimpia) return@withTransaction
+                check(evidenciaDao.actualizarDescripcion(evidenciaId, ingresoId, descripcionLimpia) == 1) {
+                    "No fue posible guardar la descripción." }
+                ingresoDao.insertarEvento(
+                    EventoIngreso(
+                        ingresoId = ingresoId, fecha = System.currentTimeMillis(),
+                        tecnicoId = tecnicoId, accion = "EVIDENCIA_EDITADA",
+                        estadoAnterior = ingreso.estado, estadoNuevo = ingreso.estado,
+                        motivo = "Se actualizó la descripción de la evidencia n.º $evidenciaId.")) } } }
+
     // El conteo, borrado, cambio de principal y evento son atómicos.
     // Dos intentos de borrado no pueden dejar el ingreso sin fotografías.
     suspend fun eliminar(ingresoId: Long, evidenciaId: Int, tecnicoId: Long) {

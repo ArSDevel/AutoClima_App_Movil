@@ -52,8 +52,10 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Engineering
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Tag
@@ -122,8 +124,8 @@ fun DetalleIngresoScreen(
         onConfirmar = { accion, motivo, destino ->
             when (accion) {
                 IngresoAccion.INICIAR_REVISION -> viewModel.iniciarRevision(tecnicoId)
-                IngresoAccion.INICIAR_REPARACION -> viewModel.iniciarReparacion(motivo, tecnicoId)
-                IngresoAccion.ENVIAR_A_FIRMA -> viewModel.enviarAFirma(motivo, tecnicoId)
+                IngresoAccion.INICIAR_REPARACION -> viewModel.iniciarReparacion(tecnicoId)
+                IngresoAccion.ENVIAR_A_FIRMA -> viewModel.enviarAFirma(tecnicoId)
                 IngresoAccion.DEVOLVER_A_REPARACION -> viewModel.devolverAReparacion(motivo, tecnicoId)
                 IngresoAccion.CANCELAR -> viewModel.cancelar(motivo, tecnicoId)
                 IngresoAccion.REGULARIZAR_ESTADO ->
@@ -370,8 +372,12 @@ private fun DetalleIngresoContent(
                                 FilaDato(Icons.Default.Phone, ingreso.telefonoCliente)
                                 FilaDato(Icons.Default.Email, ingreso.emailCliente)
                                 FilaDato(Icons.Default.DateRange, fechaDetalle(ingreso.fechaEntrada))
+                                FilaDato(Icons.Default.Engineering,
+                                    ingreso.tecnicoEncargado.takeIf { it.isNotBlank() }?.let {
+                                        stringResource(R.string.detalle_assigned_technician, it) })
                                 FilaDato(Icons.Default.Description, ingreso.motivoIngreso)
                                 FilaDato(Icons.Default.Info, ingreso.condicionInicial)
+                                FilaDato(Icons.Default.Palette, ingreso.color)
                                 FilaDato(Icons.Default.Tag, ingreso.numeroSerie) } } }
                     if (ReglasIngreso.estaCerrado(estado)) {
                         item {
@@ -383,11 +389,15 @@ private fun DetalleIngresoContent(
                             if (uiState.historial.isEmpty()) {
                                 Text(stringResource(R.string.detalle_history_empty)) }
                             uiState.historial.forEachIndexed { indice, evento ->
-                                EventoDetalle(evento = evento, ultimo = indice == uiState.historial.lastIndex) } } } } } } }
+                                EventoDetalle(evento = evento, ultimo = indice == uiState.historial.lastIndex,
+                                    nombreTecnico = uiState.nombresTecnicos[evento.tecnicoId]) } } } } } } }
 
     val accion = accionPendiente
     if (accion != null && ingreso != null && !uiState.eliminado) {
-        val requiereMotivo = accion != IngresoAccion.ELIMINAR && accion != IngresoAccion.INICIAR_REVISION
+        // Avanzar de etapa no pide motivo: el paso anterior ya se comprueba y el historial guarda un texto automático.
+        // El motivo se escribe solo cuando el ingreso retrocede, se cancela o se corrige un estado desconocido.
+        val requiereMotivo = accion == IngresoAccion.DEVOLVER_A_REPARACION || accion == IngresoAccion.CANCELAR ||
+                accion == IngresoAccion.REGULARIZAR_ESTADO
         if (accion == IngresoAccion.ELIMINAR) {
             // Eliminar es un cuadro con aviso, no una hoja.
             AlertDialog(
@@ -526,7 +536,7 @@ private fun fechaDetalle(milisegundos: Long): String {
 
 // Un evento del historial dentro de la línea de tiempo.
 @Composable
-private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
+private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean, nombreTecnico: String?) {
     val colors = MaterialTheme.colorScheme
     val titulo = stringResource(
         when (evento.accion) {
@@ -537,6 +547,7 @@ private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
             "EVIDENCIA" -> R.string.fotos_event_added
             "FOTO_PRINCIPAL" -> R.string.fotos_event_main
             "EVIDENCIA_ELIMINADA" -> R.string.fotos_event_deleted
+            "EVIDENCIA_EDITADA" -> R.string.fotos_event_description
             "DIAGNOSTICO" -> R.string.detalle_event_diagnosis
             "REPORTE" -> R.string.detalle_event_report
             else -> R.string.detalle_event_other })
@@ -550,7 +561,7 @@ private fun EventoDetalle(evento: EventoIngreso, ultimo: Boolean) {
             verticalArrangement = Arrangement.spacedBy(2.dp)) {
             Text(text = titulo, style = MaterialTheme.typography.titleSmall)
             Text(text = fechaDetalle(evento.fecha) + " · " +
-                    stringResource(R.string.detalle_event_author, evento.tecnicoId),
+                    (nombreTecnico ?: stringResource(R.string.detalle_event_author, evento.tecnicoId)),
                 style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
             if (evento.accion == "ESTADO") {
                 Text(text = stringResource(

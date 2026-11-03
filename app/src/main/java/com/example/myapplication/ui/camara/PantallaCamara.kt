@@ -174,6 +174,9 @@ fun PantallaCamara(
                                 preview.setSurfaceProvider(
                                     previewView.surfaceProvider)
 
+                                // Suelta cualquier uso anterior de la cámara para que Reintentar también funcione.
+                                actual.unbindAll()
+
                                 val camara = actual.bindToLifecycle(
                                     lifecycleOwner,
                                     selector,

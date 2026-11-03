@@ -14,6 +14,8 @@ data class DetalleIngresoUiState(
     val ingreso: IngresoResumen? = null,
     // Eventos asociados al ingreso.
     val historial: List<EventoIngreso> = emptyList(),
+    // Nombre de cada técnico del historial; si falta uno, la pantalla muestra su número.
+    val nombresTecnicos: Map<Long, String> = emptyMap(),
     // Diferencia un registro inexistente de un error de consulta.
     val ingresoNoEncontrado: Boolean = false,
     val errorCarga: String? = null,

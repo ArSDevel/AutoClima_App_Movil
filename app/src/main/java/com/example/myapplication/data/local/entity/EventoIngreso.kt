@@ -20,8 +20,8 @@ data class EventoIngreso(
     val fecha: Long,
     // Técnico que realizó la operación.
     val tecnicoId: Long,
-    // Tipo de operación: CREADO, EDITADO, ESTADO, CHECKLIST, DIAGNOSTICO, REPORTE, EVIDENCIA, FOTO_PRINCIPAL y
-    // EVIDENCIA_ELIMINADA
+    // Tipo de operación: CREADO, EDITADO, ESTADO, CHECKLIST, DIAGNOSTICO, REPORTE, EVIDENCIA, FOTO_PRINCIPAL,
+    // EVIDENCIA_ELIMINADA y EVIDENCIA_EDITADA
     val accion: String,
     // En la creación no hay estado anterior: se guarda ""; en los eventos que no cambian el estado se repite el vigente.
     val estadoAnterior: String,

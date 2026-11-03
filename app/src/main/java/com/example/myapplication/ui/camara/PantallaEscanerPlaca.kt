@@ -71,8 +71,15 @@ fun PantallaEscanerPlaca(
     // Impide analizar un fotograma nuevo mientras el anterior sigue en proceso.
     val procesando = remember { AtomicBoolean(false) }
 
+    // La cámara del escáner se suelta al salir. Si queda ligada a la actividad, la cámara de fotos del registro ya no
+    // puede abrirse porque CameraX no admite dos vistas previas a la vez.
+    val camaraAbierta = remember { arrayOfNulls<ProcessCameraProvider>(1) }
+    val pantallaActiva = remember { AtomicBoolean(true) }
+
     DisposableEffect(Unit) {
         onDispose {
+            pantallaActiva.set(false)
+            camaraAbierta[0]?.unbindAll()
             recognizer.close()
             executor.shutdown() } }
 
@@ -107,6 +114,9 @@ fun PantallaEscanerPlaca(
                     cameraProviderFuture.addListener({
                         try {
                             val cameraProvider = cameraProviderFuture.get()
+                            // Si el técnico ya salió del escáner, no se abre la cámara.
+                            if (!pantallaActiva.get()) return@addListener
+                            camaraAbierta[0] = cameraProvider
 
                             val preview = Preview.Builder().build()
                                 .also { it.surfaceProvider = previewView.surfaceProvider }

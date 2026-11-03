@@ -58,7 +58,7 @@ fun EventoHistorialCard(evento: EventoHistorial, onAbrirIngreso: (Long) -> Unit)
 
     val (icono, color) = when (evento.accion) {
         "ESTADO" -> Icons.AutoMirrored.Filled.ArrowForward to estados.enRevision
-        "EVIDENCIA", "FOTO_PRINCIPAL", "EVIDENCIA_ELIMINADA" -> Icons.Default.CameraAlt to estados.listoParaEntrega
+        "EVIDENCIA", "FOTO_PRINCIPAL", "EVIDENCIA_ELIMINADA", "EVIDENCIA_EDITADA" -> Icons.Default.CameraAlt to estados.listoParaEntrega
         "CHECKLIST" -> Icons.Default.Checklist to estados.registrado
         "DIAGNOSTICO" -> Icons.Default.Description to estados.enReparacion
         "EDITADO" -> Icons.Default.Edit to estados.registrado

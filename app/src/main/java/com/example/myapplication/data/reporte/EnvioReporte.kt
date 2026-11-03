@@ -19,8 +19,4 @@ sealed interface ResultadoEnvio {
 // Punto de unión para enviar reportes. La pantalla solo conoce esta interfaz:
 // para usar una API de mensajería se crea otra implementación y se cambia en AutoClimaApp.
 interface EnvioReporte {
-    suspend fun enviar(solicitud: SolicitudEnvio): ResultadoEnvio
-
-    // Abre la conversación con el cliente, con el mensaje escrito si se indica.
-    // También sirve cuando el cliente no está en los contactos.
-    suspend fun abrirChat(telefono: String, mensaje: String = ""): ResultadoEnvio }
+    suspend fun enviar(solicitud: SolicitudEnvio): ResultadoEnvio }

@@ -25,12 +25,18 @@ import java.util.Calendar
 class RegistroViewModel(
     private val repo: RegistroRepository,
     private val dashboardRepository: DashboardRepository,
-    private val ingresoId: Long? = null
+    private val ingresoId: Long? = null,
+    nombreTecnicoInicial: String? = null
 ) : ViewModel() {
+    // En un ingreso nuevo el técnico encargado empieza con el nombre de quien tiene la sesión abierta; se puede cambiar.
+    private val tecnicoEncargadoInicial =
+        if (ingresoId == null) nombreTecnicoInicial.orEmpty().trim().take(FormularioIngreso.MAXIMO_TECNICO) else ""
+
     private val _uiState = MutableStateFlow(
         RegistroUiState(
             ingresoIdEnEdicion = ingresoId,
-            cargandoIngreso = ingresoId != null))
+            cargandoIngreso = ingresoId != null,
+            tecnicoEncargado = tecnicoEncargadoInicial))
 
     val uiState: StateFlow<RegistroUiState> = _uiState.asStateFlow()
 
@@ -414,7 +420,7 @@ class RegistroViewModel(
             _uiState.update {
                 it.copy(registroExitoso = false, idRegistrado = null) }
         } else {
-            val nuevoEstado = RegistroUiState()
+            val nuevoEstado = RegistroUiState(tecnicoEncargado = tecnicoEncargadoInicial)
             formularioInicial = nuevoEstado.aFormulario()
             _uiState.value = nuevoEstado } }
 

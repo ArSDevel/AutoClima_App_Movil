@@ -127,7 +127,7 @@ interface IngresoDao {
             OR INSTR(LOWER(e.motivo), LOWER(:busqueda)) > 0
             OR CAST(e.ingresoId AS TEXT) = :busqueda)
         AND (:accion IS NULL OR e.accion = :accion
-            OR (:accion = 'FOTOS' AND e.accion IN ('EVIDENCIA', 'FOTO_PRINCIPAL', 'EVIDENCIA_ELIMINADA')))
+            OR (:accion = 'FOTOS' AND e.accion IN ('EVIDENCIA', 'FOTO_PRINCIPAL', 'EVIDENCIA_ELIMINADA', 'EVIDENCIA_EDITADA')))
         AND (:desde IS NULL OR e.fecha >= :desde)
         AND (:hasta IS NULL OR e.fecha < :hasta)
         ORDER BY e.fecha DESC, e.eventoId DESC

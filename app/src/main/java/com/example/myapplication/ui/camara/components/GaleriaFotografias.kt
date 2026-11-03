@@ -20,6 +20,9 @@ import coil.compose.AsyncImage
 import com.example.myapplication.R
 import java.io.File
 
+// Largo máximo de la descripción de una foto, el mismo que valida el repositorio.
+private const val MAXIMO_DESCRIPCION = 300
+
 // Cuadrícula de tres columnas compartida por Registro, Evidencias y Diagnóstico.
 // El llamador decide qué cambios están permitidos y cómo se guardan.
 @Composable
@@ -31,9 +34,14 @@ fun GaleriaFotografias(
     onEliminar: ((String) -> Unit)? = null,
     permiteEliminar: (String) -> Boolean = { false },
     aviso: String? = null,
-    mostrarVacio: Boolean = true) {
+    mostrarVacio: Boolean = true,
+    // Descripción de cada foto por su ruta; se muestra al abrirla y puede editarse si se da onEditarDescripcion.
+    descripciones: Map<String, String> = emptyMap(),
+    onEditarDescripcion: ((String, String) -> Unit)? = null) {
     var seleccion by rememberSaveable { mutableStateOf<String?>(null) }
     var confirmarEliminar by rememberSaveable { mutableStateOf(false) }
+    var editandoDescripcion by rememberSaveable { mutableStateOf(false) }
+    var textoDescripcion by rememberSaveable { mutableStateOf("") }
     val fotos = rutas.distinct()
     val colors = MaterialTheme.colorScheme
 
@@ -100,6 +108,24 @@ fun GaleriaFotografias(
                     item {
                         ImagenFotografia(rutaSeleccionada, Modifier.fillMaxWidth().height(300.dp)) }
                     item {
+                        val descripcion = descripciones[rutaSeleccionada].orEmpty()
+                        if (descripcion.isNotBlank() || onEditarDescripcion != null) {
+                            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(stringResource(R.string.fotos_description_label),
+                                    style = MaterialTheme.typography.labelLarge)
+                                Text(
+                                    text = descripcion.ifBlank { stringResource(R.string.fotos_description_empty) },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = if (descripcion.isBlank()) colors.onSurfaceVariant else colors.onSurface)
+                                if (onEditarDescripcion != null) {
+                                    TextButton(
+                                        onClick = {
+                                            textoDescripcion = descripcion
+                                            editandoDescripcion = true },
+                                        enabled = !ocupado
+                                    ) { Text(stringResource(if (descripcion.isBlank()) R.string.fotos_description_add
+                                        else R.string.fotos_description_edit)) } } } } }
+                    item {
                         if (rutaSeleccionada == principal) {
                             Text(stringResource(R.string.fotos_main), color = colors.primary)
                         } else if (onPrincipal != null) {
@@ -126,6 +152,29 @@ fun GaleriaFotografias(
                             enabled = !ocupado,
                             modifier = Modifier.fillMaxWidth()
                         ) { Text(stringResource(R.string.evidence_close)) } } } } }
+        if (editandoDescripcion && onEditarDescripcion != null) {
+            AlertDialog(
+                onDismissRequest = { editandoDescripcion = false },
+                title = { Text(stringResource(R.string.fotos_description_title)) },
+                text = {
+                    OutlinedTextField(
+                        value = textoDescripcion,
+                        onValueChange = { textoDescripcion = it.take(MAXIMO_DESCRIPCION) },
+                        label = { Text(stringResource(R.string.evidence_description)) },
+                        supportingText = {
+                            Text(stringResource(R.string.evidence_description_count, textoDescripcion.length)) },
+                        minLines = 3,
+                        modifier = Modifier.fillMaxWidth()) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            editandoDescripcion = false
+                            onEditarDescripcion(rutaSeleccionada, textoDescripcion.trim())
+                            seleccion = null }
+                    ) { Text(stringResource(R.string.fotos_description_save)) } },
+                dismissButton = {
+                    TextButton(onClick = { editandoDescripcion = false }) {
+                        Text(stringResource(R.string.fotos_cancel)) } }) }
         if (confirmarEliminar) {
             AlertDialog(
                 onDismissRequest = { if (!ocupado) confirmarEliminar = false },

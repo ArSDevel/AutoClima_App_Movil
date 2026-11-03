@@ -172,6 +172,7 @@
     <string name="detalle_event_state">Cambio de estado</string>
     <string name="detalle_event_other">Actividad registrada</string>
     <string name="detalle_event_author">Técnico n.º %1$d</string>
+    <string name="detalle_assigned_technician">Técnico encargado: %1$s</string>
     <string name="detalle_event_transition">%1$s → %2$s</string>
 
     <!-- Respuestas del checklist -->
@@ -357,6 +358,13 @@
     <string name="fotos_event_added">Evidencia agregada</string>
     <string name="fotos_event_main">Fotografía principal actualizada</string>
     <string name="fotos_event_deleted">Evidencia eliminada</string>
+    <string name="fotos_event_description">Descripción de la evidencia actualizada</string>
+    <string name="fotos_description_label">Descripción</string>
+    <string name="fotos_description_empty">Sin descripción. Sale como «Foto» y su número en el reporte.</string>
+    <string name="fotos_description_edit">Editar descripción</string>
+    <string name="fotos_description_add">Agregar descripción</string>
+    <string name="fotos_description_title">Descripción de la fotografía</string>
+    <string name="fotos_description_save">Guardar</string>
 
     <!-- Historial de actividad y flash -->
     <string name="historial_title">Historial</string>
@@ -370,6 +378,7 @@
     <string name="historial_photo">Foto agregada</string>
     <string name="historial_main_photo">Foto principal cambiada</string>
     <string name="historial_deleted_photo">Foto eliminada</string>
+    <string name="historial_edited_photo">Descripción de foto editada</string>
     <string name="historial_other">Otra actividad</string>
     <string name="historial_today">Hoy</string>
     <string name="historial_loading">Cargando actividad…</string>

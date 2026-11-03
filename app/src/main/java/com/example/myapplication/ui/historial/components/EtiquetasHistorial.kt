@@ -17,6 +17,7 @@ fun etiquetaAccionHistorial(accion: String?): Int = when (accion) {
     "EVIDENCIA" -> R.string.historial_photo
     "FOTO_PRINCIPAL" -> R.string.historial_main_photo
     "EVIDENCIA_ELIMINADA" -> R.string.historial_deleted_photo
+    "EVIDENCIA_EDITADA" -> R.string.historial_edited_photo
     else -> R.string.historial_other }
 
 // Texto de cada estado guardado en un evento.

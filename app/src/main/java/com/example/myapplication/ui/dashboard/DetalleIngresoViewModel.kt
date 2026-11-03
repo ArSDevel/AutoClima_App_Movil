@@ -2,6 +2,7 @@ package com.example.myapplication.ui.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.local.entity.EventoIngreso
 import com.example.myapplication.data.local.model.EstadoIngreso
 import com.example.myapplication.data.local.repository.DashboardRepository
 import kotlinx.coroutines.CancellationException
@@ -22,6 +23,8 @@ class DetalleIngresoViewModel(
     val uiState: StateFlow<DetalleIngresoUiState> = _uiState.asStateFlow()
     // Observación activa del expediente; se cancela antes de volver a cargar.
     private var observacionJob: Job? = null
+    // Nombres de técnico ya consultados; el historial vuelve a emitir con cada cambio y no hace falta preguntar otra vez.
+    private val nombresConsultados = mutableMapOf<Long, String>()
     init { cargarDetalle() }
 
     // Observa el expediente y su historial.
@@ -43,9 +46,10 @@ class DetalleIngresoViewModel(
                     repository.observarEventos(ingresoId)) { ingreso, historial ->
                     ingreso to historial
                 }.collect { (ingreso, historial) ->
+                    val nombres = nombresDeTecnicos(historial)
                     _uiState.update { actual ->
                         actual.copy(cargando = false, ingreso = ingreso,
-                            historial = historial,
+                            historial = historial, nombresTecnicos = nombres,
                             ingresoNoEncontrado = ingreso == null && !actual.eliminado,
                             errorCarga = null) } }
             } catch (cancelacion: CancellationException) {
@@ -53,6 +57,12 @@ class DetalleIngresoViewModel(
             } catch (_: Exception) {
                 _uiState.update {
                     it.copy(cargando = false, errorCarga = "No fue posible cargar el ingreso y su historial.") } } } }
+
+    // Nombre de cada técnico que aparece en el historial. Un técnico que ya no existe queda fuera y se muestra su número.
+    private suspend fun nombresDeTecnicos(historial: List<EventoIngreso>): Map<Long, String> {
+        historial.map { it.tecnicoId }.distinct().filter { it !in nombresConsultados }.forEach { id ->
+            repository.obtenerNombreTecnico(id)?.let { nombresConsultados[id] = it } }
+        return nombresConsultados.toMap() }
 
     // Vuelve a cargar el detalle si no hay una operación en curso.
     fun reintentar() {
@@ -68,16 +78,16 @@ class DetalleIngresoViewModel(
                 motivo = "Revisión iniciada.", tecnicoId = tecnicoId) } }
 
     // Avanza de revisión a reparación; el repositorio exige el checklist guardado.
-    fun iniciarReparacion(motivo: String, tecnicoId: Long) {
+    fun iniciarReparacion(tecnicoId: Long) {
         ejecutarOperacion(accion = IngresoAccion.INICIAR_REPARACION) {
             repository.cambiarEstado(ingresoId = ingresoId, destino = EstadoIngreso.EN_REPARACION,
-                motivo = motivo, tecnicoId = tecnicoId) } }
+                motivo = "Reparación iniciada.", tecnicoId = tecnicoId) } }
 
     // Termina la reparación; el repositorio exige el diagnóstico guardado.
-    fun enviarAFirma(motivo: String, tecnicoId: Long) {
+    fun enviarAFirma(tecnicoId: Long) {
         ejecutarOperacion(accion = IngresoAccion.ENVIAR_A_FIRMA) {
             repository.cambiarEstado(ingresoId = ingresoId, destino = EstadoIngreso.LISTO_PARA_FIRMA,
-                motivo = motivo, tecnicoId = tecnicoId) } }
+                motivo = "Reparación terminada; listo para firma.", tecnicoId = tecnicoId) } }
 
     // Regresa el ingreso de listo para firma a en reparación.
     fun devolverAReparacion(motivo: String, tecnicoId: Long) {

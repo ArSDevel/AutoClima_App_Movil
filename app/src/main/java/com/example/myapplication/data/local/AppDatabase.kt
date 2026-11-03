@@ -35,7 +35,7 @@ import com.example.myapplication.data.local.entity.Vehiculo
         ConceptoCotizacion::class,
         Evidencia::class,
         Firma::class],
-    version = 12,
+    version = 13,
     exportSchema = true)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun tecnicoDao(): TecnicoDao
@@ -64,19 +64,21 @@ abstract class AppDatabase : RoomDatabase() {
 
         // Todas las migraciones, de la versión 5 en adelante.
         // Rutas disponibles:
-        // versión 5 a 12, pasando por la 6, la 9, la 10 y la 11
-        // versión 6 a 12, pasando por la 9, la 10 y la 11
-        // versión 8 a 12, pasando por la 9, la 10 y la 11
-        // versión 9 a 12, pasando por la 10 y la 11
-        // versión 10 a 12, pasando por la 11
-        // versión 11 a 12
+        // versión 5 a 13, pasando por la 6, la 9, la 10, la 11 y la 12
+        // versión 6 a 13, pasando por la 9, la 10, la 11 y la 12
+        // versión 8 a 13, pasando por la 9, la 10, la 11 y la 12
+        // versión 9 a 13, pasando por la 10, la 11 y la 12
+        // versión 10 a 13, pasando por la 11 y la 12
+        // versión 11 a 13, pasando por la 12
+        // versión 12 a 13
         private val MIGRACIONES = arrayOf(
             MIGRATION_5_6,
             MIGRATION_6_9,
             MIGRATION_8_9,
             MIGRATION_9_10,
             MIGRATION_10_11,
-            MIGRATION_11_12)
+            MIGRATION_11_12,
+            MIGRATION_12_13)
 
         // Crea una base con el nombre o la ruta indicados. La usa getInstance y también la combinación de respaldos,
         // que abre una copia del respaldo para que sus migraciones lo dejen en la versión actual antes de leerlo.

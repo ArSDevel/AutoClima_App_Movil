@@ -59,6 +59,9 @@ interface EvidenciaDao {
     @Query("SELECT * FROM tabla_evidencias WHERE ingresoId = :ingresoId ORDER BY fecha DESC, id DESC")
     suspend fun obtenerPorIngreso(ingresoId: Long): List<Evidencia>
 
+    // Cambia la descripción de una fotografía y devuelve las filas actualizadas.
+    @Query("UPDATE tabla_evidencias SET descripcion = :descripcion WHERE id = :id AND ingresoId = :ingresoId")
+    suspend fun actualizarDescripcion(id: Int, ingresoId: Long, descripcion: String): Int
     // Elimina una fotografía de un ingreso y devuelve las filas afectadas.
     @Query("DELETE FROM tabla_evidencias WHERE id = :id AND ingresoId = :ingresoId")
     suspend fun eliminar(id: Int, ingresoId: Long): Int

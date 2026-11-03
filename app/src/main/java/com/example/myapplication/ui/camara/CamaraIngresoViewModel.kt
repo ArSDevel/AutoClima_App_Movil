@@ -209,6 +209,11 @@ class CamaraIngresoViewModel(
         ejecutarCambio("Fotografía eliminada.") {
             repository.eliminar(ingresoId, evidenciaId, tecnicoId) } }
 
+    // Cambia la descripción de una fotografía guardada.
+    fun actualizarDescripcion(evidenciaId: Int, descripcion: String, tecnicoId: Long) {
+        ejecutarCambio("Descripción guardada.") {
+            repository.actualizarDescripcion(ingresoId, evidenciaId, descripcion, tecnicoId) } }
+
     // Ejecuta un cambio en la galería y muestra su resultado.
     private fun ejecutarCambio(mensaje: String, operacion: suspend () -> Unit) {
         val actual = _uiState.value

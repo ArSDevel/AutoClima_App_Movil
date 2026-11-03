@@ -67,19 +67,6 @@ class EnvioReporteViewModel(
         if (_uiState.value.fase == FaseEnvio.PREPARANDO) return
         _uiState.update { it.copy(fase = FaseEnvio.LIBRE, error = null) } }
 
-    // Abre la conversación con el cliente, aunque no esté en los contactos del teléfono.
-    fun abrirChat(telefonoCliente: String, mensaje: String = "") {
-        if (_uiState.value.fase == FaseEnvio.PREPARANDO) return
-        val telefono = FormatoReporte.telefonoWhatsApp(telefonoCliente)
-        if (telefono == null) {
-            _uiState.update { it.copy(fase = FaseEnvio.ERROR,
-                error = "El teléfono del cliente no es válido. Corrígelo desde Editar.") }
-            return }
-        viewModelScope.launch {
-            val resultado = envio.abrirChat(telefono, mensaje)
-            if (resultado is ResultadoEnvio.Error) {
-                _uiState.update { it.copy(fase = FaseEnvio.ERROR, error = resultado.mensaje) } } } }
-
     // Genera el PDF, lo entrega al servicio de envío y registra el envío en el historial; LISTO no confirma que el
     // cliente lo reciba.
     fun enviar(datos: DatosReporte, mensaje: String, tecnicoId: Long) {

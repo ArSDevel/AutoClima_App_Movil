@@ -497,7 +497,8 @@ fun AutoClimaApp() {
                             RegistroViewModelFactory(
                                 repo = registroRepository,
                                 dashboardRepository = dashboardRepository,
-                                ingresoId = key.ingresoId) }
+                                ingresoId = key.ingresoId,
+                                nombreTecnicoInicial = uiState.nombreTecnico) }
 
                         val registroViewModel: RegistroViewModel =
                             viewModel(factory = registroFactory)

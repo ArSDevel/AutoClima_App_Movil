@@ -10,8 +10,9 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 
 // Abre WhatsApp con los archivos y el mensaje listos; el técnico elige el chat del cliente y pulsa enviar.
-// No se indica el número en el envío de archivos porque WhatsApp ignora el destino cuando hay adjuntos.
-// Para un cliente que no está en los contactos, abrirChat crea primero su conversación.
+// No se indica el número en el envío de archivos porque WhatsApp ignora el destino cuando hay adjuntos,
+// así que el cliente debe estar entre los contactos o los chats recientes.
+// El mensaje también se deja copiado para pegarlo si WhatsApp lo ignora al compartir un PDF.
 // No usa servidores propios.
 class EnvioPorWhatsApp(
     private val contexto: Context,
@@ -37,20 +38,6 @@ class EnvioPorWhatsApp(
             val intento = crearIntento(solicitud, uris, paquete)
             try {
                 lanzar(if (paquete == null) Intent.createChooser(intento, null) else intento)
-                return ResultadoEnvio.Listo
-            } catch (_: ActivityNotFoundException) {
-                continue } }
-        return ResultadoEnvio.Error("No se encontró WhatsApp en este teléfono.") }
-
-    // Abre la conversación con el número, aunque no esté en los contactos.
-    override suspend fun abrirChat(telefono: String, mensaje: String): ResultadoEnvio {
-        val direccion = Uri.parse(if (mensaje.isBlank()) "https://wa.me/$telefono"
-            else "https://wa.me/$telefono?text=${Uri.encode(mensaje)}")
-        for (paquete in listOf("com.whatsapp", "com.whatsapp.w4b", null)) {
-            val intento = Intent(Intent.ACTION_VIEW, direccion)
-            if (paquete != null) intento.setPackage(paquete)
-            try {
-                lanzar(intento)
                 return ResultadoEnvio.Listo
             } catch (_: ActivityNotFoundException) {
                 continue } }
